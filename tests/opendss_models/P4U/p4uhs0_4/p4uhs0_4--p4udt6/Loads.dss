@@ -1,6 +1,0 @@
-New Load.load_p4ulv4 conn=wye bus1=p4ulv4.1.2.3 kV=0.48 Vminpu=0.8 Vmaxpu=1.2 model=1 kW=155.2544186149828 kvar=45.87989333369758 Phases=3 !yearly=com_kw_29570_pu
-
-New Load.load_p4ulv7 conn=wye bus1=p4ulv7.1.2.3 kV=0.48 Vminpu=0.8 Vmaxpu=1.2 model=1 kW=366.46962507781535 kvar=108.59555524521417 Phases=3 !yearly=com_kw_21256_pu
-
-New Load.load_p4ulv39 conn=wye bus1=p4ulv39.1.2.3 kV=0.48 Vminpu=0.8 Vmaxpu=1.2 model=1 kW=176.96615912590272 kvar=52.254021468837614 Phases=3 !yearly=com_kw_15998_pu
-

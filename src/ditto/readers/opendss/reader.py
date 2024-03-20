@@ -56,8 +56,8 @@ class Reader(AbscractReader):
         self.system.components.add(*loads)
         voltage_sources = get_voltage_sources(self.system, dss)
         self.system.components.add(*voltage_sources)
-        branches = get_ac_lines(self.system, dss)
-        self.system.components.add(*branches)
+        # branches = get_ac_lines(self.system, dss)
+        # self.system.components.add(*branches)
         transformers = get_transformers(self.system, dss)
         self.system.components.add(*transformers)
 

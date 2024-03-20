@@ -108,5 +108,6 @@ def _is_center_tapped()-> bool:
     Returns:
         bool: _description_
     """    
-    # TODO: implment the correct logic here
+    
+    # TODO: implement the correct logic here
     return False

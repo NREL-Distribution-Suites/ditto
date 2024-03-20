@@ -9,10 +9,13 @@ from gdm.quantities import (
 )
 from gdm import (
     MatrixImpedanceBranchEquipment,
+    GeometryBranchEquipment,
     MatrixImpedanceBranch, 
     DistributionBus, 
     ThermalLimitSet,
     GeometryBranch, 
+    ConcentricCableEquipment,
+    BareConductorEquipment,
 )
 import opendssdirect
 import numpy as np
@@ -45,13 +48,14 @@ def get_ac_lines(system:System, dss:opendssdirect) -> list[MatrixImpedanceBranch
                         system, dss, section_name, bus1, bus2, nodes, num_phase
                     )
                 )
-            else:
+            elif dss.Lines.LineCode():
                 edges.append(
                     _build_branch_using_martices(
                         system, dss, section_name, bus1, bus2, nodes, num_phase
                     )
                 )
-                ...
+            else:
+                raise ValueError("Line mode sholf have either LineCode or Geometry property defined")
         flag = dss.Lines.Next()
     return edges
 
@@ -81,8 +85,29 @@ def _build_branch_using_geometry(
     Returns:
         GeometryBranch: returns a GeometryBranch object
     """   
-     
+    
+    thermal_limits = ThermalLimitSet(
+        limit_type="max",
+        value=PositiveCurrent(dss.Lines.EmergAmps(), "ampere"),
+    )
+    system.add_component(thermal_limits)
+    cmd = f"? {section_name}.units"
+    length_units = dss.run_command(cmd)
+    matrix_branch_equipment = GeometryBranchEquipment(
+        name=section_name + "_equipment",
+        # conductors=,
+        # spacing_sequences=
+        # horizontal_spacings=
+        # heights,
+        ampacity=PositiveCurrent(dss.Lines.NormAmps(), "ampere"),
+        loading_limit=thermal_limits,
+    )
+    system.add_component(matrix_branch_equipment)
+    
+    
     raise NotImplementedError("Geometry line type not yet implemented")
+    
+    
     branch = []
     return branch
 

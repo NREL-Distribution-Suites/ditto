@@ -24,5 +24,7 @@ UNIT_MAPPER = {
 class LoadTypes(IntEnum):
     CONST_POWER = 1
     CONST_IMPEDANCE = 2
+    CONST_P__QUARDRATIC_Q = 3
+    LINEAR_P__QUARDRATIC_Q = 4
     CONST_CURRENT = 5
     ZIP = 8

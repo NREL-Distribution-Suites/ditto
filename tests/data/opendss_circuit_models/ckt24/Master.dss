@@ -15,14 +15,3 @@ Compile "master_ckt24.dss"
 ! Note:adding full path name in brackets will avoid having to manually change to this directory
 
 solve
-
-! example circuit plots
-plot type=circuit quantity=Power    Max=2000 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
-plot type=circuit quantity=Voltage Max=0.95 dots=n labels=n subs=y C1=Blue  1phlinestyle=3
-
-! Loss Density Plot
-plot type=circuit quantity=Losses  max=0.002     dots=n labels=n subs=y C1=Blue   1phlinestyle=3
-
-! to run an example yearly simulation, remove comment and run this script:
-
-// redirect annualsimulation.dss

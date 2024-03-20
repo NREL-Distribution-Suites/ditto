@@ -166,4 +166,7 @@ cython_debug/
 *.json
 *.txt
 *.TXT
-
+*.DSV
+*.dsv
+*.dbl
+*.DBL

@@ -60,6 +60,19 @@ def get_loads(system:System, dss:opendssdirect) -> list[DistributionLoad]:
                     i_imag=ReactivePower(kvar_per_phase * zip_params[4], "kilovar"),
                     p_real=ActivePower(kw_per_phase * zip_params[2], "kilowatt"),
                     p_imag=ReactivePower(kvar_per_phase * zip_params[5], "kilovar"),
+                )          
+            elif model == LoadTypes.CONST_P__QUARDRATIC_Q:
+                load = PhaseLoadEquipment(
+                    name=f"{load_name}_{el}",
+                    z_imag=ReactivePower(kvar_per_phase * zip_params[3], "kilovar"),
+                    p_real=ActivePower(kw_per_phase * zip_params[2], "kilowatt"),
+            
+                )    
+            elif model == LoadTypes.LINEAR_P__QUARDRATIC_Q:
+                load = PhaseLoadEquipment(
+                    name=f"{load_name}_{el}",
+                    z_imag=ReactivePower(kvar_per_phase * zip_params[3], "kilovar"),
+                    i_real=ActivePower(kw_per_phase * zip_params[1], "kilowatt"),
                 )
             else:
                 msg = f"Invalid load model type {model} passed. valid options are {LoadTypes}"

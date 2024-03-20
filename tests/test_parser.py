@@ -14,7 +14,4 @@ def test_serialize_model(opendss_file: Path, tmp_path):
     system = parser.get_system()
     json_path = Path(tmp_path) / (opendss_file.stem.lower() + ".json")
     system.to_json(json_path, overwrite=True)
-    print(json_path)
-    import os
-    os.system("pause")
     assert json_path.exists, "Failed to export the json file"

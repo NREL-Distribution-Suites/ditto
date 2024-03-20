@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from ditto.readers.opendss import OpenDSS
+from ditto.readers.opendss.reader import Reader
 
 OPENDSS_CASEFILES = (Path(__file__).parent / "opendss_models").rglob("Master.dss")
 
 
 @pytest.mark.parametrize("opendss_file", OPENDSS_CASEFILES)
 def test_serialize_model(opendss_file: Path, tmp_path):
-    parser = OpenDSS(opendss_file)
+    parser = Reader(opendss_file)
     system = parser.get_system()
     json_path = Path(tmp_path) / (opendss_file.stem.lower() + ".json")
     system.to_json(json_path, overwrite=True)

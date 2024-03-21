@@ -5,13 +5,15 @@ from gdm import DistributionSystem
 from gdm import SequencePair
 import opendssdirect as odd
 
-from ditto.readers.reader import AbscractReader
-from ditto.readers.opendss.buses import get_buses
-from ditto.readers.opendss.loads import get_loads
+from ditto.readers.opendss.sources import get_voltage_sources, get_voltage_source_equipments
 from ditto.readers.opendss.transformers import get_transformers, get_transformer_equipments
 from ditto.readers.opendss.capacitors import get_capacitors, get_capacitor_equipments
-from ditto.readers.opendss.sources import get_voltage_sources, get_voltage_source_equipments
+from ditto.readers.opendss.conductors import get_conductors_equipment
+from ditto.readers.opendss.cables import get_cables_equipment
 from ditto.readers.opendss.lines import get_ac_lines
+from ditto.readers.opendss.loads import get_loads
+from ditto.readers.opendss.buses import get_buses
+from ditto.readers.reader import AbscractReader
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 
@@ -46,9 +48,9 @@ class Reader(AbscractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
-       
+
         self.system = System(name=odd.Circuit.Name(), auto_add_composed_components=True)
-       
+
         buses = get_buses(self.system, self.crs)
         self.system.components.add(*buses)
         voltage_source_equipments = get_voltage_source_equipments()
@@ -58,21 +60,20 @@ class Reader(AbscractReader):
         capacitor_equipments = get_capacitor_equipments()
         self.system.components.add(*capacitor_equipments)
         caps = get_capacitors(self.system)
-        self.system.components.add(*caps)        
-        
-        #TODO: should unique load equiments be calatoged to reduce replicated objects? 
+        self.system.components.add(*caps)
+        # TODO: should unique load equiments be calatoged to reduce replicated objects?
         loads = get_loads(self.system)
         self.system.components.add(*loads)
-        
         transformer_equipments = get_transformer_equipments(self.system)
         self.system.components.add(*transformer_equipments)
         transformers = get_transformers(self.system)
         self.system.components.add(*transformers)
-        
-        
-        # # branches = get_ac_lines(self.system, odd)
-        # # self.system.components.add(*branches)
-       
+        conductor_equipment = get_conductors_equipment()
+        self.system.components.add(*conductor_equipment)
+        concentric_cable_equipment = get_cables_equipment()
+        self.system.components.add(*concentric_cable_equipment)
+        branches = get_ac_lines(self.system)
+        self.system.components.add(*branches)
 
     def get_system(self) -> System:
         """Returns an instance of DistributionSystem
@@ -82,12 +83,3 @@ class Reader(AbscractReader):
         """
 
         return self.system
-    
-
-    
-
-   
-
-   
-
-  

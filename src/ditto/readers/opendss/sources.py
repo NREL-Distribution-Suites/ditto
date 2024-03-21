@@ -1,23 +1,29 @@
 from uuid import uuid4
 
-from gdm import DistributionBus, PhaseVoltageSourceEquipment, VoltageSourceEquipment, DistributionVoltageSource
-from gdm.quantities import Reactance
+from gdm import (
+    DistributionBus,
+    PhaseVoltageSourceEquipment,
+    VoltageSourceEquipment,
+    DistributionVoltageSource,
+)
 from infrasys.quantities import Angle, Resistance, Voltage
+from gdm.quantities import Reactance
 from infrasys.system import System
 import opendssdirect as odd
 
 
 from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
 
-def _build_voltage_source_equipment()-> tuple[VoltageSourceEquipment, list[str], str, list[str]]:
+
+def _build_voltage_source_equipment() -> tuple[VoltageSourceEquipment, list[str], str, list[str]]:
     """Helper function to build a VoltageSourceEquipment instance
 
     Returns:
         VoltageSourceEquipment: instance of VoltageSourceEquipment
         list[str]: List of buses
         str:  Voltage source name
-        list[str]: List of phases 
-    """    
+        list[str]: List of phases
+    """
     equipment_uuid = uuid4()
     soure_name = odd.Vsources.Name().lower()
     buses = odd.CktElement.BusNames()
@@ -27,7 +33,7 @@ def _build_voltage_source_equipment()-> tuple[VoltageSourceEquipment, list[str],
     angles = [Angle(angle + i * (360.0 / num_phase), "degree") for i in range(num_phase)]
     phase_slacks = []
     phase_src_properties = {}
-    
+
     for ppty in ["r0", "r1", "x0", "x1"]:
         command_str = f"? vsource.{soure_name}.{ppty}"
         result = odd.run_command(command_str)
@@ -52,13 +58,14 @@ def _build_voltage_source_equipment()-> tuple[VoltageSourceEquipment, list[str],
     )
     return slack_equipment, buses, soure_name, nodes
 
+
 def get_voltage_source_equipments() -> list[VoltageSourceEquipment]:
     """Function to return list of all voltage sources equipments in Opendss model.
 
     Returns:
         list[VoltageSourceEquipment]: List of VoltageSourceEquipment objects
-    """    
-    
+    """
+
     voltage_sources_equipment_catalog = []
     voltage_sources_equipments = []
     flag = odd.Vsources.First()
@@ -71,10 +78,9 @@ def get_voltage_source_equipments() -> list[VoltageSourceEquipment]:
 
         flag = odd.Vsources.Next()
     return voltage_sources_equipments
-    
 
 
-def get_voltage_sources(system:System) -> list[DistributionVoltageSource]:
+def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
     """Function to return list of all voltage sources in Opendss model.
 
     Args:
@@ -82,19 +88,21 @@ def get_voltage_sources(system:System) -> list[DistributionVoltageSource]:
 
     Returns:
         list[DistributionVoltageSource]: List of DistributionVoltageSource objects
-    """    
+    """
 
     voltage_sources = []
     flag = odd.Vsources.First()
     while flag:
         slack_equipment, buses, soure_name, nodes = _build_voltage_source_equipment()
-        equipment_from_libray = get_equipment_from_system(slack_equipment, VoltageSourceEquipment, system)
+        equipment_from_libray = get_equipment_from_system(
+            slack_equipment, VoltageSourceEquipment, system
+        )
         if equipment_from_libray:
             equipment = equipment_from_libray
         else:
             equipment = slack_equipment
         bus1 = buses[0].split(".")[0]
-        
+
         voltage_source = DistributionVoltageSource(
             name=soure_name,
             bus=system.components.get(DistributionBus, bus1),

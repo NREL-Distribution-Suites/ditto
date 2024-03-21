@@ -1,0 +1,79 @@
+from gdm.quantities import (
+    PositiveCurrent,
+    PositiveDistance,
+    PositiveResistancePULength,
+    PositiveVoltage,
+)
+from gdm import ConcentricCableEquipment
+from pydantic import PositiveInt
+import opendssdirect as odd
+
+
+from ditto.readers.opendss.common import query_model_data
+
+
+def get_cables_equipment() -> list[ConcentricCableEquipment]:
+    """Method returns a list of ConcentricCableEquipment objects
+
+    Returns:
+        list[ConcentricCableEquipment]: list of ConcentricCableEquipment
+    """
+
+    model_type = "CNData"
+    cables = []
+    odd.Circuit.SetActiveClass(model_type)
+    flag = odd.ActiveClass.First()
+    while flag > 0:
+        model_name = odd.Element.Name().lower().split(".")[1]
+        gmr_units = query_model_data(model_type, model_name, "gmrunits", str)
+        radius_units = query_model_data(model_type, model_name, "radunits", str)
+        length_units = query_model_data(model_type, model_name, "runits", str)
+
+        gmr = query_model_data(model_type, model_name, "gmr", float)
+        diam = query_model_data(model_type, model_name, "diam", float)
+        gmr_strand = query_model_data(model_type, model_name, "gmr", float)
+        diam_strand = query_model_data(model_type, model_name, "diam", float)
+
+        cables = ConcentricCableEquipment(
+            strand_ac_resistance=PositiveResistancePULength(
+                query_model_data(model_type, model_name, "rstrand", float), f"ohms/{length_units}"
+            ),
+            dc_resistance=PositiveResistancePULength(
+                query_model_data(model_type, model_name, "rdc", float), f"ohms/{length_units}"
+            ),
+            phase_ac_resistance=PositiveResistancePULength(
+                query_model_data(model_type, model_name, "rac", float), f"ohms/{length_units}"
+            ),
+            strand_gmr=PositiveDistance(
+                gmr_strand if gmr_strand else diam_strand * 0.7788, f"{radius_units}"
+            ),
+            strand_diameter=PositiveDistance(
+                diam_strand if diam_strand else gmr_strand / 0.7788, f"{radius_units}"
+            ),
+            ampacity=PositiveCurrent(
+                query_model_data(model_type, model_name, "normamps", float), "ampere"
+            ),
+            emergency_ampacity=PositiveCurrent(
+                query_model_data(model_type, model_name, "emergamps", float), "ampere"
+            ),
+            insulation_thickness=PositiveDistance(
+                query_model_data(model_type, model_name, "InsLayer", float), "ampere"
+            ),
+            cable_diameter=PositiveDistance(
+                query_model_data(model_type, model_name, "DiaCable", float), "ampere"
+            ),
+            insulation_diameter=PositiveDistance(
+                query_model_data(model_type, model_name, "diains", float), "ampere"
+            ),
+            num_neutral_strands=PositiveInt(
+                query_model_data(model_type, model_name, "k", int), "ampere"
+            ),
+            conductor_diameter=PositiveDistance(diam if diam else gmr / 0.7788, f"{radius_units}"),
+            conductor_gmr=PositiveDistance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
+            rated_voltage=PositiveVoltage(12.47, "volts"),
+            loading_limit=None,
+            name=model_type,
+        )
+        cables.append(cables)
+        flag = odd.ActiveClass.Next()
+    return cables

@@ -1,28 +1,26 @@
-
-from infrasys.system import System 
+from infrasys.system import System
 from gdm.quantities import (
-    PositiveResistancePULength, 
-    CapacitancePULength, 
-    ReactancePULength, 
+    PositiveResistancePULength,
+    CapacitancePULength,
+    ReactancePULength,
     PositiveDistance,
-    PositiveCurrent, 
+    PositiveCurrent,
 )
 from gdm import (
     MatrixImpedanceBranchEquipment,
     GeometryBranchEquipment,
-    MatrixImpedanceBranch, 
-    DistributionBus, 
+    MatrixImpedanceBranch,
+    DistributionBus,
     ThermalLimitSet,
-    GeometryBranch, 
-    ConcentricCableEquipment,
-    BareConductorEquipment,
+    GeometryBranch,
 )
 import opendssdirect as odd
 import numpy as np
 
 from ditto.readers.opendss.common import PHASE_MAPPER, UNIT_MAPPER
 
-def get_ac_lines(system:System) -> list[MatrixImpedanceBranch | GeometryBranch]:
+
+def get_ac_lines(system: System) -> list[MatrixImpedanceBranch | GeometryBranch]:
     """Function to return list of all line segments in Opendss model.
 
     Args:
@@ -30,7 +28,7 @@ def get_ac_lines(system:System) -> list[MatrixImpedanceBranch | GeometryBranch]:
 
     Returns:
         list[MatrixImpedanceBranch | GeometryBranch]: List of line segment metadata object
-    """    
+    """
 
     edges = []
     flag = odd.Lines.First()
@@ -44,28 +42,26 @@ def get_ac_lines(system:System) -> list[MatrixImpedanceBranch | GeometryBranch]:
             if odd.Lines.Geometry():
                 edges.append(
                     _build_branch_using_geometry(
-                        system, odd, section_name, bus1, bus2, nodes, num_phase
+                        system, section_name, bus1, bus2, nodes, num_phase
                     )
                 )
             elif odd.Lines.LineCode():
                 edges.append(
                     _build_branch_using_martices(
-                        system, odd, section_name, bus1, bus2, nodes, num_phase
+                        system, section_name, bus1, bus2, nodes, num_phase
                     )
                 )
             else:
-                raise ValueError("Line mode sholf have either LineCode or Geometry property defined")
+                raise ValueError(
+                    "Line mode sholf have either LineCode or Geometry property defined"
+                )
         flag = odd.Lines.Next()
     return edges
 
+
 def _build_branch_using_geometry(
-        system:System, 
-        section_name: str,
-        bus1: str, 
-        bus2: str, 
-        nodes: list[str], 
-        num_phase: int
-    ) -> GeometryBranch:
+    system: System, section_name: str, bus1: str, bus2: str, nodes: list[str], num_phase: int
+) -> GeometryBranch:
     """Method to build a GeometryBranch
 
     Args:
@@ -81,15 +77,15 @@ def _build_branch_using_geometry(
 
     Returns:
         GeometryBranch: returns a GeometryBranch object
-    """   
-    
+    """
+
     thermal_limits = ThermalLimitSet(
         limit_type="max",
         value=PositiveCurrent(odd.Lines.EmergAmps(), "ampere"),
     )
     system.add_component(thermal_limits)
-    cmd = f"? {section_name}.units"
-    length_units = odd.run_command(cmd)
+    # cmd = f"? {section_name}.units"
+    # length_units = odd.run_command(cmd)
     matrix_branch_equipment = GeometryBranchEquipment(
         name=section_name + "_equipment",
         # conductors=,
@@ -100,22 +96,16 @@ def _build_branch_using_geometry(
         loading_limit=thermal_limits,
     )
     system.add_component(matrix_branch_equipment)
-    
-    
+
     raise NotImplementedError("Geometry line type not yet implemented")
-    
-    
+
     branch = []
     return branch
 
+
 def _build_branch_using_martices(
-        system:System, 
-        section_name: str, 
-        bus1: str, 
-        bus2: str, 
-        nodes: list[str], 
-        num_phase: int
-    ) -> MatrixImpedanceBranch:
+    system: System, section_name: str, bus1: str, bus2: str, nodes: list[str], num_phase: int
+) -> MatrixImpedanceBranch:
     """Method to build a MatrixImpedanceBranch
 
     Args:
@@ -125,11 +115,11 @@ def _build_branch_using_martices(
         bus2 (str): To bus for the line
         nodes (list[str]): list of Phase objects
         num_phase (int): Number of connected phases
-        
+
     Returns:
         MatrixImpedanceBranch: returns a MatrixImpedanceBranch object
-    """    
-    
+    """
+
     thermal_limits = ThermalLimitSet(
         limit_type="max",
         value=PositiveCurrent(odd.Lines.EmergAmps(), "ampere"),

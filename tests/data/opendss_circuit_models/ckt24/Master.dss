@@ -1,7 +1,7 @@
 
 !! Solution Run Script for Ckt24
 
-! generally when running from OpenDSS.EXE you will open this file first and control
+! generally when running from Opendss.EXE you will open this file first and control
 ! the execution from here. Add any commands you wish.
 
 ! Ckt24 consists of

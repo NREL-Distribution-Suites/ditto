@@ -5,7 +5,7 @@ import pytest
 
 from ditto.readers.opendss.reader import Reader
 
-OPENDSS_CASEFILES = (Path(__file__).parent / "data"/ "opendss_circuit_models").rglob("Master.dss")
+OPENDSS_CASEFILES = (Path(__file__).parent / "data"/ "Opendss_circuit_models").rglob("Master.dss")
 
 
 @pytest.mark.parametrize("opendss_file", OPENDSS_CASEFILES)

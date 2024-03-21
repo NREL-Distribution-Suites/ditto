@@ -1,8 +1,8 @@
 ! - - - - - - NOTE - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !
 ! These definitions assign Z1 and Z0 values to 1-phase and 2-phase lines, which is not technically correct
-! And is discouraged in OpenDSS. This is the way the line codes were defined in the original source data.
-! Check the resulting impedance matrix to verify that it is what you want and not misinterpreted by OpenDSS
+! And is discouraged in Opendss. This is the way the line codes were defined in the original source data.
+! Check the resulting impedance matrix to verify that it is what you want and not misinterpreted by Opendss
 !
 !
 

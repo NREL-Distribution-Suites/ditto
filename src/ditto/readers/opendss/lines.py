@@ -17,51 +17,49 @@ from gdm import (
     ConcentricCableEquipment,
     BareConductorEquipment,
 )
-import opendssdirect
+import opendssdirect as odd
 import numpy as np
 
 from ditto.readers.opendss.common import PHASE_MAPPER, UNIT_MAPPER
 
-def get_ac_lines(system:System, dss:opendssdirect) -> list[MatrixImpedanceBranch | GeometryBranch]:
-    """Function to return list of all line segments in opendss model.
+def get_ac_lines(system:System) -> list[MatrixImpedanceBranch | GeometryBranch]:
+    """Function to return list of all line segments in Opendss model.
 
     Args:
         system (System): Instance of System
-        dss (opendssdirect): Instance of OpenDSS simulator
 
     Returns:
         list[MatrixImpedanceBranch | GeometryBranch]: List of line segment metadata object
     """    
 
     edges = []
-    flag = dss.Lines.First()
+    flag = odd.Lines.First()
     while flag > 0:
-        if not dss.Lines.IsSwitch():
-            section_name = dss.CktElement.Name().lower()
-            buses = dss.CktElement.BusNames()
+        if not odd.Lines.IsSwitch():
+            section_name = odd.CktElement.Name().lower()
+            buses = odd.CktElement.BusNames()
             bus1, bus2 = buses[0].split(".")[0], buses[1].split(".")[0]
-            num_phase = dss.CktElement.NumPhases()
+            num_phase = odd.CktElement.NumPhases()
             nodes = ["1", "2", "3"] if num_phase == 3 else buses[0].split(".")[1:]
-            if dss.Lines.Geometry():
+            if odd.Lines.Geometry():
                 edges.append(
                     _build_branch_using_geometry(
-                        system, dss, section_name, bus1, bus2, nodes, num_phase
+                        system, odd, section_name, bus1, bus2, nodes, num_phase
                     )
                 )
-            elif dss.Lines.LineCode():
+            elif odd.Lines.LineCode():
                 edges.append(
                     _build_branch_using_martices(
-                        system, dss, section_name, bus1, bus2, nodes, num_phase
+                        system, odd, section_name, bus1, bus2, nodes, num_phase
                     )
                 )
             else:
                 raise ValueError("Line mode sholf have either LineCode or Geometry property defined")
-        flag = dss.Lines.Next()
+        flag = odd.Lines.Next()
     return edges
 
 def _build_branch_using_geometry(
         system:System, 
-        dss:opendssdirect,
         section_name: str,
         bus1: str, 
         bus2: str, 
@@ -72,7 +70,6 @@ def _build_branch_using_geometry(
 
     Args:
         system (System): Instance of System
-        dss (opendssdirect): Instance of OpenDSS simulator
         section_name (str): line section unique identifier
         bus1 (str): From bus for the line
         bus2 (str): To bus for the line
@@ -88,18 +85,18 @@ def _build_branch_using_geometry(
     
     thermal_limits = ThermalLimitSet(
         limit_type="max",
-        value=PositiveCurrent(dss.Lines.EmergAmps(), "ampere"),
+        value=PositiveCurrent(odd.Lines.EmergAmps(), "ampere"),
     )
     system.add_component(thermal_limits)
     cmd = f"? {section_name}.units"
-    length_units = dss.run_command(cmd)
+    length_units = odd.run_command(cmd)
     matrix_branch_equipment = GeometryBranchEquipment(
         name=section_name + "_equipment",
         # conductors=,
         # spacing_sequences=
         # horizontal_spacings=
         # heights,
-        ampacity=PositiveCurrent(dss.Lines.NormAmps(), "ampere"),
+        ampacity=PositiveCurrent(odd.Lines.NormAmps(), "ampere"),
         loading_limit=thermal_limits,
     )
     system.add_component(matrix_branch_equipment)
@@ -113,7 +110,6 @@ def _build_branch_using_geometry(
 
 def _build_branch_using_martices(
         system:System, 
-        dss:opendssdirect,
         section_name: str, 
         bus1: str, 
         bus2: str, 
@@ -124,7 +120,6 @@ def _build_branch_using_martices(
 
     Args:
         system (System): Instance of System
-        dss (opendssdirect): Instance of OpenDSS simulator
         section_name (str): line section unique identifier
         bus1 (str): From bus for the line
         bus2 (str): To bus for the line
@@ -137,26 +132,26 @@ def _build_branch_using_martices(
     
     thermal_limits = ThermalLimitSet(
         limit_type="max",
-        value=PositiveCurrent(dss.Lines.EmergAmps(), "ampere"),
+        value=PositiveCurrent(odd.Lines.EmergAmps(), "ampere"),
     )
     system.add_component(thermal_limits)
     cmd = f"? {section_name}.units"
-    length_units = dss.run_command(cmd)
+    length_units = odd.run_command(cmd)
     matrix_branch_equipment = MatrixImpedanceBranchEquipment(
         name=section_name + "_equipment",
         r_matrix=PositiveResistancePULength(
-            np.reshape(np.array(dss.Lines.RMatrix()), (num_phase, num_phase)),
+            np.reshape(np.array(odd.Lines.RMatrix()), (num_phase, num_phase)),
             f"ohm/{length_units}",
         ),
         x_matrix=ReactancePULength(
-            np.reshape(np.array(dss.Lines.XMatrix()), (num_phase, num_phase)),
+            np.reshape(np.array(odd.Lines.XMatrix()), (num_phase, num_phase)),
             f"ohm/{length_units}",
         ),
         c_matrix=CapacitancePULength(
-            np.reshape(np.array(dss.Lines.CMatrix()), (num_phase, num_phase)),
+            np.reshape(np.array(odd.Lines.CMatrix()), (num_phase, num_phase)),
             f"nanofarad/{length_units}",
         ),
-        ampacity=PositiveCurrent(dss.Lines.NormAmps(), "ampere"),
+        ampacity=PositiveCurrent(odd.Lines.NormAmps(), "ampere"),
         loading_limit=thermal_limits,
     )
     system.add_component(matrix_branch_equipment)
@@ -167,9 +162,9 @@ def _build_branch_using_martices(
             system.components.get(DistributionBus, bus1),
             system.components.get(DistributionBus, bus2),
         ],
-        length=PositiveDistance(dss.Lines.Length(), UNIT_MAPPER[dss.Lines.Units()]),
+        length=PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
         phases=[PHASE_MAPPER[node] for node in nodes],
         equipment=matrix_branch_equipment,
-        is_closed=dss.CktElement.Enabled(),
+        is_closed=odd.CktElement.Enabled(),
     )
     return branch

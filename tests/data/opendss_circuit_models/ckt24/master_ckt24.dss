@@ -28,7 +28,7 @@ Redirect Other_Load_ckt24.dss
 ! set the initial allocation factors based on previousload allocations
 Redirect  AllocationFactors_Base.Txt  !!! R=7 Vset=123
 
-! Let OpenDSS define the voltage bases
+! Let Opendss define the voltage bases
 Set voltagebases=[230,34.5,13.2,0.48,0.415,0.208]   ! Allowable voltage bases for this problem
 Calcvoltagebases
 

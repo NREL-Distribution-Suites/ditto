@@ -3,16 +3,15 @@ from gdm import DistributionBus, VoltageLimitSet, VoltageTypes
 from gdm.quantities import PositiveVoltage
 from infrasys.location import Location
 from infrasys.system import System
-import opendssdirect
+import opendssdirect as odd
 
 from ditto.readers.opendss.common import PHASE_MAPPER
 
-def get_buses(system:System, dss:opendssdirect,  crs: str = None) -> list[DistributionBus]:
-    """Function to return list of all buses in opendss model
+def get_buses(system:System, crs: str = None) -> list[DistributionBus]:
+    """Function to return list of all buses in Opendss model
 
     Args:
         system (System): Instance of System
-        dss (opendssdirect): Instance of OpenDSS simulator
         crs (str, optional): Coordinate reference system name. Defaults to None.
 
     Returns:
@@ -21,11 +20,11 @@ def get_buses(system:System, dss:opendssdirect,  crs: str = None) -> list[Distri
         
     buses = []
 
-    for bus in dss.Circuit.AllBusNames():
-        dss.Circuit.SetActiveBus(bus)
-        nominal_voltage = dss.Bus.kVBase()
+    for bus in odd.Circuit.AllBusNames():
+        odd.Circuit.SetActiveBus(bus)
+        nominal_voltage = odd.Bus.kVBase()
 
-        loc = Location(x=dss.Bus.Y(), y=dss.Bus.X(), crs=crs)
+        loc = Location(x=odd.Bus.Y(), y=odd.Bus.X(), crs=crs)
         system.add_component(loc)
 
         limitsets = [
@@ -44,7 +43,7 @@ def get_buses(system:System, dss:opendssdirect,  crs: str = None) -> list[Distri
                 voltage_type=VoltageTypes.LINE_TO_GROUND.value,
                 name=bus,
                 nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
-                phases=[PHASE_MAPPER[str(node)] for node in dss.Bus.Nodes()],
+                phases=[PHASE_MAPPER[str(node)] for node in odd.Bus.Nodes()],
                 coordinate=loc,
                 voltagelimits=limitsets,
             )

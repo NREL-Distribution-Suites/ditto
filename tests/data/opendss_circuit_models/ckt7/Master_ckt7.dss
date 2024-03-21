@@ -16,7 +16,7 @@ redirect AllocationFactors.dss
 ! Define an energy meter -- needed for plot profile and yearly simulations
 New Energymeter.25607 element=line.333 terminal=1 peakcurrent=[272.4, 243.4, 272.0]
 
-! Let OpenDSS assign the bus voltage bases for reports
+! Let Opendss assign the bus voltage bases for reports
 Set voltagebases = [115, 12.47, 0.480, 0.4157, 0.208, 0.12]
 Calcvoltagebases
 

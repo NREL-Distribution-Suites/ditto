@@ -39,7 +39,7 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
                 query_model_data(model_type, model_name, "normamps", float), "ampere"
             ),
             loading_limit=None,
-            name=model_type,
+            name=model_name,
         )
         conductors.append(conductor)
         flag = odd.ActiveClass.Next()

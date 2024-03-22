@@ -5,15 +5,20 @@ from gdm import DistributionSystem
 from gdm import SequencePair
 import opendssdirect as odd
 
+from ditto.readers.opendss.branches import (
+    get_matrix_branch_equipments,
+    get_geometry_branch_equipments,
+    get_branches,
+)
 from ditto.readers.opendss.sources import get_voltage_sources, get_voltage_source_equipments
 from ditto.readers.opendss.transformers import get_transformers, get_transformer_equipments
 from ditto.readers.opendss.capacitors import get_capacitors, get_capacitor_equipments
 from ditto.readers.opendss.conductors import get_conductors_equipment
 from ditto.readers.opendss.cables import get_cables_equipment
-from ditto.readers.opendss.lines import get_ac_lines
 from ditto.readers.opendss.loads import get_loads
 from ditto.readers.opendss.buses import get_buses
 from ditto.readers.reader import AbscractReader
+
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 
@@ -72,8 +77,13 @@ class Reader(AbscractReader):
         self.system.components.add(*conductor_equipment)
         concentric_cable_equipment = get_cables_equipment()
         self.system.components.add(*concentric_cable_equipment)
-        branches = get_ac_lines(self.system)
-        self.system.components.add(*branches)
+        matrix_branch_equipments = get_matrix_branch_equipments()
+        self.system.components.add(*matrix_branch_equipments)
+        geometry_branch_equipments = get_geometry_branch_equipments(self.system)
+        self.system.components.add(*geometry_branch_equipments)
+        matrix_branches, geometry_branches = get_branches(self.system)
+        self.system.components.add(*matrix_branches)
+        self.system.components.add(*geometry_branches)
 
     def get_system(self) -> System:
         """Returns an instance of DistributionSystem

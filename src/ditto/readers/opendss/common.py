@@ -58,7 +58,7 @@ def get_equipment_from_system(
     model_dict = model_to_dict(model)
     for equipment in system.get_components(model_type):
         equipment_dict = model_to_dict(equipment)
-        if model_dict == equipment_dict:
+        if str(model_dict) == str(equipment_dict):
             return equipment
 
 

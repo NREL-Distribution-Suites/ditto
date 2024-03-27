@@ -1,0 +1,3 @@
+[submodule "src/ditto/formats/opendss/AltDSS-Schema"]
+	path = src/ditto/formats/opendss/AltDSS-Schema
+	url = https://github.com/dss-extensions/AltDSS-Schema.git

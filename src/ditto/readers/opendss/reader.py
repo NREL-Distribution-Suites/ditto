@@ -56,6 +56,11 @@ class Reader(AbscractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
+        json_circuit = odd.Circuit.ToJSON()
+        json_file = str(self.Opendss_master_file).lower().replace(".dss", ".json")
+        with open(json_file, "w") as f:
+            f.write(json_circuit)
+
         logger.info(f"Model loaded from {self.Opendss_master_file}.")
         self.system = System(name=odd.Circuit.Name(), auto_add_composed_components=True)
 

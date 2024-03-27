@@ -8,7 +8,7 @@ from gdm.quantities import (
     ReactancePULength,
     PositiveDistance,
     PositiveCurrent,
-    Distance,
+    # Distance,
 )
 from gdm import (
     MatrixImpedanceBranchEquipment,
@@ -23,6 +23,7 @@ from gdm import (
 import opendssdirect as odd
 from loguru import logger
 import numpy as np
+from infrasys.quantities import Distance
 
 from ditto.readers.opendss.common import (
     PHASE_MAPPER,
@@ -88,8 +89,8 @@ def get_geometry_branch_equipments(
         geometry_branch_equipment = GeometryBranchEquipment(
             name=model_name,
             conductors=conductor_elements,
-            horizontal_positions=[Distance(x, units) for x in x_coordinates],
-            vertical_positions=[Distance(y, units) for y in y_coordinates],
+            horizontal_positions=Distance(x_coordinates, units),
+            vertical_positions=Distance(y_coordinates, units),
         )
         model_dict = model_to_dict(geometry_branch_equipment)
         if str(model_dict) not in geometry_branch_equipments_catalog:

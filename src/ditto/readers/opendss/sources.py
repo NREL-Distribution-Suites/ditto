@@ -9,8 +9,8 @@ from gdm import (
 from infrasys.quantities import Angle, Resistance, Voltage
 from infrasys.component import Component
 from gdm.quantities import Reactance
-from infrasys.system import System
 import opendssdirect as odd
+from infrasys import System
 from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
@@ -37,8 +37,8 @@ def _build_voltage_source_equipment() -> tuple[VoltageSourceEquipment, list[str]
 
     for ppty in ["r0", "r1", "x0", "x1"]:
         command_str = f"? vsource.{soure_name}.{ppty}"
-        result = odd.run_command(command_str)
-        phase_src_properties[ppty] = float(result)
+        odd.Text.Command(command_str)
+        phase_src_properties[ppty] = float(odd.Text.Result())
 
     for node, angle in zip(nodes, angles):
         voltage = Voltage(odd.Vsources.BasekV() * odd.Vsources.PU(), "kilovolt")

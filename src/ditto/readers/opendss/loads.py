@@ -1,21 +1,29 @@
 from uuid import uuid4
 
-from gdm import DistributionBus, DistributionLoad, PhaseLoadEquipment, LoadEquipment, ConnectionType
+from gdm import (
+    DistributionBus,
+    DistributionLoad,
+    PhaseLoadEquipment,
+    LoadEquipment,
+    ConnectionType,
+)
 from gdm.quantities import ActivePower, ReactivePower
 from infrasys.system import System
 import opendssdirect as odd
+from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER, LoadTypes
 
-def _build_load_equipment()-> tuple[LoadEquipment, list[str], str, list[str]]:
+
+def _build_load_equipment() -> tuple[LoadEquipment, list[str], str, list[str]]:
     """Helper function to build a LoadEquipment instance
 
     Returns:
         LoadEquipment: instance of LoadEquipment
         list[str]: List of buses
-        list[str]: List of phases 
-    """  
-    
+        list[str]: List of phases
+    """
+
     equipment_uuid = uuid4()
     buses = odd.CktElement.BusNames()
     num_phase = odd.CktElement.NumPhases()
@@ -56,13 +64,13 @@ def _build_load_equipment()-> tuple[LoadEquipment, list[str], str, list[str]]:
                 i_imag=ReactivePower(kvar_per_phase * zip_params[4], "kilovar"),
                 p_real=ActivePower(kw_per_phase * zip_params[2], "kilowatt"),
                 p_imag=ReactivePower(kvar_per_phase * zip_params[5], "kilovar"),
-            )          
+            )
         elif model == LoadTypes.CONST_P__QUARDRATIC_Q:
             load = PhaseLoadEquipment(
                 name=f"{equipment_uuid}_{el}",
                 p_real=ActivePower(kw_per_phase * zip_params[2], "kilowatt"),
                 z_imag=ReactivePower(kvar_per_phase * zip_params[3], "kilovar"),
-            )    
+            )
         elif model == LoadTypes.LINEAR_P__QUARDRATIC_Q:
             load = PhaseLoadEquipment(
                 name=f"{equipment_uuid}_{el}",
@@ -71,16 +79,15 @@ def _build_load_equipment()-> tuple[LoadEquipment, list[str], str, list[str]]:
             )
         else:
             msg = f"Invalid load model type {model} passed. valid options are {LoadTypes}"
-            raise ValueError(msg)  
+            raise ValueError(msg)
         ph_loads.append(load)
     load_equipment = LoadEquipment(
         name=str(uuid4()),
         phase_loads=ph_loads,
-        connection_type=ConnectionType.DELTA
-        if odd.Loads.IsDelta()
-        else ConnectionType.STAR,
-    )    
+        connection_type=ConnectionType.DELTA if odd.Loads.IsDelta() else ConnectionType.STAR,
+    )
     return load_equipment, buses, nodes
+
 
 # def get_load_equipments(odd:Opendssdirect) -> list[LoadEquipment]:
 #     """Function to return list of all LoadEquipment in Opendss model.
@@ -90,9 +97,10 @@ def _build_load_equipment()-> tuple[LoadEquipment, list[str], str, list[str]]:
 
 #     Returns:
 #         list[LoadEquipment]: List of LoadEquipment objects
-#     """   
+#     """
 
-def get_loads(system:System) -> list[DistributionLoad]:
+
+def get_loads(system: System) -> list[DistributionLoad]:
     """Function to return list of DistributionLoad in Opendss model.
 
     Args:
@@ -101,6 +109,9 @@ def get_loads(system:System) -> list[DistributionLoad]:
     Returns:
         List[DistributionLoad]: List of DistributionLoad objects
     """
+
+    logger.info("parsing load components...")
+
     loads = []
     flag = odd.Loads.First()
     while flag > 0:
@@ -110,7 +121,7 @@ def get_loads(system:System) -> list[DistributionLoad]:
         loads.append(
             DistributionLoad(
                 name=load_name,
-                bus=system.components.get(DistributionBus, bus1),
+                bus=system.get_component(DistributionBus, bus1),
                 phases=[PHASE_MAPPER[el] for el in nodes],
                 equipment=LoadEquipment,
             )

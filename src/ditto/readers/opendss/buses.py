@@ -1,13 +1,14 @@
-
 from gdm import DistributionBus, VoltageLimitSet, VoltageTypes
 from gdm.quantities import PositiveVoltage
 from infrasys.location import Location
 from infrasys.system import System
 import opendssdirect as odd
+from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER
 
-def get_buses(system:System, crs: str = None) -> list[DistributionBus]:
+
+def get_buses(system: System, crs: str = None) -> list[DistributionBus]:
     """Function to return list of all buses in Opendss model
 
     Args:
@@ -16,8 +17,9 @@ def get_buses(system:System, crs: str = None) -> list[DistributionBus]:
 
     Returns:
         list[DistributionBus]: list of DistributionBus objects
-    """        
-        
+    """
+
+    logger.info("parsing bus components...")
     buses = []
 
     for bus in odd.Circuit.AllBusNames():

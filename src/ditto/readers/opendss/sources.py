@@ -7,10 +7,11 @@ from gdm import (
     DistributionVoltageSource,
 )
 from infrasys.quantities import Angle, Resistance, Voltage
+from infrasys.component import Component
 from gdm.quantities import Reactance
 from infrasys.system import System
 import opendssdirect as odd
-
+from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
 
@@ -66,21 +67,23 @@ def get_voltage_source_equipments() -> list[VoltageSourceEquipment]:
         list[VoltageSourceEquipment]: List of VoltageSourceEquipment objects
     """
 
-    voltage_sources_equipment_catalog = []
-    voltage_sources_equipments = []
+    logger.info("parsing voltage source equipment...")
+
+    voltage_sources_equipment_catalog = {}
     flag = odd.Vsources.First()
     while flag:
         slack_equipment, _, _, _ = _build_voltage_source_equipment()
         model_dict = model_to_dict(slack_equipment)
-        if model_dict not in voltage_sources_equipment_catalog:
-            voltage_sources_equipment_catalog.append(model_dict)
-            voltage_sources_equipments.append(slack_equipment)
+        if str(model_dict) not in voltage_sources_equipment_catalog:
+            voltage_sources_equipment_catalog[str(model_dict)] = slack_equipment
 
         flag = odd.Vsources.Next()
-    return voltage_sources_equipments
+    return voltage_sources_equipment_catalog
 
 
-def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
+def get_voltage_sources(
+    system: System, catalog: dict[str, Component]
+) -> list[DistributionVoltageSource]:
     """Function to return list of all voltage sources in Opendss model.
 
     Args:
@@ -90,12 +93,14 @@ def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
         list[DistributionVoltageSource]: List of DistributionVoltageSource objects
     """
 
+    logger.info("parsing voltage sources components...")
+
     voltage_sources = []
     flag = odd.Vsources.First()
     while flag:
         slack_equipment, buses, soure_name, nodes = _build_voltage_source_equipment()
         equipment_from_libray = get_equipment_from_system(
-            slack_equipment, VoltageSourceEquipment, system
+            slack_equipment, VoltageSourceEquipment, catalog
         )
         if equipment_from_libray:
             equipment = equipment_from_libray
@@ -105,7 +110,7 @@ def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
 
         voltage_source = DistributionVoltageSource(
             name=soure_name,
-            bus=system.components.get(DistributionBus, bus1),
+            bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],
             equipment=equipment,
         )

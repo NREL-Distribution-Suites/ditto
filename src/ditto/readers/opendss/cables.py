@@ -7,7 +7,7 @@ from gdm.quantities import (
 from gdm import ConcentricCableEquipment
 from pydantic import PositiveInt
 import opendssdirect as odd
-
+from loguru import logger
 
 from ditto.readers.opendss.common import query_model_data
 
@@ -18,6 +18,8 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
     Returns:
         list[ConcentricCableEquipment]: list of ConcentricCableEquipment
     """
+
+    logger.info("parsing cable components...")
 
     model_type = "CNData"
     cables = []

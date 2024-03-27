@@ -5,24 +5,28 @@ from enum import Enum
 from gdm.quantities import PositiveApparentPower, PositiveVoltage
 from gdm import (
     DistributionTransformerEquipment,
-    DistributionTransformer, 
-    WindingEquipment, 
-    DistributionBus, 
-    ConnectionType, 
-    SequencePair, 
+    DistributionTransformer,
+    WindingEquipment,
+    DistributionBus,
+    ConnectionType,
+    SequencePair,
 )
+from infrasys.component import Component
 from infrasys.system import System
 import opendssdirect as odd
+from loguru import logger
 
-from ditto.readers.opendss.common import PHASE_MAPPER,  model_to_dict, get_equipment_from_system
+from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
+
 
 class XfmrModelTypes(str, Enum):
     TRANSFORMERS = "Transformer"
     XFMRCODE = "XfmrCode"
 
-def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransformerEquipment:
+
+def _build_xfmr_equipment(system: System, model_type: str) -> DistributionTransformerEquipment:
     """Helper function to build a DistributionTransformerEquipment instance
 
     Args:
@@ -32,19 +36,19 @@ def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransform
     Returns:
         DistributionTransformerEquipment: instance of DistributionTransformerEquipment
         list[DistributionBus]: List of DistributionBus
-        list[Phase]: List of Phase 
-    """ 
-    
+        list[Phase]: List of Phase
+    """
+
     model_name = odd.Element.Name().lower().split(".")[1]
     if model_type == XfmrModelTypes.XFMRCODE.value:
         equipment_uuid = model_name
     else:
         equipment_uuid = str(uuid4())
-        
-    def query(property:str, dtype:type):
+
+    def query(property: str, dtype: type):
         command = f"? {model_type}.{model_name}.{property}"
         odd.Text.Command(command)
-        result =odd.Text.Result()
+        result = odd.Text.Result()
         if result is None:
             if dtype in [float, int]:
                 return 0
@@ -53,8 +57,8 @@ def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransform
             else:
                 return None
         return dtype(result)
-    
-    def set_ppty(property:str, value:Any):
+
+    def set_ppty(property: str, value: Any):
         return odd.Command(f"{model_type}.{model_name}.{property}={value}")
 
     all_reactances = [
@@ -62,7 +66,7 @@ def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransform
         query("xht", float),
         query("xlt", float),
     ]
-    
+
     number_windings = query("windings", int)
     winding_phases = []
     xfmr_buses = []
@@ -73,10 +77,8 @@ def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransform
         num_phase = query("phases", int)
         nodes = ["1", "2", "3"] if num_phase == 3 else bus.split(".")[1:]
         winding_phases.append([PHASE_MAPPER[node] for node in nodes])
-        xfmr_buses.append(system.components.get(DistributionBus, bus))
-        nominal_voltage = (
-            query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
-        )
+        xfmr_buses.append(system.get_component(DistributionBus, bus))
+        nominal_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
         winding = WindingEquipment(
             rated_power=PositiveApparentPower(query("kva", float), "kilova"),
             num_phases=num_phase,
@@ -84,7 +86,7 @@ def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransform
             if query("conn", str).lower() == "delta"
             else ConnectionType.STAR,
             nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
-            resistance=query(f"%r", float),
+            resistance=query("%r", float),
             is_grounded=False,  # TODO @aadil
         )
         windings.append(winding)
@@ -94,16 +96,17 @@ def _build_xfmr_equipment(system:System, model_type:str)-> DistributionTransform
 
     dist_transformer = DistributionTransformerEquipment(
         name=equipment_uuid,
-        pct_no_load_loss=query(f"%noloadloss", float),
-        pct_full_load_loss=query(f"%loadloss", float),
+        pct_no_load_loss=query("%noloadloss", float),
+        pct_full_load_loss=query("%loadloss", float),
         windings=windings,
         coupling_sequences=coupling_sequences,
         winding_reactances=reactances,
         is_center_tapped=_is_center_tapped(),
     )
     return dist_transformer, xfmr_buses, winding_phases
-    
-def get_transformer_equipments(system:System)-> list[DistributionTransformerEquipment]:
+
+
+def get_transformer_equipments(system: System) -> list[DistributionTransformerEquipment]:
     """Function to return list of all DistributionTransformerEquipment in Opendss model.
 
     Args:
@@ -111,10 +114,9 @@ def get_transformer_equipments(system:System)-> list[DistributionTransformerEqui
 
     Returns:
         list[DistributionTransformerEquipment]: List of DistributionTransformerEquipment objects
-    """ 
-    
-    xfmr_equipments_catalog = []
-    xfmr_equipments = []
+    """
+    logger.info("parsing transformer equipment...")
+    xfmr_equipments_catalog = {}
     odd_model_types = [v.value for v in XfmrModelTypes]
     for odd_model_type in odd_model_types:
         odd.Circuit.SetActiveClass(odd_model_type)
@@ -122,29 +124,36 @@ def get_transformer_equipments(system:System)-> list[DistributionTransformerEqui
         while flag > 0:
             xfmr_equipment, _, _ = _build_xfmr_equipment(system, odd_model_type)
             model_dict = model_to_dict(xfmr_equipment)
-            if model_dict not in xfmr_equipments_catalog:
-                xfmr_equipments_catalog.append(model_dict)
-                xfmr_equipments.append(xfmr_equipment) 
+            if str(model_dict) not in xfmr_equipments_catalog:
+                xfmr_equipments_catalog[str(model_dict)] = xfmr_equipment
             flag = odd.ActiveClass.Next()
-    return xfmr_equipments
-    
+    return xfmr_equipments_catalog
 
-def get_transformers(system:System) -> list[DistributionTransformer]:
+
+def get_transformers(
+    system: System, catalog: dict[str, Component]
+) -> list[DistributionTransformer]:
     """Method returns a list of DistributionTransformer objects
 
     Args:
         system (System): Instance of System
-        
+
     Returns:
         list[DistributionTransformer]: list of distribution transformers
-    """    
+    """
+
+    logger.info("parsing transformer components...")
 
     transformers = []
     flag = odd.Transformers.First()
     while flag > 0:
-        
-        xfmr_equipment, buses, phases = _build_xfmr_equipment(system, XfmrModelTypes.TRANSFORMERS.value)
-        equipment_from_libray = get_equipment_from_system(xfmr_equipment, DistributionTransformerEquipment, system)
+        logger.debug(f"building transformer {odd.Transformers.Name()}")
+        xfmr_equipment, buses, phases = _build_xfmr_equipment(
+            system, XfmrModelTypes.TRANSFORMERS.value
+        )
+        equipment_from_libray = get_equipment_from_system(
+            xfmr_equipment, DistributionTransformerEquipment, catalog
+        )
         if equipment_from_libray:
             equipment = equipment_from_libray
         else:
@@ -161,12 +170,12 @@ def get_transformers(system:System) -> list[DistributionTransformer]:
     return transformers
 
 
-def _is_center_tapped()-> bool:
+def _is_center_tapped() -> bool:
     """The flag is true if the transformer is center tapped.
 
     Returns:
         bool: _description_
-    """    
-    
+    """
+
     # TODO: implement the correct logic here
     return False

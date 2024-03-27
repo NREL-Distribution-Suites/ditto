@@ -1,9 +1,11 @@
 from pathlib import Path
 
+
 from infrasys.system import System
 from gdm import DistributionSystem
 from gdm import SequencePair
 import opendssdirect as odd
+from loguru import logger
 
 from ditto.readers.opendss.branches import (
     get_matrix_branch_equipments,
@@ -46,6 +48,7 @@ class Reader(AbscractReader):
             FileNotFoundError: Error raised if the file is not found
         """
 
+        logger.info("Loading OpenDSS model.")
         if not self.Opendss_master_file.exists():
             msg = f"File not found: {self.Opendss_master_file}"
             raise FileNotFoundError(msg)
@@ -53,37 +56,45 @@ class Reader(AbscractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
-
+        logger.info(f"Model loaded from {self.Opendss_master_file}.")
         self.system = System(name=odd.Circuit.Name(), auto_add_composed_components=True)
 
         buses = get_buses(self.system, self.crs)
-        self.system.components.add(*buses)
-        voltage_source_equipments = get_voltage_source_equipments()
-        self.system.components.add(*voltage_source_equipments)
-        voltage_sources = get_voltage_sources(self.system)
-        self.system.components.add(*voltage_sources)
-        capacitor_equipments = get_capacitor_equipments()
-        self.system.components.add(*capacitor_equipments)
-        caps = get_capacitors(self.system)
-        self.system.components.add(*caps)
+        self.system.add_components(*buses)
+        voltage_sources_equipment_catalog = get_voltage_source_equipments()
+        self.system.add_components(*voltage_sources_equipment_catalog.values())
+        voltage_sources = get_voltage_sources(self.system, voltage_sources_equipment_catalog)
+        self.system.add_components(*voltage_sources)
+        capacitor_equipments_catalog = get_capacitor_equipments()
+        self.system.add_components(*capacitor_equipments_catalog.values())
+        caps = get_capacitors(self.system, capacitor_equipments_catalog)
+        self.system.add_components(*caps)
         # TODO: should unique load equiments be calatoged to reduce replicated objects?
         loads = get_loads(self.system)
-        self.system.components.add(*loads)
-        transformer_equipments = get_transformer_equipments(self.system)
-        self.system.components.add(*transformer_equipments)
-        transformers = get_transformers(self.system)
-        self.system.components.add(*transformers)
+        self.system.add_components(*loads)
+        transformer_equipments_catalog = get_transformer_equipments(self.system)
+        self.system.add_components(*transformer_equipments_catalog.values())
+        transformers = get_transformers(self.system, transformer_equipments_catalog)
+        self.system.add_components(*transformers)
         conductor_equipment = get_conductors_equipment()
-        self.system.components.add(*conductor_equipment)
+        self.system.add_components(*conductor_equipment)
         concentric_cable_equipment = get_cables_equipment()
-        self.system.components.add(*concentric_cable_equipment)
-        matrix_branch_equipments = get_matrix_branch_equipments()
-        self.system.components.add(*matrix_branch_equipments)
-        geometry_branch_equipments = get_geometry_branch_equipments(self.system)
-        self.system.components.add(*geometry_branch_equipments)
-        matrix_branches, geometry_branches = get_branches(self.system)
-        self.system.components.add(*matrix_branches)
-        self.system.components.add(*geometry_branches)
+        self.system.add_components(*concentric_cable_equipment)
+        matrix_branch_equipments_catalog = get_matrix_branch_equipments()
+        self.system.add_components(*matrix_branch_equipments_catalog.values())
+        geometry_branch_equipment_catalog, mapped_geometry = get_geometry_branch_equipments(
+            self.system
+        )
+        self.system.add_components(*geometry_branch_equipment_catalog.values())
+        branches = get_branches(
+            self.system,
+            mapped_geometry,
+            matrix_branch_equipments_catalog,
+            geometry_branch_equipment_catalog,
+        )
+        self.system.add_components(*branches)
+
+        logger.info("parsing complete...")
 
     def get_system(self) -> System:
         """Returns an instance of DistributionSystem

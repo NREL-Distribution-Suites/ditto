@@ -1,8 +1,7 @@
 from enum import IntEnum
 from typing import Any
 
-from infrasys.component_models import Component
-from infrasys.system import System
+from infrasys import Component
 import opendssdirect as odd
 from gdm import Phase
 
@@ -37,11 +36,27 @@ def model_to_dict(model: Component) -> dict:
         tuple[str,dict]: Dictionary representation of the model
     """
     model_dict = model.model_dump(exclude={"name"})
+    return remove_name_from_dict(model_dict)
+
+
+def remove_name_from_dict(model_dict: dict) -> dict:
+    if "name" in model_dict:
+        model_dict.pop("name")
+    for k, v in model_dict.items():
+        if isinstance(v, dict):
+            model_dict[k] = remove_name_from_dict(v)
+        elif isinstance(v, list):
+            values = []
+            for value in v:
+                if isinstance(value, dict):
+                    value = remove_name_from_dict(value)
+                values.append(value)
+                model_dict[k] = values
     return model_dict
 
 
 def get_equipment_from_system(
-    model: Component, model_type: type[Component], system: System
+    model: Component, model_type: type[Component], catalog: dict[str, Component]
 ) -> Component | None:
     """If the equipment already exixts in th system the equipment instalce is returned else None is returned
 
@@ -56,10 +71,8 @@ def get_equipment_from_system(
     """
 
     model_dict = model_to_dict(model)
-    for equipment in system.get_components(model_type):
-        equipment_dict = model_to_dict(equipment)
-        if str(model_dict) == str(equipment_dict):
-            return equipment
+    if str(model_dict) in catalog:
+        return catalog[str(model_dict)]
 
 
 def query_model_data(model_type: str, model_name: str, property: str, dtype: type) -> Any:

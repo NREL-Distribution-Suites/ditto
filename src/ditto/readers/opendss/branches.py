@@ -1,7 +1,7 @@
 from uuid import uuid4
 from enum import Enum
 
-from infrasys.system import System
+from infrasys import System
 from gdm.quantities import (
     PositiveResistancePULength,
     CapacitancePULength,
@@ -19,9 +19,9 @@ from gdm import (
     DistributionBus,
     ThermalLimitSet,
     GeometryBranch,
-    SequencePair,
 )
 import opendssdirect as odd
+from loguru import logger
 import numpy as np
 
 from ditto.readers.opendss.common import (
@@ -37,52 +37,69 @@ class MatrixBranchTypes(str, Enum):
     LINE = "Lines"
 
 
-def get_geometry_branch_equipments(system: System) -> list[GeometryBranchEquipment]:
-    """Helper function to build a GeometryBranchEquipment instance
+def get_geometry_branch_equipments(
+    system: System,
+) -> tuple[list[GeometryBranchEquipment], dict[str, str]]:
+    """Helper function that return a list of GeometryBranchEquipment objects
 
     Args:
         system (System): Instance of System
 
     Returns:
-        GeometryBranchEquipment: instance of GeometryBranchEquipment
+        list[GeometryBranchEquipment]: list of GeometryBranchEquipment objects
+        dict[str, str]: mapping line geometries to unique GeometryBranchEquipment names
     """
 
-    geometry_branch_equipments_catalog = []
-    geometry_branch_equipments = []
+    logger.info("parsing geometry branch equipment...")
+
+    mapped_geometry = {}
+    geometry_branch_equipments_catalog = {}
     flag = odd.LineGeometries.First()
+
     while flag > 0:
-        conductors = odd.LineGeometries.Conductors()
-        x_coordinates = odd.LineGeometries.Xcoords()
-        y_coordinates = odd.LineGeometries.Ycoords()
+        geometry_name = odd.LineGeometries.Name().lower()
+        x_coordinates = []
+        y_coordinates = []
         units = UNIT_MAPPER[odd.LineGeometries.Units()[0].value]
+        odd.Text.Command(f"? LineGeometry.{geometry_name}.wires")
+        wires = odd.Text.Result().strip("[]").split(", ")
         model_name = odd.Element.Name().lower().split(".")[1]
         conductor_elements = []
-        for conductor in conductors:
-            try:
-                equipment = system.get_component(BareConductorEquipment, conductor)
-            except Exception as _:
-                equipment = system.get_component(ConcentricCableEquipment, conductor)
+
+        for i, wire in enumerate(wires):
+            odd.Text.Command(f"LineGeometry.{geometry_name}.cond={i+1}")
+            odd.Text.Command(f"? LineGeometry.{geometry_name}.h")
+            y_coordinates.append(float(odd.Text.Result()))
+            odd.Text.Command(f"? LineGeometry.{geometry_name}.x")
+            x_coordinates.append(float(odd.Text.Result()))
+
+            equipments = list(
+                system.get_components(BareConductorEquipment, filter_func=lambda x: x.name == wire)
+            )
+            if not equipments:
+                equipments = list(
+                    system.get_components(
+                        ConcentricCableEquipment, filter_func=lambda x: x.name == wire
+                    )
+                )
+            equipment = equipments[0]
             conductor_elements.append(equipment)
 
-        sequence_pairs = [SequencePair(i, i + 1) for i in range(len(conductors) - 1)]
-        horizontal_spacings = [
-            Distance(x_coordinates[i + 1] - x_coordinates[i], units)
-            for i in range(len(x_coordinates) - 1)
-        ]
-        y_coordinates = [Distance(y, units) for y in y_coordinates]
         geometry_branch_equipment = GeometryBranchEquipment(
             name=model_name,
             conductors=conductor_elements,
-            spacing_sequences=sequence_pairs,
-            horizontal_spacings=horizontal_spacings,
-            heights=y_coordinates,
+            horizontal_positions=[Distance(x, units) for x in x_coordinates],
+            vertical_positions=[Distance(y, units) for y in y_coordinates],
         )
         model_dict = model_to_dict(geometry_branch_equipment)
-        if model_dict not in geometry_branch_equipments_catalog:
-            geometry_branch_equipments_catalog.append(model_dict)
-            geometry_branch_equipments.append(geometry_branch_equipment)
+        if str(model_dict) not in geometry_branch_equipments_catalog:
+            geometry_branch_equipments_catalog[str(model_dict)] = geometry_branch_equipment
+        else:
+            equipment = geometry_branch_equipments_catalog[str(model_dict)]
+            mapped_geometry[geometry_branch_equipment.name] = equipment.name
         flag = odd.LineGeometries.Next()
-    return geometry_branch_equipments
+
+    return geometry_branch_equipments_catalog, mapped_geometry
 
 
 def _build_matrix_branch(model_type: str) -> MatrixImpedanceBranchEquipment:
@@ -139,8 +156,9 @@ def get_matrix_branch_equipments() -> tuple[list[MatrixImpedanceBranchEquipment]
         list[MatrixImpedanceBranchEquipment]: List of MatrixImpedanceBranchEquipment objects
     """
 
-    matrix_branch_equipments_catalog = []
-    matrix_branch_equipments = []
+    logger.info("parsing matrix branch equipment...")
+
+    matrix_branch_equipments_catalog = {}
     odd_model_types = [v.value for v in MatrixBranchTypes]
     for odd_model_type in odd_model_types:
         module: odd.LineCodes | odd.Lines = getattr(odd, odd_model_type)
@@ -152,50 +170,61 @@ def get_matrix_branch_equipments() -> tuple[list[MatrixImpedanceBranchEquipment]
                 matrix_branch_equipment = _build_matrix_branch(odd_model_type)
                 model_dict = model_to_dict(matrix_branch_equipment)
                 if str(model_dict) not in matrix_branch_equipments_catalog:
-                    matrix_branch_equipments_catalog.append(str(model_dict))
-                    matrix_branch_equipments.append(matrix_branch_equipment)
+                    matrix_branch_equipments_catalog[str(model_dict)] = matrix_branch_equipment
             flag = module.Next()
-    return matrix_branch_equipments
+    return matrix_branch_equipments_catalog
 
 
-def get_branches(system: System) -> tuple[list[MatrixImpedanceBranch], list[GeometryBranch]]:
+def get_branches(
+    system: System, mapping: dict[str, str], matrix_branch_catalog, geometry_branch_catalog
+) -> tuple[list[MatrixImpedanceBranch | GeometryBranch]]:
     """Method to build a model branches
 
     Args:
         system (System): Instance of System
+        mapping (dict[str, str]): mapping line geometries to unique GeometryBranchEquipment names
 
     Returns:
         list[MatrixImpedanceBranch]: Returns a MatrixImpedanceBranch object
         list[GeometryBranch]: Returns a GeometryBranch object
     """
 
-    matrix_branches = []
-    geometry_branches = []
+    logger.info("parsing branch components...")
+
+    branches = []
     flag = odd.Lines.First()
     while flag > 0:
+        logger.info(f"building line {odd.CktElement.Name()}...")
+
         buses = odd.CktElement.BusNames()
         bus1, bus2 = buses[0].split(".")[0], buses[1].split(".")[0]
         num_phase = odd.CktElement.NumPhases()
         nodes = ["1", "2", "3"] if num_phase == 3 else buses[0].split(".")[1:]
-        geometry = odd.Lines.Geometry()
+        geometry = odd.Lines.Geometry().lower()
         if geometry:
+            if geometry in mapping:
+                geometry = mapping[geometry]
             geometry_branch_equipment = system.get_component(GeometryBranchEquipment, geometry)
+            n_conds = len(geometry_branch_equipment.conductors)
+            for _ in range(
+                n_conds - num_phase
+            ):  # Any conductor after the phase conductors will be considered a neutral
+                nodes.append("4")
             geometry_branch = GeometryBranch(
                 name=odd.Lines.Name().lower(),
                 equipment=geometry_branch_equipment,
                 buses=[
-                    system.components.get(DistributionBus, bus1),
-                    system.components.get(DistributionBus, bus2),
+                    system.get_component(DistributionBus, bus1),
+                    system.get_component(DistributionBus, bus2),
                 ],
                 length=PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
                 phases=[PHASE_MAPPER[node] for node in nodes],
-                is_closed=odd.CktElement.Enabled(),
             )
-            geometry_branches.append(geometry_branch)
+            branches.append(geometry_branch)
         else:
             matrix_branch_equipment = _build_matrix_branch(MatrixBranchTypes.LINE.value)
             equipment_from_libray = get_equipment_from_system(
-                matrix_branch_equipment, MatrixImpedanceBranchEquipment, system
+                matrix_branch_equipment, MatrixImpedanceBranchEquipment, matrix_branch_catalog
             )
             if equipment_from_libray:
                 equipment = equipment_from_libray
@@ -205,15 +234,14 @@ def get_branches(system: System) -> tuple[list[MatrixImpedanceBranch], list[Geom
             matrix_branch = MatrixImpedanceBranch(
                 name=odd.Lines.Name().lower(),
                 buses=[
-                    system.components.get(DistributionBus, bus1),
-                    system.components.get(DistributionBus, bus2),
+                    system.get_component(DistributionBus, bus1),
+                    system.get_component(DistributionBus, bus2),
                 ],
                 length=PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
                 phases=[PHASE_MAPPER[node] for node in nodes],
                 equipment=equipment,
-                is_closed=odd.CktElement.Enabled(),
             )
-            matrix_branches.append(matrix_branch)
+            branches.append(matrix_branch)
         flag = odd.Lines.Next()
 
-    return matrix_branches, geometry_branches
+    return branches

@@ -1,6 +1,7 @@
 from gdm.quantities import PositiveCurrent, PositiveDistance, PositiveResistancePULength
 from gdm import BareConductorEquipment
 import opendssdirect as odd
+from loguru import logger
 
 from ditto.readers.opendss.common import query_model_data
 
@@ -11,6 +12,8 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
     Returns:
         list[BareConductorEquipment]: list of BareConductorEquipment
     """
+
+    logger.info("parsing conductor components...")
 
     model_type = "WireData"
     conductors = []

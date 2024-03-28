@@ -195,7 +195,7 @@ def get_branches(
     branches = []
     flag = odd.Lines.First()
     while flag > 0:
-        logger.info(f"building line {odd.CktElement.Name()}...")
+        logger.debug(f"building line {odd.CktElement.Name()}...")
 
         buses = odd.CktElement.BusNames()
         bus1, bus2 = buses[0].split(".")[0], buses[1].split(".")[0]
@@ -207,9 +207,8 @@ def get_branches(
                 geometry = mapping[geometry]
             geometry_branch_equipment = system.get_component(GeometryBranchEquipment, geometry)
             n_conds = len(geometry_branch_equipment.conductors)
-            for _ in range(
-                n_conds - num_phase
-            ):  # Any conductor after the phase conductors will be considered a neutral
+            # Any conductor after the phase conductors will be considered a neutral
+            for _ in range(n_conds - num_phase):
                 nodes.append("4")
             geometry_branch = GeometryBranch(
                 name=odd.Lines.Name().lower(),

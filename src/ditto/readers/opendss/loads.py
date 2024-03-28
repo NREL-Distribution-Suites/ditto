@@ -12,6 +12,7 @@ from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
 
+from ditto.readers.opendss.loadshapes import build_profiles, ObjectsWithProfile
 from ditto.readers.opendss.common import PHASE_MAPPER, LoadTypes
 
 
@@ -112,19 +113,33 @@ def get_loads(system: System) -> list[DistributionLoad]:
 
     logger.info("parsing load components...")
 
+    profile_catalog = {}
     loads = []
     flag = odd.Loads.First()
     while flag > 0:
         load_name = odd.Loads.Name().lower()
         LoadEquipment, buses, nodes = _build_load_equipment()
         bus1 = buses[0].split(".")[0]
-        loads.append(
-            DistributionLoad(
-                name=load_name,
-                bus=system.get_component(DistributionBus, bus1),
-                phases=[PHASE_MAPPER[el] for el in nodes],
-                equipment=LoadEquipment,
-            )
+        profile_names = [odd.Loads.Daily(), odd.Loads.Yearly(), odd.Loads.Duty()]
+        profiles = build_profiles(profile_names, ObjectsWithProfile.LOAD, profile_catalog)
+        distribution_load = DistributionLoad(
+            name=load_name,
+            bus=system.get_component(DistributionBus, bus1),
+            phases=[PHASE_MAPPER[el] for el in nodes],
+            equipment=LoadEquipment,
         )
+        for profile_name in profile_names:
+            if profile_name in profiles:
+                for profile_type, ts_profile in profiles[profile_name].items():
+                    system.add_time_series(
+                        ts_profile,
+                        distribution_load,
+                        profile_type=profile_type,
+                        profile_name=profile_name,
+                    )
+                    logger.debug(
+                        f"Adding timeseries profile '{profile_name} / {profile_type}' to load '{load_name}'"
+                    )
+        loads.append(distribution_load)
         flag = odd.Loads.Next()
     return loads

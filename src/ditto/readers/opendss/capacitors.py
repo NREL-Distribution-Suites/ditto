@@ -76,6 +76,7 @@ def get_capacitors(system: System, catalog: dict[str, Component]) -> list[Distri
 
     Args:
         system (System): Instance of System
+        catalog: dict[str, Component]: Instance of System
 
     Returns:
         List[DistributionCapacitor]: List of DistributionCapacitor objects

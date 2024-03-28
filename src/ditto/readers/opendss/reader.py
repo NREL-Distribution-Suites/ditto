@@ -15,12 +15,12 @@ from ditto.readers.opendss.branches import (
 from ditto.readers.opendss.sources import get_voltage_sources, get_voltage_source_equipments
 from ditto.readers.opendss.transformers import get_transformers, get_transformer_equipments
 from ditto.readers.opendss.capacitors import get_capacitors, get_capacitor_equipments
+from ditto.readers.opendss.pv_systems import get_pv_equipments, get_pvsystems
 from ditto.readers.opendss.conductors import get_conductors_equipment
 from ditto.readers.opendss.cables import get_cables_equipment
 from ditto.readers.opendss.loads import get_loads
 from ditto.readers.opendss.buses import get_buses
 from ditto.readers.reader import AbscractReader
-
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 
@@ -98,6 +98,10 @@ class Reader(AbscractReader):
             geometry_branch_equipment_catalog,
         )
         self.system.add_components(*branches)
+        solar_equipment_catalog = get_pv_equipments()
+        self.system.add_components(*solar_equipment_catalog.values())
+        pv_systems = get_pvsystems(self.system, solar_equipment_catalog)
+        self.system.add_components(*pv_systems)
 
         logger.info("parsing complete...")
 

@@ -14,6 +14,7 @@ from infrasys import System
 from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
+from ditto.readers.opendss.loadshapes import build_profiles, ObjectsWithProfile
 
 
 def _build_voltage_source_equipment() -> tuple[VoltageSourceEquipment, list[str], str, list[str]]:
@@ -94,7 +95,7 @@ def get_voltage_sources(
     """
 
     logger.info("parsing voltage sources components...")
-
+    profile_catalog = {}
     voltage_sources = []
     flag = odd.Vsources.First()
     while flag:
@@ -108,12 +109,32 @@ def get_voltage_sources(
             equipment = slack_equipment
         bus1 = buses[0].split(".")[0]
 
+        def query(property: str):
+            odd.Text.Command(f"? vsource.{soure_name}.{property}")
+            return odd.Text.Result()
+
+        profile_names = [query("yearly"), query("daily"), query("duty")]
+        profiles = build_profiles(profile_names, ObjectsWithProfile.SOURCE, profile_catalog)
         voltage_source = DistributionVoltageSource(
             name=soure_name,
             bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],
             equipment=equipment,
         )
+
+        for profile_name in profile_names:
+            if profile_name in profiles:
+                for profile_type, ts_profile in profiles[profile_name].items():
+                    system.add_time_series(
+                        ts_profile,
+                        voltage_source,
+                        profile_type=profile_type,
+                        profile_name=profile_name,
+                    )
+                    logger.debug(
+                        f"Adding timeseries profile '{profile_name} / {profile_type}' to voltage source '{soure_name}'"
+                    )
+
         voltage_sources.append(voltage_source)
         flag = odd.Vsources.Next()
     return voltage_sources

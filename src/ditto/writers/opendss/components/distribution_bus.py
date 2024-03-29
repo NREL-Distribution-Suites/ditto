@@ -5,9 +5,10 @@ class DistributionBusMapper(OpenDSSMapper):
 
     def __init__(self, model):
         super().__init__(model)
-        self.altdss_name = "Bus"
-        self.opendss_file = "BusCoords.dss"
     
+    altdss_name = "Bus"
+    opendss_file = "BusCoords.dss"
+
     def map_name(self):
         self.opendss_dict['Name'] = self.model.name
 

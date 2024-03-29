@@ -37,7 +37,8 @@ class Writer(AbstractWriter):
                     model_map.populate_opendss_dictionary()
                     altdss_class = getattr(altdss_models, model_map.altdss_name)
                     # Example altdss_class is Bus
-                    altdss_object = altdss_class.parse_obj(model_map.opendss_dict)
+                    altdss_object = altdss_class.model_validate(model_map.opendss_dict)
+                    import pdb;pdb.set_trace()
                     dss_string = altdss_object.dumps_dss()
 
                     output_folder = output_path

@@ -1,6 +1,5 @@
 from pathlib import Path
 import importlib
-import os
 
 from ditto.writers.abstract_writer import AbstractWriter
 from ditto.writers.opendss.components.distribution_bus import DistributionBusMapper
@@ -13,7 +12,7 @@ import ditto.writers.opendss as opendss_mapper
 
 class Writer(AbstractWriter):
 
-    def write(self, output_path: Path = Path('./'), separate_substations: bool=False, separate_feeders: bool=False):
+    def write(self, output_path: Path = Path('./'), separate_substations: bool=True, separate_feeders: bool=True):
 
 
         files_to_redirect = []
@@ -42,43 +41,43 @@ class Writer(AbstractWriter):
                     dss_string = altdss_object.dumps_dss()
 
                     output_folder = output_path
-                    output_redirect = ""
+                    output_redirect = Path("")
                     if separate_substations:
                         output_folder = Path(output_path,model_map.substation)
-                        output_redirect = model_map.substation
-                        if not os.path.exists(output_folder):
-                            os.makedires(output_folder)
+                        output_redirect = Path(model_map.substation)
+                        if not output_folder.exists():
+                            Path.mkdir(output_folder)
 
                     else:
-                        if not os.path.exists(output_folder):
-                            os.makedirs(output_folder)
+                        if not output_folder.exists():
+                            Path.mkdir(output_folder)
 
                     if separate_feeders:
-                        output_folder = os.path.join(output_folder, model_map.feeder)
-                        output_redirect = os.path.join(output_redirect, model_map.feeder)
-                        if not os.path.exists(output_folder):
-                            os.makedirs(output_folder)
+                        output_folder = output_folder / model_map.feeder
+                        output_redirect = output_redirect / model_map.feeder
+                        if not output_folder.exists():
+                            Path.mkdir(output_folder)
 
-                    with open(os.path.join(output_folder, model_map.opendss_file), "w",) as fp:
+                    with open(output_folder / model_map.opendss_file, "w") as fp:
                         fp.write(dss_string)
 
                     if separate_substations and separate_feeders:
-                        if model_map.substation not in self.substations_redirect:
+                        if model_map.substation not in substations_redirect:
                             substations_redirect[model_map.substation] = []
-                        substations_redirect[model_map.substation].append(os.path.join(model_map.feeder_name, model_map.opendss_file))
+                        substations_redirect[model_map.substation].append(Path(model_map.feeder) / Path(model_map.opendss_file))
 
                     elif separate_substations:
                         if model_map.substation not in substations_redirect:
                             substations_redirect[model_map.substation] = []
-                        substations_redirect[model_map.substation_name].append(model_map.opendss_file)
+                        substations_redirect[model_map.substation].append(Path(model_map.opendss_file))
 
                     if separate_feeders:
-                        combined_feeder_sub = os.path.join(model_map.substation, model_map.feeder_name)
+                        combined_feeder_sub = Path(model_map.substation) / Path(model_map.feeder)
                         if combined_feeder_sub not in feeders_redirect:
                             feeders_redirect[combined_feeder_sub] = []
-                        feeders_redirect[combined_feeder_sub].append(model_map.opendss_file)
+                        feeders_redirect[combined_feeder_sub].append(Path(model_map.opendss_file))
 
-                    files_to_redirect.append(os.path.join(output_redirect, model_map.opendss_file))
+                    files_to_redirect.append(output_redirect / model_map.opendss_file)
 
                     
             else:

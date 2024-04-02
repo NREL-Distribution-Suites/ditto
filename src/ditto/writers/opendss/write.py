@@ -1,5 +1,6 @@
 from pathlib import Path
 import importlib
+from collections import defaultdict
 
 from ditto.writers.abstract_writer import AbstractWriter
 from ditto.writers.opendss.components.distribution_bus import DistributionBusMapper
@@ -16,8 +17,8 @@ class Writer(AbstractWriter):
 
 
         files_to_redirect = []
-        feeders_redirect = {}
-        substations_redirect = {}
+        feeders_redirect = defaultdict(list)
+        substations_redirect = defaultdict(list)
 
         component_types = self.system.get_component_types()
         for component_type in component_types:
@@ -38,7 +39,6 @@ class Writer(AbstractWriter):
                     altdss_class = getattr(altdss_models, model_map.altdss_name)
                     # Example altdss_class is Bus
                     altdss_object = altdss_class.model_validate(model_map.opendss_dict)
-                    import pdb;pdb.set_trace()
                     dss_string = altdss_object.dumps_dss()
 
                     output_folder = output_path
@@ -46,30 +46,23 @@ class Writer(AbstractWriter):
                     if separate_substations:
                         output_folder = Path(output_path,model_map.substation)
                         output_redirect = Path(model_map.substation)
-                        if not output_folder.exists():
-                            Path.mkdir(output_folder)
+                        output_folder.mkdir(exist_ok=True)
 
                     else:
-                        if not output_folder.exists():
-                            Path.mkdir(output_folder)
+                        output_folder.mkdir(exist_ok=True)
 
                     if separate_feeders:
-                        output_folder = output_folder / model_map.feeder
-                        output_redirect = output_redirect / model_map.feeder
-                        if not output_folder.exists():
-                            Path.mkdir(output_folder)
+                        output_folder /= model_map.feeder
+                        output_redirect /= model_map.feeder
+                        output_folder.mkdir(exist_ok=True)
 
-                    with open(output_folder / model_map.opendss_file, "w") as fp:
+                    with open(output_folder / model_map.opendss_file, "a") as fp:
                         fp.write(dss_string)
 
                     if separate_substations and separate_feeders:
-                        if model_map.substation not in substations_redirect:
-                            substations_redirect[model_map.substation] = []
-                        substations_redirect[model_map.substation].append(Path(model_map.feeder) / Path(model_map.opendss_file))
+                        substations_redirect[model_map.substation].append(Path(model_map.feeder) / model_map.opendss_file)
 
                     elif separate_substations:
-                        if model_map.substation not in substations_redirect:
-                            substations_redirect[model_map.substation] = []
                         substations_redirect[model_map.substation].append(Path(model_map.opendss_file))
 
                     if separate_feeders:

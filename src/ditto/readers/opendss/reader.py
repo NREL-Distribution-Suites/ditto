@@ -7,19 +7,25 @@ from gdm import SequencePair
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.branches import (
+from ditto.readers.opendss.components.branches import (
     get_matrix_branch_equipments,
     get_geometry_branch_equipments,
     get_branches,
 )
-from ditto.readers.opendss.sources import get_voltage_sources, get_voltage_source_equipments
-from ditto.readers.opendss.transformers import get_transformers, get_transformer_equipments
-from ditto.readers.opendss.capacitors import get_capacitors, get_capacitor_equipments
-from ditto.readers.opendss.pv_systems import get_pv_equipments, get_pvsystems
-from ditto.readers.opendss.conductors import get_conductors_equipment
-from ditto.readers.opendss.cables import get_cables_equipment
-from ditto.readers.opendss.loads import get_loads
-from ditto.readers.opendss.buses import get_buses
+from ditto.readers.opendss.components.sources import (
+    get_voltage_sources,
+    get_voltage_source_equipments,
+)
+from ditto.readers.opendss.components.transformers import (
+    get_transformers,
+    get_transformer_equipments,
+)
+from ditto.readers.opendss.components.capacitors import get_capacitors, get_capacitor_equipments
+from ditto.readers.opendss.components.pv_systems import get_pv_equipments, get_pvsystems
+from ditto.readers.opendss.components.conductors import get_conductors_equipment
+from ditto.readers.opendss.components.cables import get_cables_equipment
+from ditto.readers.opendss.components.loads import get_loads
+from ditto.readers.opendss.components.buses import get_buses
 from ditto.readers.reader import AbscractReader
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]

@@ -1,0 +1,178 @@
+New Transformer.tr(r:p10udt4775-p10udt4775lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4775.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4775lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4775lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4777-p10udt4777lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4777.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4777lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4777lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4780-p10udt4780lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4780.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4780lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4780lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4786-p10udt4786lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4786.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4786lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4786lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4787-p10udt4787lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4787.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4787lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4787lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4788-p10udt4788lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4788.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4788lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4788lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4789-p10udt4789lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4789.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4789lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4789lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4791-p10udt4791lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4791.2.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4791lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4791lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4793-p10udt4793lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4793.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4793lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4793lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4796-p10udt4796lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4796.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4796lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4796lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4798-p10udt4798lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4798.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4798lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4798lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4800-p10udt4800lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4800.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4800lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4800lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4801-p10udt4801lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4801.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4801lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4801lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4804-p10udt4804lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4804.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4804lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4804lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4807-p10udt4807lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4807.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4807lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4807lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4808-p10udt4808lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4808.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4808lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4808lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4813-p10udt4813lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4813.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4813lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4813lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4814-p10udt4814lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4814.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4814lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4814lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4816-p10udt4816lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4816.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4816lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4816lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4817-p10udt4817lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4817.2.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4817lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4817lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4822-p10udt4822lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4822.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4822lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4822lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4823-p10udt4823lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4823.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4823lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4823lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4831-p10udt4831lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4831.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4831lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4831lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4836-p10udt4836lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4836.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4836lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4836lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4838-p10udt4838lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4838.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4838lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4838lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4840-p10udt4840lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4840.2.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4840lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4840lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4848-p10udt4848lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4848.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4848lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4848lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4851-p10udt4851lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4851.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4851lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4851lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4855-p10udt4855lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4855.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4855lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4855lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4857-p10udt4857lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4857.2.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4857lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4857lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4858-p10udt4858lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4858.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4858lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4858lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4864-p10udt4864lv) phases=3 windings=2 %loadloss=1.74408 %Noloadloss=0.6 normhkva=82.5 wdg=1 conn=delta Kv=12.47 kva=75.0 EmergHKVA=112.5 %R=0.87204 bus=p10udt4864 wdg=2 conn=delta Kv=0.48 kva=75.0 EmergHKVA=112.5 %R=0.87204 bus=p10udt4864lv XHL=3.2400000000000007
+
+New Transformer.tr(r:p10udt4865-p10udt4865lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4865.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4865lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4865lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4910-p10udt4910lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt4910.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt4910lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt4910lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt4958-p10udt4958lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt4958.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt4958lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt4958lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5624-p10udt5624lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5624.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5624lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5624lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5625-p10udt5625lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5625.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5625lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5625lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5627-p10udt5627lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5627.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5627lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5627lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5628-p10udt5628lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5628.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5628lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5628lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5629-p10udt5629lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5629.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5629lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5629lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5630-p10udt5630lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5630.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5630lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5630lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5632-p10udt5632lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5632.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5632lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5632lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5633-p10udt5633lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5633.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5633lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5633lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5634-p10udt5634lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5634.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5634lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5634lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5635-p10udt5635lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5635.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5635lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5635lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5636-p10udt5636lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5636.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5636lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5636lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5637-p10udt5637lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5637.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5637lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5637lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5638-p10udt5638lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5638.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5638lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5638lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5640-p10udt5640lv) phases=1 windings=3 %loadloss=0.49926 %Noloadloss=0.38 normhkva=82.5 wdg=1 conn=delta bus=p10udt5640.1.3 Kv=12.47 kva=75.0 EmergHKVA=112.5 %r=0.16642 wdg=2 conn=wye bus=p10udt5640lv.1.0 Kv=0.12 kva=75.0 EmergHKVA=112.5 %r=0.33284 wdg=3 conn=wye bus=p10udt5640lv.0.2 Kv=0.12 kva=75.0 EmergHKVA=112.5 %r=0.33284 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5641-p10udt5641lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5641.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5641lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5641lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5642-p10udt5642lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5642.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5642lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5642lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5643-p10udt5643lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5643.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5643lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5643lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5644-p10udt5644lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5644.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5644lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5644lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5645-p10udt5645lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5645.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5645lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5645lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5646-p10udt5646lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5646.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5646lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5646lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5647-p10udt5647lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5647.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5647lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5647lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5648-p10udt5648lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5648.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5648lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5648lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5650-p10udt5650lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5650.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5650lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5650lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5651-p10udt5651lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5651.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5651lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5651lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5652-p10udt5652lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5652.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5652lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5652lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5653-p10udt5653lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5653.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5653lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5653lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5654-p10udt5654lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5654.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5654lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5654lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5655-p10udt5655lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5655.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5655lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5655lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5656-p10udt5656lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5656.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5656lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5656lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5657-p10udt5657lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5657.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5657lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5657lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5658-p10udt5658lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5658.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5658lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5658lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5660-p10udt5660lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5660.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5660lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5660lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5661-p10udt5661lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5661.1.3 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5661lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5661lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5662-p10udt5662lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5662.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5662lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5662lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5663-p10udt5663lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5663.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5663lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5663lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5664-p10udt5664lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5664.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5664lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5664lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5665-p10udt5665lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5665.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5665lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5665lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5667-p10udt5667lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5667.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5667lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5667lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5668-p10udt5668lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5668.2.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5668lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5668lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5669-p10udt5669lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5669.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5669lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5669lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5670-p10udt5670lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.37 normhkva=55.0 wdg=1 conn=delta bus=p10udt5670.1.2 Kv=12.47 kva=50.0 EmergHKVA=75.0 %r=0.266272 wdg=2 conn=wye bus=p10udt5670lv.1.0 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 wdg=3 conn=wye bus=p10udt5670lv.0.2 Kv=0.12 kva=50.0 EmergHKVA=75.0 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5671-p10udt5671lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5671.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5671lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5671lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5672-p10udt5672lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5672.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5672lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5672lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5673-p10udt5673lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5673.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5673lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5673lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5674-p10udt5674lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5674.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5674lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5674lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5675-p10udt5675lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5675.1.3 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5675lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5675lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5676-p10udt5676lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5676.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5676lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5676lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5677-p10udt5677lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5677.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5677lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5677lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5679-p10udt5679lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5679.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5679lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5679lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5680-p10udt5680lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5680.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5680lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5680lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5682-p10udt5682lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5682.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5682lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5682lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5779-p10udt5779lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5779.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5779lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5779lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt5821-p10udt5821lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt5821.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt5821lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt5821lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+
+New Transformer.tr(r:p10udt6352-p10udt6352lv) phases=1 windings=3 %loadloss=0.798816 %Noloadloss=0.472 normhkva=27.5 wdg=1 conn=delta bus=p10udt6352.1.2 Kv=12.47 kva=25.0 EmergHKVA=37.5 %r=0.266272 wdg=2 conn=wye bus=p10udt6352lv.1.0 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 wdg=3 conn=wye bus=p10udt6352lv.0.2 Kv=0.12 kva=25.0 EmergHKVA=37.5 %r=0.532544 XHL=2.4 XLT=2.4 XHT=1.6
+

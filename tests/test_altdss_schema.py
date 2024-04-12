@@ -4,7 +4,6 @@ import sys
 base_path = Path(__file__).parent
 module_path = base_path / ".." / "AltDSS-Schema" / "python"
 assert module_path.exists()
-print(str(module_path.absolute))
 sys.path.insert(1, str(module_path.absolute()))
 
 

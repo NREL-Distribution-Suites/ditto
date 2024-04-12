@@ -89,10 +89,8 @@ def build_profiles(
     """
 
     logger.debug("parsing timeseries components...")
-    print(profile_names)
     for profile_name in profile_names:
         if profile_name and profile_name not in profile_catalog:
-            print("building : ", profile_name)
             profiles = {}
             for profile in model_type_to_profile_type_map[component_type]:
                 profile_type = profile.profile_type

@@ -10,6 +10,7 @@ from gdm import (
     DistributionBus,
     ConnectionType,
     SequencePair,
+    VoltageTypes,
 )
 from infrasys.component import Component
 from infrasys.system import System
@@ -78,7 +79,10 @@ def _build_xfmr_equipment(system: System, model_type: str) -> DistributionTransf
         nodes = ["1", "2", "3"] if num_phase == 3 else bus.split(".")[1:]
         winding_phases.append([PHASE_MAPPER[node] for node in nodes])
         xfmr_buses.append(system.get_component(DistributionBus, bus))
-        nominal_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
+        if query("conn", str).lower() == "delta":
+            nominal_voltage = query("kv", float) / 1.732
+        else:
+            nominal_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
         winding = WindingEquipment(
             rated_power=PositiveApparentPower(query("kva", float), "kilova"),
             num_phases=num_phase,
@@ -88,6 +92,7 @@ def _build_xfmr_equipment(system: System, model_type: str) -> DistributionTransf
             nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
             resistance=query("%r", float),
             is_grounded=False,  # TODO @aadil
+            voltage_type=VoltageTypes.LINE_TO_GROUND,
         )
         windings.append(winding)
 

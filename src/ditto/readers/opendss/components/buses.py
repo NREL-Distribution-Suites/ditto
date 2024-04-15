@@ -1,18 +1,16 @@
 from gdm import DistributionBus, VoltageLimitSet, VoltageTypes
 from gdm.quantities import PositiveVoltage
 from infrasys.location import Location
-from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.common import PHASE_MAPPER
+from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalog
 
 
-def get_buses(system: System, crs: str = None) -> list[DistributionBus]:
+def get_buses(crs: str = None) -> list[DistributionBus]:
     """Function to return list of all buses in Opendss model
 
     Args:
-        system (System): Instance of System
         crs (str, optional): Coordinate reference system name. Defaults to None.
 
     Returns:
@@ -20,6 +18,8 @@ def get_buses(system: System, crs: str = None) -> list[DistributionBus]:
     """
 
     logger.info("parsing bus components...")
+    voltage_limit_set_catalog = {}
+    location_catalog = {}
     buses = []
 
     for bus in odd.Circuit.AllBusNames():
@@ -27,19 +27,24 @@ def get_buses(system: System, crs: str = None) -> list[DistributionBus]:
         nominal_voltage = odd.Bus.kVBase()
 
         loc = Location(x=odd.Bus.Y(), y=odd.Bus.X(), crs=crs)
-        system.add_component(loc)
+        loc = get_equipment_from_catalog(loc, location_catalog)
 
-        limitsets = [
-            VoltageLimitSet(
-                limit_type="min",
-                value=PositiveVoltage(nominal_voltage * 0.95, "kilovolt"),
-            ),
-            VoltageLimitSet(
-                limit_type="max",
-                value=PositiveVoltage(nominal_voltage * 1.05, "kilovolt"),
-            ),
-        ]
-        system.add_components(*limitsets)
+        voltage_lower_bound = VoltageLimitSet(
+            limit_type="min",
+            value=PositiveVoltage(nominal_voltage * 0.95, "kilovolt"),
+        )
+        voltage_lower_bound = get_equipment_from_catalog(
+            voltage_lower_bound, voltage_limit_set_catalog
+        )
+        voltage_upper_bound = VoltageLimitSet(
+            limit_type="max",
+            value=PositiveVoltage(nominal_voltage * 1.05, "kilovolt"),
+        )
+        voltage_upper_bound = get_equipment_from_catalog(
+            voltage_upper_bound, voltage_limit_set_catalog
+        )
+
+        limitsets = [voltage_lower_bound, voltage_upper_bound]
         buses.append(
             DistributionBus(
                 voltage_type=VoltageTypes.LINE_TO_GROUND.value,

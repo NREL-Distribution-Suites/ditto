@@ -11,22 +11,30 @@ from loguru import logger
 
 
 class ObjectsWithProfile(Enum):
+    """GDM models that support profiles in OpenDSS"""
+
     LOAD = DistributionLoad
     PV_SYSTEM = DistributionSolar
     SOURCE = DistributionVoltageSource
 
 
 class ProfileBases(str, Enum):
+    """Profile base (used for normalization of profiles)"""
+
     P_BASE = "PBase"
     Q_BASE = "QBase"
 
 
 class ProfileTypes(str, Enum):
+    """Profile multiplier (used for scaling profiles)"""
+
     P_MULT = "PMult"
     Q_MULT = "QMult"
 
 
 class ProfileMap(BaseModel):
+    """Profile mapping"""
+
     quantity: type[BaseQuantity] | None
     units: str | None
     profile_type: ProfileTypes

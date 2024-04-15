@@ -1,31 +1,27 @@
 from pathlib import Path
 
-
 from infrasys.system import System
 from gdm import DistributionSystem
 from gdm import SequencePair
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.components.branches import (
-    get_matrix_branch_equipments,
-    get_geometry_branch_equipments,
-    get_branches,
-)
-from ditto.readers.opendss.components.sources import (
-    get_voltage_sources,
-    get_voltage_source_equipments,
-)
-from ditto.readers.opendss.components.transformers import (
-    get_transformers,
-    get_transformer_equipments,
-)
-from ditto.readers.opendss.components.capacitors import get_capacitors, get_capacitor_equipments
-from ditto.readers.opendss.components.pv_systems import get_pv_equipments, get_pvsystems
 from ditto.readers.opendss.components.conductors import get_conductors_equipment
 from ditto.readers.opendss.components.cables import get_cables_equipment
-from ditto.readers.opendss.components.loads import get_loads
+from ditto.readers.opendss.components.sources import get_voltage_sources
+from ditto.readers.opendss.components.capacitors import get_capacitors
+from ditto.readers.opendss.components.pv_systems import get_pvsystems
 from ditto.readers.opendss.components.buses import get_buses
+from ditto.readers.opendss.components.loads import get_loads
+from ditto.readers.opendss.components.transformers import (
+    get_transformer_equipments,
+    get_transformers,
+)
+from ditto.readers.opendss.components.branches import (
+    get_geometry_branch_equipments,
+    get_matrix_branch_equipments,
+    get_branches,
+)
 from ditto.readers.reader import AbscractReader
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
@@ -62,36 +58,33 @@ class Reader(AbscractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
-        json_circuit = odd.Circuit.ToJSON()
-        json_file = str(self.Opendss_master_file).lower().replace(".dss", ".json")
-        with open(json_file, "w") as f:
-            f.write(json_circuit)
-
         logger.info(f"Model loaded from {self.Opendss_master_file}.")
         self.system = System(name=odd.Circuit.Name(), auto_add_composed_components=True)
 
-        buses = get_buses(self.system, self.crs)
+        buses = get_buses(self.crs)
         self.system.add_components(*buses)
-        voltage_sources_equipment_catalog = get_voltage_source_equipments()
-        self.system.add_components(*voltage_sources_equipment_catalog.values())
-        voltage_sources = get_voltage_sources(self.system, voltage_sources_equipment_catalog)
+        voltage_sources = get_voltage_sources(self.system)
         self.system.add_components(*voltage_sources)
-        capacitor_equipments_catalog = get_capacitor_equipments()
-        self.system.add_components(*capacitor_equipments_catalog.values())
-        caps = get_capacitors(self.system, capacitor_equipments_catalog)
+        caps = get_capacitors(self.system)
         self.system.add_components(*caps)
-        # TODO: should unique load equiments be calatoged to reduce replicated objects?
         loads = get_loads(self.system)
         self.system.add_components(*loads)
-        transformer_equipments_catalog = get_transformer_equipments(self.system)
-        self.system.add_components(*transformer_equipments_catalog.values())
-        transformers = get_transformers(self.system, transformer_equipments_catalog)
+        pv_systems = get_pvsystems(self.system)
+        self.system.add_components(*pv_systems)
+        (
+            distribution_transformer_equipment_catalog,
+            winding_equipment_catalog,
+        ) = get_transformer_equipments(self.system)
+        self.system.add_components(*distribution_transformer_equipment_catalog.values())
+        transformers = get_transformers(
+            self.system, distribution_transformer_equipment_catalog, winding_equipment_catalog
+        )
         self.system.add_components(*transformers)
         conductor_equipment = get_conductors_equipment()
         self.system.add_components(*conductor_equipment)
         concentric_cable_equipment = get_cables_equipment()
         self.system.add_components(*concentric_cable_equipment)
-        matrix_branch_equipments_catalog = get_matrix_branch_equipments()
+        matrix_branch_equipments_catalog, thermal_limit_catalog = get_matrix_branch_equipments()
         self.system.add_components(*matrix_branch_equipments_catalog.values())
         geometry_branch_equipment_catalog, mapped_geometry = get_geometry_branch_equipments(
             self.system
@@ -100,16 +93,14 @@ class Reader(AbscractReader):
         branches = get_branches(
             self.system,
             mapped_geometry,
-            matrix_branch_equipments_catalog,
             geometry_branch_equipment_catalog,
+            matrix_branch_equipments_catalog,
+            thermal_limit_catalog,
         )
         self.system.add_components(*branches)
-        solar_equipment_catalog = get_pv_equipments()
-        self.system.add_components(*solar_equipment_catalog.values())
-        pv_systems = get_pvsystems(self.system, solar_equipment_catalog)
-        self.system.add_components(*pv_systems)
 
         logger.info("parsing complete...")
+        logger.info(f"\n{self.system.info()}")
 
     def get_system(self) -> System:
         """Returns an instance of DistributionSystem

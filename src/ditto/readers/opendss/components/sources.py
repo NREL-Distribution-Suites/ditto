@@ -7,18 +7,25 @@ from gdm import (
     DistributionVoltageSource,
 )
 from infrasys.quantities import Angle, Resistance, Voltage
-from infrasys.component import Component
 from gdm.quantities import Reactance
 import opendssdirect as odd
 from infrasys import System
 from loguru import logger
 
-from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
+from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalog
 from ditto.readers.opendss.loadshapes import build_profiles, ObjectsWithProfile
 
 
-def _build_voltage_source_equipment() -> tuple[VoltageSourceEquipment, list[str], str, list[str]]:
+def _build_voltage_source_equipment(
+    phase_voltage_source_equipment_catalog: dict[int, PhaseVoltageSourceEquipment],
+    voltage_source_equipment_catalog: dict[int, VoltageSourceEquipment],
+) -> tuple[VoltageSourceEquipment, list[str], str, list[str]]:
     """Helper function to build a VoltageSourceEquipment instance
+
+    Args:
+        phase_voltage_source_equipment_catalog (dict[int, PhaseVoltageSourceEquipment]): mapping of model hash to PhaseVoltageSourceEquipment instance
+        voltage_source_equipment_catalog (dict[int, VoltageSourceEquipment]): mapping of model hash to VoltageSourceEquipment instance
+
 
     Returns:
         VoltageSourceEquipment: instance of VoltageSourceEquipment
@@ -26,6 +33,7 @@ def _build_voltage_source_equipment() -> tuple[VoltageSourceEquipment, list[str]
         str:  Voltage source name
         list[str]: List of phases
     """
+
     equipment_uuid = uuid4()
     soure_name = odd.Vsources.Name().lower()
     buses = odd.CktElement.BusNames()
@@ -52,39 +60,22 @@ def _build_voltage_source_equipment() -> tuple[VoltageSourceEquipment, list[str]
             angle=angle,
             voltage=voltage / 1.732 if num_phase == 3 else voltage,
         )
+        phase_slack = get_equipment_from_catalog(
+            phase_slack, phase_voltage_source_equipment_catalog
+        )
+
         phase_slacks.append(phase_slack)
 
     slack_equipment = VoltageSourceEquipment(
         name=str(equipment_uuid),
         sources=phase_slacks,
     )
+
+    slack_equipment = get_equipment_from_catalog(slack_equipment, voltage_source_equipment_catalog)
     return slack_equipment, buses, soure_name, nodes
 
 
-def get_voltage_source_equipments() -> list[VoltageSourceEquipment]:
-    """Function to return list of all voltage sources equipments in Opendss model.
-
-    Returns:
-        list[VoltageSourceEquipment]: List of VoltageSourceEquipment objects
-    """
-
-    logger.info("parsing voltage source equipment...")
-
-    voltage_sources_equipment_catalog = {}
-    flag = odd.Vsources.First()
-    while flag:
-        slack_equipment, _, _, _ = _build_voltage_source_equipment()
-        model_dict = model_to_dict(slack_equipment)
-        if str(model_dict) not in voltage_sources_equipment_catalog:
-            voltage_sources_equipment_catalog[str(model_dict)] = slack_equipment
-
-        flag = odd.Vsources.Next()
-    return voltage_sources_equipment_catalog
-
-
-def get_voltage_sources(
-    system: System, catalog: dict[str, Component]
-) -> list[DistributionVoltageSource]:
+def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
     """Function to return list of all voltage sources in Opendss model.
 
     Args:
@@ -95,18 +86,15 @@ def get_voltage_sources(
     """
 
     logger.info("parsing voltage sources components...")
+    phase_voltage_source_equipment_catalog = {}
+    voltage_source_equipment_catalog = {}
     profile_catalog = {}
     voltage_sources = []
     flag = odd.Vsources.First()
     while flag:
-        slack_equipment, buses, soure_name, nodes = _build_voltage_source_equipment()
-        equipment_from_libray = get_equipment_from_system(
-            slack_equipment, VoltageSourceEquipment, catalog
+        equipment, buses, soure_name, nodes = _build_voltage_source_equipment(
+            phase_voltage_source_equipment_catalog, voltage_source_equipment_catalog
         )
-        if equipment_from_libray:
-            equipment = equipment_from_libray
-        else:
-            equipment = slack_equipment
         bus1 = buses[0].split(".")[0]
 
         def query(property: str):

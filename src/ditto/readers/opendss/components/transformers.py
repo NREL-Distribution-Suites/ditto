@@ -11,13 +11,13 @@ from gdm import (
     ConnectionType,
     SequencePair,
     VoltageTypes,
+    Phase,
 )
-from infrasys.component import Component
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.common import PHASE_MAPPER, model_to_dict, get_equipment_from_system
+from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalog
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 
@@ -27,12 +27,19 @@ class XfmrModelTypes(str, Enum):
     XFMRCODE = "XfmrCode"
 
 
-def _build_xfmr_equipment(system: System, model_type: str) -> DistributionTransformerEquipment:
+def _build_xfmr_equipment(
+    system: System,
+    model_type: str,
+    distribution_transformer_equipment_catalog: dict[int, DistributionTransformerEquipment],
+    winding_equipment_catalog: dict[int, WindingEquipment],
+) -> tuple[DistributionTransformerEquipment, list[DistributionBus], list[Phase]]:
     """Helper function to build a DistributionTransformerEquipment instance
 
     Args:
         system (System): Instance of infrasys System
-        model_type (str): Opendss model type e.g. Transformer
+        model_type (str): Opendss model type e.g. Transformer, XfmrCode
+        distribution_transformer_equipment_catalog (dict[int, DistributionTransformerEquipment]): mapping of model hash to DistributionTransformerEquipment instance
+        winding_equipment_catalog (dict[int, WindingEquipment]): mapping of model hash to WindingEquipment instance
 
     Returns:
         DistributionTransformerEquipment: instance of DistributionTransformerEquipment
@@ -94,6 +101,9 @@ def _build_xfmr_equipment(system: System, model_type: str) -> DistributionTransf
             is_grounded=False,  # TODO @aadil
             voltage_type=VoltageTypes.LINE_TO_GROUND,
         )
+
+        winding = get_equipment_from_catalog(winding, winding_equipment_catalog)
+
         windings.append(winding)
 
     coupling_sequences = SEQUENCE_PAIRS[:1] if number_windings == 2 else SEQUENCE_PAIRS
@@ -101,13 +111,18 @@ def _build_xfmr_equipment(system: System, model_type: str) -> DistributionTransf
 
     dist_transformer = DistributionTransformerEquipment(
         name=equipment_uuid,
-        pct_no_load_loss=query("%noloadloss", float),
-        pct_full_load_loss=query("%loadloss", float),
+        pct_no_load_loss=query(r"%noloadloss", float),
+        pct_full_load_loss=query(r"%loadloss", float),
         windings=windings,
         coupling_sequences=coupling_sequences,
         winding_reactances=reactances,
         is_center_tapped=_is_center_tapped(),
     )
+
+    dist_transformer = get_equipment_from_catalog(
+        dist_transformer, distribution_transformer_equipment_catalog
+    )
+
     return dist_transformer, xfmr_buses, winding_phases
 
 
@@ -121,29 +136,36 @@ def get_transformer_equipments(system: System) -> list[DistributionTransformerEq
         list[DistributionTransformerEquipment]: List of DistributionTransformerEquipment objects
     """
     logger.info("parsing transformer equipment...")
-    xfmr_equipments_catalog = {}
+    distribution_transformer_equipment_catalog = {}
+    winding_equipment_catalog = {}
     odd_model_types = [v.value for v in XfmrModelTypes]
     for odd_model_type in odd_model_types:
         odd.Circuit.SetActiveClass(odd_model_type)
         flag = odd.ActiveClass.First()
         while flag > 0:
-            xfmr_equipment, _, _ = _build_xfmr_equipment(system, odd_model_type)
-            model_dict = model_to_dict(xfmr_equipment)
-            if str(model_dict) not in xfmr_equipments_catalog:
-                xfmr_equipments_catalog[str(model_dict)] = xfmr_equipment
+            _build_xfmr_equipment(
+                system,
+                odd_model_type,
+                distribution_transformer_equipment_catalog,
+                winding_equipment_catalog,
+            )
             flag = odd.ActiveClass.Next()
-    return xfmr_equipments_catalog
+    return distribution_transformer_equipment_catalog, winding_equipment_catalog
 
 
 def get_transformers(
-    system: System, catalog: dict[str, Component]
+    system: System,
+    distribution_transformer_equipment_catalog: dict[int, DistributionTransformerEquipment],
+    winding_equipment_catalog: dict[int, WindingEquipment],
 ) -> list[DistributionTransformer]:
     """Method returns a list of DistributionTransformer objects
 
     Args:
-        system (System): Instance of System
+        system (System):  Instance of System
+        distribution_transformer_equipment_catalog (dict[int, DistributionTransformerEquipment]): mapping of model hash to DistributionTransformerEquipment instance
+        winding_equipment_catalog (dict[int, WindingEquipment]): mapping of model hash to WindingEquipment instance
 
-    Returns:
+     Returns:
         list[DistributionTransformer]: list of distribution transformers
     """
 
@@ -154,20 +176,16 @@ def get_transformers(
     while flag > 0:
         logger.debug(f"building transformer {odd.Transformers.Name()}")
         xfmr_equipment, buses, phases = _build_xfmr_equipment(
-            system, XfmrModelTypes.TRANSFORMERS.value
+            system,
+            XfmrModelTypes.TRANSFORMERS.value,
+            distribution_transformer_equipment_catalog,
+            winding_equipment_catalog,
         )
-        equipment_from_libray = get_equipment_from_system(
-            xfmr_equipment, DistributionTransformerEquipment, catalog
-        )
-        if equipment_from_libray:
-            equipment = equipment_from_libray
-        else:
-            equipment = xfmr_equipment
         transformer = DistributionTransformer(
             name=odd.Transformers.Name().lower(),
             buses=buses,
             winding_phases=phases,
-            equipment=equipment,
+            equipment=xfmr_equipment,
         )
         transformers.append(transformer)
         flag = odd.Transformers.Next()

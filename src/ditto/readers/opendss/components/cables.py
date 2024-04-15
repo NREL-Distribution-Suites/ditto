@@ -9,7 +9,7 @@ from pydantic import PositiveInt
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.common import query_model_data
+from ditto.readers.opendss.common import query_model_data, get_equipment_from_catalog
 
 
 def get_cables_equipment() -> list[ConcentricCableEquipment]:
@@ -20,7 +20,7 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
     """
 
     logger.info("parsing cable components...")
-
+    concentric_cable_equipment_catalog = {}
     model_type = "CNData"
     cables = []
     odd.Circuit.SetActiveClass(model_type)
@@ -36,7 +36,7 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
         gmr_strand = query_model_data(model_type, model_name, "gmr", float)
         diam_strand = query_model_data(model_type, model_name, "diam", float)
 
-        cables = ConcentricCableEquipment(
+        cable = ConcentricCableEquipment(
             strand_ac_resistance=PositiveResistancePULength(
                 query_model_data(model_type, model_name, "rstrand", float), f"ohms/{length_units}"
             ),
@@ -76,6 +76,9 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
             loading_limit=None,
             name=model_type,
         )
-        cables.append(cables)
+
+        cable = get_equipment_from_catalog(cable, concentric_cable_equipment_catalog)
+
+        cables.append(cable)
         flag = odd.ActiveClass.Next()
     return cables

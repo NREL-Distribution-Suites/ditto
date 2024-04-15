@@ -24,7 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "opendssdirect.py",
-    "gdm @ git+https://github.nrel.gov/CADET/grid-data-models.git",
+    "grid-data-models",
 ]
 
 [project.urls]

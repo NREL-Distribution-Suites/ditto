@@ -3,7 +3,7 @@ from gdm import BareConductorEquipment
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.common import query_model_data
+from ditto.readers.opendss.common import query_model_data, get_equipment_from_catalog
 
 
 def get_conductors_equipment() -> list[BareConductorEquipment]:
@@ -14,7 +14,7 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
     """
 
     logger.info("parsing conductor components...")
-
+    bare_conductor_equipment_catalog = {}
     model_type = "WireData"
     conductors = []
     odd.Circuit.SetActiveClass(model_type)
@@ -44,6 +44,8 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
             loading_limit=None,
             name=model_name,
         )
+
+        conductor = get_equipment_from_catalog(conductor, bare_conductor_equipment_catalog)
         conductors.append(conductor)
         flag = odd.ActiveClass.Next()
     return conductors

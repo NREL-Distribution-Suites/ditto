@@ -18,6 +18,8 @@ UNIT_MAPPER = {0: "m", 1: "mi", 2: "kft", 3: "km", 4: "m", 5: "ft", 6: "in", 7: 
 
 
 class LoadTypes(IntEnum):
+    """Load types represented in Ditto"""
+
     CONST_POWER = 1
     CONST_IMPEDANCE = 2
     CONST_P__QUARDRATIC_Q = 3
@@ -26,53 +28,68 @@ class LoadTypes(IntEnum):
     ZIP = 8
 
 
-def model_to_dict(model: Component) -> dict:
-    """Converts models to a dict and resursively removes all 'name' kwargs
+def hash_model(model: Component, key_names: list[str] = ["name", "uuid"]) -> int:
+    """Return hash of the passed model
 
     Args:
         model (Component): Instance of a derived infrasys Component model
+        key_names (list[str], optional): List of keys to be removed from the model. Defaults to ["name", "uuid"].
 
     Returns:
-        tuple[str,dict]: Dictionary representation of the model
+        int: model hash
     """
-    model_dict = model.model_dump(exclude={"name"})
-    return remove_name_from_dict(model_dict)
+    model_dict = (
+        model.model_dump()
+    )  # TODO: exclude={"name"} seems not to work  well with list of objects
+    cleaned_model = remove_keys_from_dict(model_dict, key_names)
+    return hash(str(cleaned_model))
 
 
-def remove_name_from_dict(model_dict: dict) -> dict:
-    if "name" in model_dict:
-        model_dict.pop("name")
-    for k, v in model_dict.items():
-        if isinstance(v, dict):
-            model_dict[k] = remove_name_from_dict(v)
-        elif isinstance(v, list):
-            values = []
-            for value in v:
-                if isinstance(value, dict):
-                    value = remove_name_from_dict(value)
-                values.append(value)
-                model_dict[k] = values
+def remove_keys_from_dict(model_dict: dict, key_names: list[str] = ["name", "uuid"]) -> dict:
+    """Method recursively removes keys from the model
+
+    Args:
+        model_dict (dict): model in dict representation
+        key_names (list[str]): keys to remove from the model
+
+    Returns:
+        dict: reduced model dictionary
+    """
+    for key_name in key_names:
+        if key_name in model_dict:
+            model_dict.pop(key_name)
+        for k, v in model_dict.items():
+            if isinstance(v, dict):
+                model_dict[k] = remove_keys_from_dict(v)
+            elif isinstance(v, list):
+                values = []
+                for value in v:
+                    if isinstance(value, dict):
+                        value = remove_keys_from_dict(value)
+                    values.append(value)
+                    model_dict[k] = values
     return model_dict
 
 
-def get_equipment_from_system(
-    model: Component, model_type: type[Component], catalog: dict[str, Component]
+def get_equipment_from_catalog(
+    model: Component, catalog: dict[int, Component]
 ) -> Component | None:
-    """If the equipment already exixts in th system the equipment instalce is returned else None is returned
+    """If the equipment already exixts in th system the equipment instance is returned else None is returned
 
     Args:
         model (Component): Instance of GDM equipment
-        model_type (type[Component]): Infrasys Component type
-        system (System): Infrasys System instance
-
+        catalog (dict[int, Component]): mapping model hash to model
 
     Returns:
-        Component | None: _description_
+        Component | None:  Instance of GDM equipment
     """
 
-    model_dict = model_to_dict(model)
-    if str(model_dict) in catalog:
-        return catalog[str(model_dict)]
+    model_hash = hash_model(model)
+    if model_hash in catalog:
+        return catalog[model_hash]
+    else:
+        catalog[model_hash] = model
+        return model
 
 
 def query_model_data(model_type: str, model_name: str, property: str, dtype: type) -> Any:

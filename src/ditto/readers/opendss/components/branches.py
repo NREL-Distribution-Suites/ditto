@@ -1,7 +1,8 @@
 from uuid import uuid4
 from enum import Enum
 
-from infrasys import System
+from infrasys import System, Component
+
 from gdm.quantities import (
     PositiveResistancePULength,
     CapacitancePULength,
@@ -20,16 +21,16 @@ from gdm import (
     ThermalLimitSet,
     GeometryBranch,
 )
+from infrasys.quantities import Distance
 import opendssdirect as odd
 from loguru import logger
 import numpy as np
-from infrasys.quantities import Distance
 
 from ditto.readers.opendss.common import (
+    get_equipment_from_catalog,
     PHASE_MAPPER,
     UNIT_MAPPER,
-    model_to_dict,
-    get_equipment_from_system,
+    hash_model,
 )
 
 
@@ -40,7 +41,7 @@ class MatrixBranchTypes(str, Enum):
 
 def get_geometry_branch_equipments(
     system: System,
-) -> tuple[list[GeometryBranchEquipment], dict[str, str]]:
+) -> tuple[list[GeometryBranchEquipment], dict[str, int]]:
     """Helper function that return a list of GeometryBranchEquipment objects
 
     Args:
@@ -48,13 +49,13 @@ def get_geometry_branch_equipments(
 
     Returns:
         list[GeometryBranchEquipment]: list of GeometryBranchEquipment objects
-        dict[str, str]: mapping line geometries to unique GeometryBranchEquipment names
+        dict[str, int]: mapping of line geometries names to GeometryBranchEquipment hash
     """
 
     logger.info("parsing geometry branch equipment...")
 
     mapped_geometry = {}
-    geometry_branch_equipments_catalog = {}
+    geometry_branch_equipment_catalog = {}
     flag = odd.LineGeometries.First()
 
     while flag > 0:
@@ -92,22 +93,27 @@ def get_geometry_branch_equipments(
             horizontal_positions=Distance(x_coordinates, units),
             vertical_positions=Distance(y_coordinates, units),
         )
-        model_dict = model_to_dict(geometry_branch_equipment)
-        if str(model_dict) not in geometry_branch_equipments_catalog:
-            geometry_branch_equipments_catalog[str(model_dict)] = geometry_branch_equipment
-        else:
-            equipment = geometry_branch_equipments_catalog[str(model_dict)]
-            mapped_geometry[geometry_branch_equipment.name] = equipment.name
+        geometry_branch_equipment = get_equipment_from_catalog(
+            geometry_branch_equipment, geometry_branch_equipment_catalog
+        )
+        mapped_geometry[geometry_name] = hash_model(geometry_branch_equipment)
+
         flag = odd.LineGeometries.Next()
 
-    return geometry_branch_equipments_catalog, mapped_geometry
+    return geometry_branch_equipment_catalog, mapped_geometry
 
 
-def _build_matrix_branch(model_type: str) -> MatrixImpedanceBranchEquipment:
+def _build_matrix_branch(
+    model_type: str,
+    matrix_branch_equipments_catalog: dict[int, Component],
+    thermal_limit_catalog: dict[int, Component],
+) -> MatrixImpedanceBranchEquipment:
     """Helper function to build a MatrixImpedanceBranchEquipment instance
 
     Args:
         model_type (str): OpenDSS model type e.g. LineCode / Line
+        matrix_branch_equipments_catalog (dict[int, Component]): mapping of model hash to MatrixImpedanceBranchEquipment instance
+        thermal_limit_catalog (dict[int, Component]): mapping of model hash to ThermalLimitSet instance
 
     Returns:
         MatrixImpedanceBranchEquipment: instance of MatrixImpedanceBranchEquipment
@@ -125,6 +131,9 @@ def _build_matrix_branch(model_type: str) -> MatrixImpedanceBranchEquipment:
         limit_type="max",
         value=PositiveCurrent(module.EmergAmps(), "ampere"),
     )
+
+    thermal_limits = get_equipment_from_catalog(thermal_limits, thermal_limit_catalog)
+
     length_units = UNIT_MAPPER[module.Units().value]
 
     r_matrix = module.RMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Rmatrix()
@@ -147,19 +156,28 @@ def _build_matrix_branch(model_type: str) -> MatrixImpedanceBranchEquipment:
         ampacity=PositiveCurrent(module.NormAmps(), "ampere"),
         loading_limit=thermal_limits,
     )
+
+    matrix_branch_equipment = get_equipment_from_catalog(
+        matrix_branch_equipment, matrix_branch_equipments_catalog
+    )
+
     return matrix_branch_equipment
 
 
-def get_matrix_branch_equipments() -> tuple[list[MatrixImpedanceBranchEquipment]]:
+def get_matrix_branch_equipments() -> (
+    tuple[dict[int, MatrixImpedanceBranchEquipment], dict[int, ThermalLimitSet]]
+):
     """Function to return list of all MatrixImpedanceBranchEquipment in Opendss model.
 
     Returns:
-        list[MatrixImpedanceBranchEquipment]: List of MatrixImpedanceBranchEquipment objects
+        dict[int, MatrixImpedanceBranchEquipment]: mapping of model hash to MatrixImpedanceBranchEquipment instance
+        dict[int, ThermalLimitSet]: mapping of model hash to ThermalLimitSet instance
     """
 
     logger.info("parsing matrix branch equipment...")
 
     matrix_branch_equipments_catalog = {}
+    thermal_limit_catalog = {}
     odd_model_types = [v.value for v in MatrixBranchTypes]
     for odd_model_type in odd_model_types:
         module: odd.LineCodes | odd.Lines = getattr(odd, odd_model_type)
@@ -168,26 +186,31 @@ def get_matrix_branch_equipments() -> tuple[list[MatrixImpedanceBranchEquipment]
             if odd_model_type == MatrixBranchTypes.LINE.value and module.Geometry():
                 pass
             else:
-                matrix_branch_equipment = _build_matrix_branch(odd_model_type)
-                model_dict = model_to_dict(matrix_branch_equipment)
-                if str(model_dict) not in matrix_branch_equipments_catalog:
-                    matrix_branch_equipments_catalog[str(model_dict)] = matrix_branch_equipment
+                _build_matrix_branch(
+                    odd_model_type, matrix_branch_equipments_catalog, thermal_limit_catalog
+                )
             flag = module.Next()
-    return matrix_branch_equipments_catalog
+    return matrix_branch_equipments_catalog, thermal_limit_catalog
 
 
 def get_branches(
-    system: System, mapping: dict[str, str], matrix_branch_catalog, geometry_branch_catalog
+    system: System,
+    mapping: dict[str, str],
+    geometry_branch_equipment_catalog: dict,
+    matrix_branch_equipments_catalog: dict,
+    thermal_limit_catalog: dict,
 ) -> tuple[list[MatrixImpedanceBranch | GeometryBranch]]:
     """Method to build a model branches
 
     Args:
         system (System): Instance of System
-        mapping (dict[str, str]): mapping line geometries to unique GeometryBranchEquipment names
+        mapping (dict[str, int]): mapping of line geometries names to GeometryBranchEquipment hash
+        geometry_branch_equipment_catalog (dict): mapping of model hash to GeometryBranchEquipment instance
+        matrix_branch_equipments_catalog (dict): mapping of model hash to MatrixImpedanceBranchEquipment instance
+        thermal_limit_catalog (dict): mapping of model hash to ThermalLimitSet instance
 
     Returns:
-        list[MatrixImpedanceBranch]: Returns a MatrixImpedanceBranch object
-        list[GeometryBranch]: Returns a GeometryBranch object
+        tuple[list[MatrixImpedanceBranch | GeometryBranch]]: Returns a list of system branches
     """
 
     logger.info("parsing branch components...")
@@ -203,11 +226,10 @@ def get_branches(
         nodes = ["1", "2", "3"] if num_phase == 3 else buses[0].split(".")[1:]
         geometry = odd.Lines.Geometry().lower()
         if geometry:
-            if geometry in mapping:
-                geometry = mapping[geometry]
-            geometry_branch_equipment = system.get_component(GeometryBranchEquipment, geometry)
+            assert geometry in mapping
+            geometry_hash = mapping[geometry]
+            geometry_branch_equipment = geometry_branch_equipment_catalog[geometry_hash]
             n_conds = len(geometry_branch_equipment.conductors)
-            # Any conductor after the phase conductors will be considered a neutral
             for _ in range(n_conds - num_phase):
                 nodes.append("4")
             geometry_branch = GeometryBranch(
@@ -222,15 +244,12 @@ def get_branches(
             )
             branches.append(geometry_branch)
         else:
-            matrix_branch_equipment = _build_matrix_branch(MatrixBranchTypes.LINE.value)
-            equipment_from_libray = get_equipment_from_system(
-                matrix_branch_equipment, MatrixImpedanceBranchEquipment, matrix_branch_catalog
+            equipment = _build_matrix_branch(
+                MatrixBranchTypes.LINE.value,
+                matrix_branch_equipments_catalog,
+                thermal_limit_catalog,
             )
-            if equipment_from_libray:
-                equipment = equipment_from_libray
-            else:
-                equipment = matrix_branch_equipment
-
+            equipment = get_equipment_from_catalog(equipment, matrix_branch_equipments_catalog)
             matrix_branch = MatrixImpedanceBranch(
                 name=odd.Lines.Name().lower(),
                 buses=[

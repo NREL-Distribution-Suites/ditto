@@ -85,7 +85,9 @@ class Reader(AbscractReader):
         concentric_cable_equipment = get_cables_equipment()
         self.system.add_components(*concentric_cable_equipment)
         matrix_branch_equipments_catalog, thermal_limit_catalog = get_matrix_branch_equipments()
-        self.system.add_components(*matrix_branch_equipments_catalog.values())
+        for catalog in matrix_branch_equipments_catalog:
+            self.system.add_components(*matrix_branch_equipments_catalog[catalog].values())
+
         geometry_branch_equipment_catalog, mapped_geometry = get_geometry_branch_equipments(
             self.system
         )

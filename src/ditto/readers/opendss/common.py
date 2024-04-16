@@ -1,5 +1,6 @@
 from enum import IntEnum
 from typing import Any
+import ast
 
 from infrasys import Component
 import opendssdirect as odd
@@ -72,24 +73,33 @@ def remove_keys_from_dict(model_dict: dict, key_names: list[str] = ["name", "uui
 
 
 def get_equipment_from_catalog(
-    model: Component, catalog: dict[int, Component]
+    model: Component, catalog: dict[int, Component], sub_catalog: str | None = None
 ) -> Component | None:
     """If the equipment already exixts in th system the equipment instance is returned else None is returned
 
     Args:
         model (Component): Instance of GDM equipment
         catalog (dict[int, Component]): mapping model hash to model
+        sub_catalog (str | None, optional): sub catalog in a catalog. Defaults to None.
 
     Returns:
         Component | None:  Instance of GDM equipment
     """
 
     model_hash = hash_model(model)
-    if model_hash in catalog:
-        return catalog[model_hash]
+    if sub_catalog is None:
+        if model_hash in catalog:
+            return catalog[model_hash]
+        else:
+            catalog[model_hash] = model
+            return model
     else:
-        catalog[model_hash] = model
-        return model
+        assert sub_catalog in catalog and isinstance(catalog[sub_catalog], dict)
+        if model_hash in catalog[sub_catalog]:
+            return catalog[sub_catalog][model_hash]
+        else:
+            catalog[sub_catalog][model_hash] = model
+            return model
 
 
 def query_model_data(model_type: str, model_name: str, property: str, dtype: type) -> Any:
@@ -109,4 +119,8 @@ def query_model_data(model_type: str, model_name: str, property: str, dtype: typ
     result = odd.Text.Result()
     if result == "Property Unknown":
         return None
-    return dtype(result)
+    if dtype == list:
+        result = result.replace("[ ", "[").replace(" ", ",")
+        return ast.literal_eval(result)
+    else:
+        return dtype(result)

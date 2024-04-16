@@ -79,11 +79,12 @@ def _build_xfmr_equipment(
     winding_phases = []
     xfmr_buses = []
     windings = []
+
     for wdg_index, bus_name in zip(range(number_windings), odd.CktElement.BusNames()):
         set_ppty("Wdg", wdg_index + 1)
         bus = bus_name.split(".")[0]
         num_phase = query("phases", int)
-        nodes = ["1", "2", "3"] if num_phase == 3 else bus.split(".")[1:]
+        nodes = ["1", "2", "3"] if num_phase == 3 else bus_name.split(".")[1:]
         winding_phases.append([PHASE_MAPPER[node] for node in nodes])
         xfmr_buses.append(system.get_component(DistributionBus, bus))
         if query("conn", str).lower() == "delta":
@@ -98,7 +99,7 @@ def _build_xfmr_equipment(
             else ConnectionType.STAR,
             nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
             resistance=query("%r", float),
-            is_grounded=False,  # TODO @aadil
+            is_grounded=True if "0" in nodes else False,
             voltage_type=VoltageTypes.LINE_TO_GROUND,
         )
 
@@ -116,7 +117,7 @@ def _build_xfmr_equipment(
         windings=windings,
         coupling_sequences=coupling_sequences,
         winding_reactances=reactances,
-        is_center_tapped=_is_center_tapped(),
+        is_center_tapped=_is_center_tapped(winding_phases),
     )
 
     dist_transformer = get_equipment_from_catalog(
@@ -193,12 +194,17 @@ def get_transformers(
     return transformers
 
 
-def _is_center_tapped() -> bool:
+def _is_center_tapped(winding_phases: list[Phase]) -> bool:
     """The flag is true if the transformer is center tapped.
 
     Returns:
-        bool: _description_
+        bool: True if the transfomer equpment is split phase else False
     """
-
-    # TODO: implement the correct logic here
-    return False
+    is_split_phase = False
+    if len(winding_phases) == 3:
+        num_phases = [
+            len(wdg_phases) == 2 and Phase.N in wdg_phases for wdg_phases in winding_phases[1:]
+        ]
+        if all(num_phases):
+            is_split_phase = True
+    return is_split_phase

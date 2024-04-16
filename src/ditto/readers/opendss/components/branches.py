@@ -2,6 +2,7 @@ from uuid import uuid4
 from enum import Enum
 
 from infrasys import System, Component
+from infrasys.quantities import Time
 
 from gdm.quantities import (
     PositiveResistancePULength,
@@ -9,18 +10,27 @@ from gdm.quantities import (
     ReactancePULength,
     PositiveDistance,
     PositiveCurrent,
-    # Distance,
+    Current,
 )
+
+from gdm.distribution.curve import TimeCurrentCurve
+
 from gdm import (
+    MatrixImpedanceSwitchEquipment,
     MatrixImpedanceBranchEquipment,
-    GeometryBranchEquipment,
+    MatrixImpedanceFuseEquipment,
     ConcentricCableEquipment,
+    GeometryBranchEquipment,
     BareConductorEquipment,
+    MatrixImpedanceSwitch,
     MatrixImpedanceBranch,
+    MatrixImpedanceFuse,
     DistributionBus,
     ThermalLimitSet,
     GeometryBranch,
+    MatrixImpedanceRecloserEquipment,
 )
+
 from infrasys.quantities import Distance
 import opendssdirect as odd
 from loguru import logger
@@ -28,6 +38,7 @@ import numpy as np
 
 from ditto.readers.opendss.common import (
     get_equipment_from_catalog,
+    query_model_data,
     PHASE_MAPPER,
     UNIT_MAPPER,
     hash_model,
@@ -107,11 +118,14 @@ def _build_matrix_branch(
     model_type: str,
     matrix_branch_equipments_catalog: dict[int, Component],
     thermal_limit_catalog: dict[int, Component],
+    model_class: type[MatrixImpedanceSwitchEquipment] | type[MatrixImpedanceBranchEquipment],
+    fuse: dict,
+    recloser: dict,
 ) -> MatrixImpedanceBranchEquipment:
     """Helper function to build a MatrixImpedanceBranchEquipment instance
 
     Args:
-        model_type (str): OpenDSS model type e.g. LineCode / Line
+        model_type (str): OpenDSS model type e.g. LinesCode / Line
         matrix_branch_equipments_catalog (dict[int, Component]): mapping of model hash to MatrixImpedanceBranchEquipment instance
         thermal_limit_catalog (dict[int, Component]): mapping of model hash to ThermalLimitSet instance
 
@@ -139,29 +153,40 @@ def _build_matrix_branch(
     r_matrix = module.RMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Rmatrix()
     x_matrix = module.XMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Xmatrix()
     c_matrix = module.CMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Cmatrix()
-    matrix_branch_equipment = MatrixImpedanceBranchEquipment(
-        name=equipment_uuid,
-        r_matrix=PositiveResistancePULength(
+    matrix_branch_dict = {
+        "name": equipment_uuid,
+        "r_matrix": PositiveResistancePULength(
             np.reshape(np.array(r_matrix), (num_phase, num_phase)),
             f"ohm/{length_units}",
         ),
-        x_matrix=ReactancePULength(
+        "x_matrix": ReactancePULength(
             np.reshape(np.array(x_matrix), (num_phase, num_phase)),
             f"ohm/{length_units}",
         ),
-        c_matrix=CapacitancePULength(
+        "c_matrix": CapacitancePULength(
             np.reshape(np.array(c_matrix), (num_phase, num_phase)),
             f"nanofarad/{length_units}",
         ),
-        ampacity=PositiveCurrent(module.NormAmps(), "ampere"),
-        loading_limit=thermal_limits,
-    )
-
+        "ampacity": PositiveCurrent(module.NormAmps(), "ampere"),
+        "loading_limit": thermal_limits,
+    }
+    if model_class == MatrixImpedanceSwitchEquipment:
+        # TODO: implement switch controller logic here
+        controller = _build_distribution_switch_controller()
+        matrix_branch_dict["controller"] = controller
+    elif model_class == MatrixImpedanceFuseEquipment:
+        matrix_branch_dict.update(fuse)
+    elif model_class == MatrixImpedanceRecloserEquipment:
+        matrix_branch_dict.update(recloser)
+    matrix_branch_equipment = model_class(**matrix_branch_dict)
     matrix_branch_equipment = get_equipment_from_catalog(
-        matrix_branch_equipment, matrix_branch_equipments_catalog
+        matrix_branch_equipment, matrix_branch_equipments_catalog, model_class.__name__
     )
-
     return matrix_branch_equipment
+
+
+def _build_distribution_switch_controller():
+    return None
 
 
 def get_matrix_branch_equipments() -> (
@@ -175,8 +200,14 @@ def get_matrix_branch_equipments() -> (
     """
 
     logger.info("parsing matrix branch equipment...")
-
-    matrix_branch_equipments_catalog = {}
+    reclosers = get_reclosers()
+    fuses = get_fuses()
+    matrix_branch_equipments_catalog = {
+        MatrixImpedanceRecloserEquipment.__name__: {},
+        MatrixImpedanceSwitchEquipment.__name__: {},
+        MatrixImpedanceBranchEquipment.__name__: {},
+        MatrixImpedanceFuseEquipment.__name__: {},
+    }
     thermal_limit_catalog = {}
     odd_model_types = [v.value for v in MatrixBranchTypes]
     for odd_model_type in odd_model_types:
@@ -186,8 +217,31 @@ def get_matrix_branch_equipments() -> (
             if odd_model_type == MatrixBranchTypes.LINE.value and module.Geometry():
                 pass
             else:
+                fuse = {}
+                recloser = {}
+                if (
+                    odd_model_type == MatrixBranchTypes.LINE.value
+                    and odd.Lines.Name().lower() in fuses
+                ):
+                    fuse = fuses[odd.Lines.Name().lower()]
+                    model_type = MatrixImpedanceFuseEquipment
+                elif (
+                    odd_model_type == MatrixBranchTypes.LINE.value
+                    and odd.Lines.Name().lower() in reclosers
+                ):
+                    recloser = reclosers[odd.Lines.Name().lower()]
+                    model_type = MatrixImpedanceRecloserEquipment
+                elif odd_model_type == MatrixBranchTypes.LINE.value and odd.Lines.IsSwitch():
+                    model_type = MatrixImpedanceSwitchEquipment
+                else:
+                    model_type = MatrixImpedanceBranchEquipment
                 _build_matrix_branch(
-                    odd_model_type, matrix_branch_equipments_catalog, thermal_limit_catalog
+                    odd_model_type,
+                    matrix_branch_equipments_catalog,
+                    thermal_limit_catalog,
+                    model_type,
+                    fuse,
+                    recloser,
                 )
             flag = module.Next()
     return matrix_branch_equipments_catalog, thermal_limit_catalog
@@ -214,7 +268,8 @@ def get_branches(
     """
 
     logger.info("parsing branch components...")
-
+    reclosers = get_reclosers()
+    fuses = get_fuses()
     branches = []
     flag = odd.Lines.First()
     while flag > 0:
@@ -244,23 +299,104 @@ def get_branches(
             )
             branches.append(geometry_branch)
         else:
+            fuse = {}
+            recloser = {}
+            if odd.Lines.Name().lower() in fuses:
+                fuse = fuses[odd.Lines.Name().lower()]
+                equipment_class = MatrixImpedanceFuseEquipment
+                model_class = MatrixImpedanceFuse
+            elif odd.Lines.Name().lower() in reclosers:
+                recloser = reclosers[odd.Lines.Name().lower()]
+                equipment_class = MatrixImpedanceFuseEquipment
+                model_class = MatrixImpedanceFuse
+            elif odd.Lines.IsSwitch():
+                equipment_class = MatrixImpedanceSwitchEquipment
+                model_class = MatrixImpedanceSwitch
+            else:
+                equipment_class = MatrixImpedanceBranchEquipment
+                model_class = MatrixImpedanceBranch
             equipment = _build_matrix_branch(
                 MatrixBranchTypes.LINE.value,
                 matrix_branch_equipments_catalog,
                 thermal_limit_catalog,
+                equipment_class,
+                fuse,
+                recloser,
             )
-            equipment = get_equipment_from_catalog(equipment, matrix_branch_equipments_catalog)
-            matrix_branch = MatrixImpedanceBranch(
-                name=odd.Lines.Name().lower(),
-                buses=[
+            equipment = get_equipment_from_catalog(
+                equipment, matrix_branch_equipments_catalog, equipment_class.__name__
+            )
+            model_dict = {
+                "name": odd.Lines.Name().lower(),
+                "buses": [
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                length=PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
-                phases=[PHASE_MAPPER[node] for node in nodes],
-                equipment=equipment,
-            )
+                "length": PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
+                "phases": [PHASE_MAPPER[node] for node in nodes],
+                "equipment": equipment,
+            }
+            if model_class in [MatrixImpedanceSwitch, MatrixImpedanceFuse]:
+                model_dict["is_closed"] = [odd.CktElement.Enabled() for _ in nodes]
+            matrix_branch = model_class(**model_dict)
             branches.append(matrix_branch)
         flag = odd.Lines.Next()
 
     return branches
+
+
+def get_tcc_curves() -> dict[str, TimeCurrentCurve]:
+    """method returns a dict of tcc curve names mapped to TimeCurrentCurve objects
+
+    Returns:
+        dict[str, TimeCurrentCurve]: mapped TimeCurrentCurve objects
+    """
+    curves = {}
+    odd.Circuit.SetActiveClass("tcc_curve")
+    flag = odd.ActiveClass.First()
+    while flag:
+        element_type, element_name = odd.Element.Name().split(".")
+        c_array = query_model_data(element_type, element_name, "c_array", list)
+        t_array = query_model_data(element_type, element_name, "t_array", list)
+        curves[element_name] = TimeCurrentCurve(
+            curve_x=Current(c_array, "ampere"),
+            curve_y=Time(t_array, "second"),
+        )
+        flag = odd.ActiveClass.Next()
+    return curves
+
+
+def get_fuses() -> list[str]:
+    """Returns a list of lines with fuses
+
+    Returns:
+        list[str]: List of lines with fuses
+    """
+    curves = get_tcc_curves()
+    lines_with_fuses = {}
+    flag = odd.Fuses.First()
+    while flag:
+        _, object_name = odd.Fuses.MonitoredObj().split(".")
+
+        curve_name = odd.Fuses.TCCCurve()
+        lines_with_fuses[object_name] = {
+            "delay": Time(odd.Fuses.Delay(), "seconds"),
+            "tcc_curve": curves[curve_name],
+        }
+        flag = odd.Fuses.Next()
+    return lines_with_fuses
+
+
+def get_reclosers():
+    """Returns a list of lines with reclosers
+
+    Returns:
+        list[str]: List of lines with reclosers
+    """
+    lines_with_reclosers = {}
+    flag = odd.Reclosers.First()
+    while flag:
+        _, object_name = odd.Reclosers.MonitoredObj().split(".")
+        lines_with_reclosers[object_name] = None
+        flag = odd.Reclosers.Next()
+    return lines_with_reclosers

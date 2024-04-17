@@ -10,6 +10,7 @@ from ditto.readers.opendss.components.conductors import get_conductors_equipment
 from ditto.readers.opendss.components.cables import get_cables_equipment
 from ditto.readers.opendss.components.sources import get_voltage_sources
 from ditto.readers.opendss.components.capacitors import get_capacitors
+from ditto.readers.opendss.graph_utils import update_split_phase_nodes
 from ditto.readers.opendss.components.pv_systems import get_pvsystems
 from ditto.readers.opendss.components.buses import get_buses
 from ditto.readers.opendss.components.loads import get_loads
@@ -22,7 +23,10 @@ from ditto.readers.opendss.components.branches import (
     get_matrix_branch_equipments,
     get_branches,
 )
+from gdm import build_graph_from_system
+
 from ditto.readers.reader import AbscractReader
+
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 
@@ -103,6 +107,13 @@ class Reader(AbscractReader):
 
         logger.info("parsing complete...")
         logger.info(f"\n{self.system.info()}")
+        logger.info("Building graph...")
+        graph = build_graph_from_system(self.system)
+        logger.info(graph)
+        logger.info("Graph build complete...")
+        logger.info("Updating graph to fix split phase representation...")
+        update_split_phase_nodes(graph, self.system)
+        logger.info("System update complete...")
 
     def get_system(self) -> System:
         """Returns an instance of DistributionSystem

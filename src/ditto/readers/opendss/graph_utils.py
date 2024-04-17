@@ -107,8 +107,6 @@ def _get_components_in_subgraph(
 
     """
 
-    component_types = [gdm.DistributionLoad, gdm.DistributionCapacitor, gdm.DistributionSolar]
-
     secondary_wdg_phases = xfmr_model.winding_phases[1:]
     xfmr_phases_filtered = []
     split_phases = [gdm.Phase.S1, gdm.Phase.S2]
@@ -119,7 +117,22 @@ def _get_components_in_subgraph(
         if phase != gdm.Phase.N
     ]
     mapped_split_phases = {k: v for k, v in zip(xfmr_phases_filtered, split_phases)}
+    _fix_bus_phases(hv_xfmr_bus, mapped_split_phases, subgraph, system)
+    _fix_transformer_phases(mapped_split_phases, xfmr_model, secondary_wdg_phases)
+    _fix_component_phases(mapped_split_phases, subgraph, system)
 
+
+def _fix_bus_phases(
+    hv_xfmr_bus: str, mapped_split_phases: dict, subgraph: Graph, system: DistributionSystem
+):
+    """method fixes phasing for distribution buses downstream of split phase transformers
+
+    Args:
+        hv_xfmr_bus (str): bus name for the distribution transformer (HV side)
+        mapped_split_phases (dict):  mapping A,B,C phase to S1/S2 phase
+        subgraph (Graph): subgraph (downstream) of a split phase dirtribution transformer
+        system (DistributionSystem): Instance of an gdm DistributionSystem
+    """
     for _, _, data in subgraph.edges(data=True):
         model_name = data["name"]
         model_type = getattr(gdm, data["type"])
@@ -138,6 +151,20 @@ def _get_components_in_subgraph(
                         + [gdm.Phase.N]
                     )
                 )
+
+
+def _fix_transformer_phases(
+    mapped_split_phases: dict,
+    xfmr_model: gdm.DistributionTransformer,
+    secondary_wdg_phases: list[list[gdm.Phase]],
+):
+    """method fixes phasing for split phase transformers
+
+    Args:
+        mapped_split_phases (dict): mapping A,B,C phase to S1/S2 phase
+        xfmr_model (gdm.DistributionTransformer): instance of DistributionTransformer
+        secondary_wdg_phases (list[list[gdm.Phase]]): secondary phases for a distribution transformers
+    """
     wdg_phases = [xfmr_model.winding_phases[0]]
     for phase_list in secondary_wdg_phases:
         new_phases = list(
@@ -151,6 +178,16 @@ def _get_components_in_subgraph(
         wdg_phases.append(new_phases)
     xfmr_model.winding_phases = wdg_phases
 
+
+def _fix_component_phases(mapped_split_phases: dict, subgraph: Graph, system: DistributionSystem):
+    """method fixes phasing for components downstream of split phase transformers
+
+    Args:
+        mapped_split_phases (dict): mapping A,B,C phase to S1/S2 phase
+        subgraph (Graph): subgraph (downstream) of a split phase dirtribution transformer
+        system (DistributionSystem): Instance of an gdm DistributionSystem
+    """
+    component_types = [gdm.DistributionLoad, gdm.DistributionCapacitor, gdm.DistributionSolar]
     for node in subgraph.nodes():
         for component_type in component_types:
             for component in system.get_bus_connected_components(node, component_type) or []:

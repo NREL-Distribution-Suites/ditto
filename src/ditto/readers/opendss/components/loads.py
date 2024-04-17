@@ -12,7 +12,7 @@ from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
 
-from ditto.readers.opendss.loadshapes import build_profiles, ObjectsWithProfile
+from ditto.readers.opendss.components.loadshapes import build_profiles, ObjectsWithProfile
 from ditto.readers.opendss.common import PHASE_MAPPER, LoadTypes
 
 

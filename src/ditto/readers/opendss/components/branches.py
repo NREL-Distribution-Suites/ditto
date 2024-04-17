@@ -16,6 +16,7 @@ from gdm.quantities import (
 from gdm.distribution.curve import TimeCurrentCurve
 
 from gdm import (
+    MatrixImpedanceRecloserEquipment,
     MatrixImpedanceSwitchEquipment,
     MatrixImpedanceBranchEquipment,
     MatrixImpedanceFuseEquipment,
@@ -28,7 +29,6 @@ from gdm import (
     DistributionBus,
     ThermalLimitSet,
     GeometryBranch,
-    MatrixImpedanceRecloserEquipment,
 )
 
 from infrasys.quantities import Distance

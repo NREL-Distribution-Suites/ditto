@@ -13,7 +13,7 @@ from infrasys import System
 from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalog
-from ditto.readers.opendss.loadshapes import build_profiles, ObjectsWithProfile
+from ditto.readers.opendss.components.loadshapes import build_profiles, ObjectsWithProfile
 
 
 def _build_voltage_source_equipment(

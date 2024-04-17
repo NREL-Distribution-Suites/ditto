@@ -76,11 +76,12 @@ def _build_xfmr_equipment(
     ]
 
     number_windings = query("windings", int)
+    xfmr_bus_names = odd.CktElement.BusNames()
     winding_phases = []
     xfmr_buses = []
     windings = []
 
-    for wdg_index, bus_name in zip(range(number_windings), odd.CktElement.BusNames()):
+    for wdg_index, bus_name in zip(range(number_windings), xfmr_bus_names):
         set_ppty("Wdg", wdg_index + 1)
         bus = bus_name.split(".")[0]
         num_phase = query("phases", int)
@@ -104,7 +105,6 @@ def _build_xfmr_equipment(
         )
 
         winding = get_equipment_from_catalog(winding, winding_equipment_catalog)
-
         windings.append(winding)
 
     coupling_sequences = SEQUENCE_PAIRS[:1] if number_windings == 2 else SEQUENCE_PAIRS
@@ -200,6 +200,7 @@ def _is_center_tapped(winding_phases: list[Phase]) -> bool:
     Returns:
         bool: True if the transfomer equpment is split phase else False
     """
+
     is_split_phase = False
     if len(winding_phases) == 3:
         num_phases = [

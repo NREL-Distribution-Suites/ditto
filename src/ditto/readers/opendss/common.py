@@ -2,10 +2,9 @@ from enum import IntEnum
 from typing import Any
 import ast
 
-from infrasys import Component
+from gdm import Phase, DistributionVoltageSource
+from infrasys import Component, System
 import opendssdirect as odd
-from gdm import Phase
-
 
 PHASE_MAPPER = {
     "0": Phase.N,
@@ -68,7 +67,7 @@ def remove_keys_from_dict(model_dict: dict, key_names: list[str] = ["name", "uui
                     if isinstance(value, dict):
                         value = remove_keys_from_dict(value)
                     values.append(value)
-                    model_dict[k] = values
+                model_dict[k] = values
     return model_dict
 
 
@@ -124,3 +123,15 @@ def query_model_data(model_type: str, model_name: str, property: str, dtype: typ
         return ast.literal_eval(result)
     else:
         return dtype(result)
+
+
+def get_source_bus(system: System) -> str:
+    """Returns the name of the source bus
+
+    Args:
+        system (System): Instance of an Infrasys System
+    """
+
+    voltage_sources = system.get_components(DistributionVoltageSource)
+    buses = [v_source.bus.name for v_source in voltage_sources]
+    return buses

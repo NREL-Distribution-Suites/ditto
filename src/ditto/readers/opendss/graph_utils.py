@@ -1,21 +1,21 @@
-from gdm import DistributionTransformer
-from infrasys import System
+from gdm import DistributionTransformer, DistributionSystem
 from networkx import Graph, DiGraph
+
 import networkx as nx
 import gdm
 
 from ditto.readers.opendss.common import get_source_bus
 
 
-def update_split_phase_nodes(graph: Graph, system: System) -> System:
+def update_split_phase_nodes(graph: Graph, system: DistributionSystem) -> DistributionSystem:
     """Return the system with corrected split phase representation
 
     Args:
         graph (Graph):  Graph representation of the dirtribution model
-        system (System): Instance of an Infrasys System
+        system (DistributionSystem): Instance of an gdm DistributionSystem
 
     Returns:
-        System: Updated system with fixed split phase representation
+        DistributionSystem: Updated system with fixed split phase representation
     """
 
     source_buses = get_source_bus(system)
@@ -30,11 +30,11 @@ def update_split_phase_nodes(graph: Graph, system: System) -> System:
         _get_split_phase_sub_graph(transformer, tree, system)
 
 
-def _get_split_phase_transformers(system: System) -> list[DistributionTransformer]:
+def _get_split_phase_transformers(system: DistributionSystem) -> list[DistributionTransformer]:
     """returns a list of split phase transformers
 
     Args:
-        system (System): Instance of an Infrasys System
+        system (DistributionSystem): Instance of an gdm DistributionSystem
 
     Returns:
         list[DistributionTransformer]: list of split phase transformers
@@ -42,20 +42,20 @@ def _get_split_phase_transformers(system: System) -> list[DistributionTransforme
 
     split_phase_transformers = system.get_components(
         DistributionTransformer,
-        filter_func=lambda x: x.equipment.is_center_tapped == True,  # noqa:E712
+        filter_func=lambda x: x.equipment.is_center_tapped,
     )
     return list(split_phase_transformers)
 
 
 def _get_split_phase_sub_graph(
-    xfmr: DistributionTransformer, graph: DiGraph, system: System
+    xfmr: DistributionTransformer, graph: DiGraph, system: DistributionSystem
 ) -> Graph:
     """returns the subgraph for a given distribution transformer
 
     Args:
         xfmr(DistributionTransformer): instance of DistributionTransformer
         graph (DiGraph): Graph representation of the dirtribution model
-        system (System): Instance of an Infrasys System
+        system (DistributionSystem): Instance of an gdm DistributionSystem
 
     Returns:
         Graph: subgraph for a given distribution transformer
@@ -92,7 +92,10 @@ def _get_split_phase_sub_graph(
 
 
 def _get_components_in_subgraph(
-    hv_xfmr_bus: str, xfmr_model: DistributionTransformer, subgraph: Graph, system: System
+    hv_xfmr_bus: str,
+    xfmr_model: DistributionTransformer,
+    subgraph: Graph,
+    system: DistributionSystem,
 ):
     """fixes the split phase representation for the system
 
@@ -100,9 +103,11 @@ def _get_components_in_subgraph(
         hv_xfmr_bus (str): bus name for the distribution transformer (HV side)
         xfmr_model (DistributionTransformer): instance of DistributionTransformer
         subgraph (Graph): subgraph (downstream) of a split phase dirtribution transformer
-        system (System): Instance of an Infrasys System
+        system (DistributionSystem): Instance of an gdm DistributionSystem
 
     """
+
+    component_types = [gdm.DistributionLoad, gdm.DistributionCapacitor, gdm.DistributionSolar]
 
     secondary_wdg_phases = xfmr_model.winding_phases[1:]
     xfmr_phases_filtered = []
@@ -114,6 +119,7 @@ def _get_components_in_subgraph(
         if phase != gdm.Phase.N
     ]
     mapped_split_phases = {k: v for k, v in zip(xfmr_phases_filtered, split_phases)}
+
     for _, _, data in subgraph.edges(data=True):
         model_name = data["name"]
         model_type = getattr(gdm, data["type"])
@@ -144,3 +150,8 @@ def _get_components_in_subgraph(
         )
         wdg_phases.append(new_phases)
     xfmr_model.winding_phases = wdg_phases
+
+    for node in subgraph.nodes():
+        for component_type in component_types:
+            for component in system.get_bus_connected_components(node, component_type) or []:
+                component.phases = [mapped_split_phases[phase] for phase in component.phases]

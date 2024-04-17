@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from infrasys.system import System
 from gdm import DistributionSystem
 from gdm import SequencePair
 import opendssdirect as odd
@@ -63,8 +62,6 @@ class Reader(AbscractReader):
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
         logger.info(f"Model loaded from {self.Opendss_master_file}.")
-        self.system = System(name=odd.Circuit.Name(), auto_add_composed_components=True)
-
         buses = get_buses(self.crs)
         self.system.add_components(*buses)
         voltage_sources = get_voltage_sources(self.system)
@@ -115,11 +112,11 @@ class Reader(AbscractReader):
         update_split_phase_nodes(graph, self.system)
         logger.info("System update complete...")
 
-    def get_system(self) -> System:
+    def get_system(self) -> DistributionSystem:
         """Returns an instance of DistributionSystem
 
         Returns:
-            System: Instance of DistributionSystem
+            DistributionSystem: Instance of DistributionSystem
         """
 
         return self.system

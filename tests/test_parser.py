@@ -5,7 +5,6 @@ import os
 from infrasys import System
 import pytest
 
-
 from ditto.readers.opendss.reader import Reader
 
 

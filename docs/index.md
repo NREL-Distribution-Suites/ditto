@@ -24,6 +24,14 @@ install.md
 ```
 
 ```{toctree}
+:caption: Usage
+:hidden: true
+
+usage.md
+```
+
+
+```{toctree}
 :caption: API Documentation
 :hidden: true
 

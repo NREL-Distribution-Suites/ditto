@@ -35,8 +35,8 @@ def _build_load_equipment() -> tuple[LoadEquipment, list[str], str, list[str]]:
     nodes = buses[0].split(".")[1:] if num_phase != 3 else ["1", "2", "3"]
     ph_loads = []
     for el in nodes:
-        kw_per_phase = kw_ / num_phase
-        kvar_per_phase = kvar_ / num_phase
+        kw_per_phase = kw_ / len(nodes)
+        kvar_per_phase = kvar_ / len(nodes)
 
         if model == LoadTypes.CONST_POWER:
             load = PhaseLoadEquipment(

@@ -41,7 +41,7 @@ def _build_capacitor_source_equipment(
     for el in nodes:
         phase_capacitor = PhaseCapacitorEquipment(
             name=f"{equipment_uuid}_{el}",
-            rated_capacity=PositiveReactivePower(kvar_ / num_phase, "kilovar"),
+            rated_capacity=PositiveReactivePower(kvar_ / len(nodes), "kilovar"),
             num_banks=odd.Capacitors.NumSteps(),
             num_banks_on=sum(odd.Capacitors.States()),
             resistance=PositiveResistance(0, "ohm"),

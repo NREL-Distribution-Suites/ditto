@@ -23,8 +23,8 @@ OPENDSS_CASEFILES = (Path(__file__).parent / "data" / "Opendss_circuit_models").
 def test_serialize_opendss_model(opendss_file: Path, tmp_path):
     example_name = opendss_file.parent.name
 
-    # export_path = Path(tmp_path) / example_name
-    export_path = base_path / "dump_from_tests" / example_name
+    export_path = Path(tmp_path) / example_name
+    # export_path = base_path / "dump_from_tests" / example_name
 
     if not export_path.exists():
         os.mkdir(export_path)

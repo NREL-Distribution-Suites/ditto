@@ -7,6 +7,7 @@ class DistributionBusMapper(OpenDSSMapper):
         super().__init__(model)
     
     altdss_name = "Bus"
+    altdss_composition_name = None
     opendss_file = "BusCoords.dss"
 
     def map_name(self):
@@ -17,8 +18,7 @@ class DistributionBusMapper(OpenDSSMapper):
         self.opendss_dict['Y'] = self.model.coordinate.y
 
     def map_nominal_voltage(self):
-        ureg = pint.UnitRegistry()
-        kv_nominal_voltage = self.model.nominal_voltage.to(ureg.kilovolt)
+        kv_nominal_voltage = self.model.nominal_voltage.to("kiloVolt")
         if self.model.voltage_type == 'line-to-ground':
             self.opendss_dict['kVLN'] = kv_nominal_voltage.magnitude
         elif self.model.voltage_type == 'line-to-line': 

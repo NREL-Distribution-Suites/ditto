@@ -39,7 +39,12 @@ class Writer(AbstractWriter):
                     altdss_class = getattr(altdss_models, model_map.altdss_name)
                     # Example altdss_class is Bus
                     altdss_object = altdss_class.model_validate(model_map.opendss_dict)
-                    dss_string = altdss_object.dumps_dss()
+                    if model_map.altdss_composition_name is not None:
+                        altdss_composition_class = getattr(altdss_models, model_map.altdss_composition_name)
+                        altdss_composition_object = altdss_composition_class(altdss_object)
+                        dss_string = altdss_composition_object.dumps_dss()
+                    else:
+                        dss_string = altdss_object.dumps_dss()
 
                     output_folder = output_path
                     output_redirect = Path("")

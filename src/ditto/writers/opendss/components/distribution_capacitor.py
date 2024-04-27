@@ -14,6 +14,7 @@ class DistributionCapacitorMapper(OpenDSSMapper):
 
     def map_bus(self):
         self.opendss_dict['Bus1'] = self.model.bus.name
+        #TODO: Should we include the phases its connected to here?
         kv_nominal_voltage = self.model.bus.nominal_voltage.to("kV")
         self.opendss_dict['kV'] = kv_nominal_voltage.magnitude
 

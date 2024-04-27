@@ -7,3 +7,4 @@ from ditto.writers.opendss.equipment.sequence_impedance_branch_equipment import 
 from ditto.writers.opendss.equipment.matrix_impedance_branch_equipment import MatrixImpedanceBranchEquipmentMapper
 from ditto.writers.opendss.equipment.geometry_branch_equipment import GeometryBranchEquipmentMapper
 from ditto.writers.opendss.equipment.bare_conductor_equipment import BareConductorEquipmentMapper
+from ditto.writers.opendss.components.distribution_capacitor import DistributionCapacitorMapper

@@ -18,6 +18,12 @@ class OpenDSSMapper(ABC):
               "inch": "in", 
               "centimeter": "cm"
     }
+    connection_map = {
+            "STAR": "wye",
+            "DELTA": "delta",
+            "OPEN_DELTA": "delta",
+            "OPEN_STAR": "wye"
+    }
 
 
     def __init__(self, model):

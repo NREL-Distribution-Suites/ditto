@@ -167,3 +167,7 @@ cython_debug/
 *.txt
 *.TXT
 
+#vim swp files
+*.swp
+*.swo
+

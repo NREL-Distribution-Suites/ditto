@@ -7,6 +7,7 @@ from gdm import (
     GeometryBranch,
     DistributionCapacitor,
     DistributionTransformer,
+    DistributionLoad,
 )
 from infrasys.system import System
 import pytest
@@ -20,6 +21,7 @@ MODULES = [
     GeometryBranch,
     DistributionCapacitor,
     DistributionTransformer,
+    DistributionLoad,
 ]
 
 

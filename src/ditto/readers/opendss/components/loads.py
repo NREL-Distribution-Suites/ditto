@@ -34,53 +34,32 @@ def _build_load_equipment() -> tuple[LoadEquipment, list[str], str, list[str]]:
     model = odd.Loads.Model()
     nodes = buses[0].split(".")[1:] if num_phase != 3 else ["1", "2", "3"]
     ph_loads = []
+    zip_param_keys = ["z_real", "i_real","p_real", "z_imag","i_imag", "p_imag"]
     for el in nodes:
         kw_per_phase = kw_ / len(nodes)
         kvar_per_phase = kvar_ / len(nodes)
-
+        zip_params_dict = {param : 0 for param in zip_param_keys}
         if model == LoadTypes.CONST_POWER:
-            load = PhaseLoadEquipment(
-                name=f"{equipment_uuid}_{el}",
-                p_real=ActivePower(kw_per_phase, "kilowatt"),
-                p_imag=ReactivePower(kvar_per_phase, "kilovar"),
-            )
+            zip_params_dict.update({"p_imag": 1, "p_real": 1})
         elif model == LoadTypes.CONST_CURRENT:
-            load = PhaseLoadEquipment(
-                name=f"{equipment_uuid}_{el}",
-                i_real=ActivePower(kw_per_phase, "kilowatt"),
-                i_imag=ReactivePower(kvar_per_phase, "kilovar"),
-            )
+            zip_params_dict.update({"i_imag": 1, "i_real": 1})
         elif model == LoadTypes.CONST_IMPEDANCE:
-            load = PhaseLoadEquipment(
-                name=f"{equipment_uuid}_{el}",
-                z_real=ActivePower(kw_per_phase, "kilowatt"),
-                z_imag=ReactivePower(kvar_per_phase, "kilovar"),
-            )
+            zip_params_dict.update({"z_imag": 1, "z_real": 1})
         elif model == LoadTypes.ZIP:
-            load = PhaseLoadEquipment(
-                name=f"{equipment_uuid}_{el}",
-                z_real=ActivePower(kw_per_phase * zip_params[0], "kilowatt"),
-                z_imag=ReactivePower(kvar_per_phase * zip_params[3], "kilovar"),
-                i_real=ActivePower(kw_per_phase * zip_params[1], "kilowatt"),
-                i_imag=ReactivePower(kvar_per_phase * zip_params[4], "kilovar"),
-                p_real=ActivePower(kw_per_phase * zip_params[2], "kilowatt"),
-                p_imag=ReactivePower(kvar_per_phase * zip_params[5], "kilovar"),
-            )
+            zip_params_dict =   dict(zip_param_keys, zip_params)
         elif model == LoadTypes.CONST_P__QUARDRATIC_Q:
-            load = PhaseLoadEquipment(
-                name=f"{equipment_uuid}_{el}",
-                p_real=ActivePower(kw_per_phase * zip_params[2], "kilowatt"),
-                z_imag=ReactivePower(kvar_per_phase * zip_params[3], "kilovar"),
-            )
+            zip_params_dict.update({"p_real": 1, "z_imag": 1})
         elif model == LoadTypes.LINEAR_P__QUARDRATIC_Q:
-            load = PhaseLoadEquipment(
-                name=f"{equipment_uuid}_{el}",
-                i_real=ActivePower(kw_per_phase * zip_params[1], "kilowatt"),
-                z_imag=ReactivePower(kvar_per_phase * zip_params[3], "kilovar"),
-            )
+            zip_params_dict.update({"i_real": 1, "z_imag": 1})
         else:
             msg = f"Invalid load model type {model} passed. valid options are {LoadTypes}"
             raise ValueError(msg)
+        load = PhaseLoadEquipment(
+                name=f"{equipment_uuid}_{el}",
+                real_power=ActivePower(kw_per_phase, "kilowatt"),
+                reactive_power=ReactivePower(kvar_per_phase, "kilovar"),
+                **zip_params_dict
+            )
         ph_loads.append(load)
     load_equipment = LoadEquipment(
         name=str(uuid4()),

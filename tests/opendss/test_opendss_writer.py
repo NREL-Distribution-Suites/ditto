@@ -8,6 +8,7 @@ from gdm import (
     DistributionCapacitor,
     DistributionTransformer,
     DistributionLoad,
+    DistributionVoltageSource,
 )
 from infrasys.system import System
 import pytest
@@ -22,8 +23,8 @@ MODULES = [
     DistributionCapacitor,
     DistributionTransformer,
     DistributionLoad,
+    DistributionVoltageSource,
 ]
-
 
 @pytest.mark.parametrize("component", MODULES)
 def test_component(component):
@@ -31,3 +32,11 @@ def test_component(component):
     system.add_component(component.example())
     writer = Writer(system)
     writer.write(separate_substations=False, separate_feeders=False)
+
+def test_all_types():
+    system = System(name="test full system", auto_add_composed_components=True)
+    for component in MODULES:
+        system.add_component(component.example())
+    writer = Writer(system)
+    writer.write(separate_substations=True, separate_feeders=True)
+    

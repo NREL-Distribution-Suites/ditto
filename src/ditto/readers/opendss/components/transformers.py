@@ -1,3 +1,4 @@
+from ast import literal_eval
 from typing import Any
 from uuid import uuid4
 from enum import Enum
@@ -6,6 +7,7 @@ from gdm.quantities import PositiveApparentPower, PositiveVoltage
 from gdm import (
     DistributionTransformerEquipment,
     DistributionTransformer,
+    TapWindingEquipment,
     WindingEquipment,
     DistributionBus,
     ConnectionType,
@@ -48,6 +50,7 @@ def _build_xfmr_equipment(
     """
 
     model_name = odd.Element.Name().lower().split(".")[1]
+    print(model_type, model_name)
     if model_type == XfmrModelTypes.XFMRCODE.value:
         equipment_uuid = model_name
     else:
@@ -57,6 +60,7 @@ def _build_xfmr_equipment(
         command = f"? {model_type}.{model_name}.{property}"
         odd.Text.Command(command)
         result = odd.Text.Result()
+
         if result is None:
             if dtype in [float, int]:
                 return 0
@@ -64,7 +68,11 @@ def _build_xfmr_equipment(
                 return ""
             else:
                 return None
-        return dtype(result)
+        else:
+            if dtype == list:
+                return literal_eval(result)
+            else:
+                return dtype(result)
 
     def set_ppty(property: str, value: Any):
         return odd.Command(f"{model_type}.{model_name}.{property}={value}")
@@ -92,7 +100,16 @@ def _build_xfmr_equipment(
             nominal_voltage = query("kv", float) / 1.732
         else:
             nominal_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
-        winding = WindingEquipment(
+
+        min_tap_pu = query("mintap", float)
+        max_tap_pu = query("maxtap", float)
+        num_taps = query("numtaps", int)
+        dv_dtap = (max_tap_pu - min_tap_pu) / num_taps
+        taps = query("taps", list)
+        taps = [round((1 - tap) / dv_dtap) for tap in taps]
+        tap = taps[-1]
+
+        winding = TapWindingEquipment(
             rated_power=PositiveApparentPower(query("kva", float), "kilova"),
             num_phases=num_phase,
             connection_type=ConnectionType.DELTA
@@ -102,8 +119,12 @@ def _build_xfmr_equipment(
             resistance=query("%r", float),
             is_grounded=True if "0" in nodes else False,
             voltage_type=VoltageTypes.LINE_TO_GROUND,
+            tap_positions=[tap] * num_phase,
+            total_taps=num_taps,
+            band_center=PositiveVoltage(1.0 * nominal_voltage, "kilovolt"),
+            bandwidth=PositiveVoltage((max_tap_pu - min_tap_pu) * nominal_voltage, "kilovolt"),
+            max_step=1,
         )
-
         winding = get_equipment_from_catalog(winding, winding_equipment_catalog)
         windings.append(winding)
 
@@ -119,11 +140,9 @@ def _build_xfmr_equipment(
         winding_reactances=reactances,
         is_center_tapped=_is_center_tapped(winding_phases),
     )
-
     dist_transformer = get_equipment_from_catalog(
         dist_transformer, distribution_transformer_equipment_catalog
     )
-
     return dist_transformer, xfmr_buses, winding_phases
 
 

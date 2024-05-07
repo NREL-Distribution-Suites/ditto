@@ -6,7 +6,7 @@ Clear
 !
 
 new circuit.IEEE13Nodeckt 
-~ basekv=115 pu=1.0001 phases=3 bus1=SourceBus  
+~ basekv=115 pu=1.02 phases=3 bus1=SourceBus  
 ~ Angle=30                                                         ! advance angle 30 deg so result agree with published angle
 ~ MVAsc3=20000 MVASC1=21000    ! stiffen the source to approximate inf source
 
@@ -166,10 +166,19 @@ BusCoords IEEE13Node_BusXY.dss
 ! Alternate Solution Script
 ! To force the taps to be same as published results, set the transformer taps manually and disable the controls
 !---------------------------------------------------------------------------------------------------------------------------------------------------
-/*
+
 Transformer.Reg1.Taps=[1.0 1.0625]
 Transformer.Reg2.Taps=[1.0 1.0500]
 Transformer.Reg3.Taps=[1.0 1.06875]
+Set Controlmode=OFF
+
+Solve
+
+
+/*
+Transformer.Reg1.Taps=[1.0 1.0]
+Transformer.Reg2.Taps=[1.0 1.0]
+Transformer.Reg3.Taps=[1.0 1.0]
 Set Controlmode=OFF
 
 Solve

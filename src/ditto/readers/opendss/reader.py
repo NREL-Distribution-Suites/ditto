@@ -13,6 +13,7 @@ from ditto.readers.opendss.graph_utils import update_split_phase_nodes
 from ditto.readers.opendss.components.pv_systems import get_pvsystems
 from ditto.readers.opendss.components.buses import get_buses
 from ditto.readers.opendss.components.loads import get_loads
+from ditto.readers.opendss.components.admittance_matrix import get_admittance_matrix
 from ditto.readers.opendss.components.transformers import (
     get_transformer_equipments,
     get_transformers,
@@ -62,6 +63,24 @@ class Reader(AbscractReader):
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
         logger.info(f"Model loaded from {self.Opendss_master_file}.")
+
+        models = ["load", "capacitor", "pvsystem", "storage"]
+
+        for model in models:
+            odd.Text.Command(f"batchedit {model}..* enabled=false")
+            print(odd.Text.Result())
+
+        odd.Solution.Solve()
+
+        impedance_matrix = get_admittance_matrix()
+        self.system.add_components(impedance_matrix)
+
+        for model in models:
+            odd.Text.Command(f"batchedit {model}..* enabled=true")
+            print(odd.Text.Result())
+
+        odd.Solution.Solve()
+
         buses = get_buses(self.crs)
         self.system.add_components(*buses)
         voltage_sources = get_voltage_sources(self.system)

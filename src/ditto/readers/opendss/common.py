@@ -67,7 +67,7 @@ def remove_keys_from_dict(model_dict: dict, key_names: list[str] = ["name", "uui
                     if isinstance(value, dict):
                         value = remove_keys_from_dict(value)
                     values.append(value)
-                model_dict[k] = values
+                    model_dict[k] = values
     return model_dict
 
 

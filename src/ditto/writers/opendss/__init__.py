@@ -11,3 +11,4 @@ from ditto.writers.opendss.components.distribution_capacitor import Distribution
 from ditto.writers.opendss.components.distribution_load import DistributionLoadMapper
 from ditto.writers.opendss.components.distribution_transformer import DistributionTransformerMapper
 from ditto.writers.opendss.equipment.distribution_transformer_equipment import DistributionTransformerEquipmentMapper
+from ditto.writers.opendss.components.distribution_vsource import DistributionVoltageSourceMapper

@@ -50,7 +50,6 @@ def _build_xfmr_equipment(
     """
 
     model_name = odd.Element.Name().lower().split(".")[1]
-    print(model_type, model_name)
     if model_type == XfmrModelTypes.XFMRCODE.value:
         equipment_uuid = model_name
     else:

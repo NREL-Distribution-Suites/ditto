@@ -13,11 +13,11 @@ opendss_circuit_models = base_path / "data" / "Opendss_circuit_models"
 assert opendss_circuit_models.exists, f"{opendss_circuit_models} does not exist"
 OPENDSS_CASEFILES = opendss_circuit_models.rglob("Master.dss")
 # OPENDSS_CASEFILES = [Path(r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/ckt24/Master.dss")]
-OPENDSS_CASEFILES = [
-    Path(
-        r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/ieee13/Master.dss"
-    )
-]
+# OPENDSS_CASEFILES = [
+#     Path(
+#         r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/ieee13/Master.dss"
+#     )
+# ]
 # OPENDSS_CASEFILES = [
 #     Path(
 #         r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/p4u/Master.dss"
@@ -41,7 +41,7 @@ def test_serialize_opendss_model(opendss_file: Path, tmp_path):
     assert json_path.exists(), "Failed to export the json file"
 
 
-JSON_CASEFILES = (Path(__file__).parent / "data" / "Opendss_circuit_models").rglob("*.json")
+JSON_CASEFILES = (Path(__file__).parent.parent / "data" / "Opendss_circuit_models").rglob("*.json")
 
 
 @pytest.mark.parametrize("json_file", JSON_CASEFILES)

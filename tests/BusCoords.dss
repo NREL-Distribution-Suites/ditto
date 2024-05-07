@@ -1,12 +1,10 @@
 SetBusXY DistBus1 20.0 30.0
 SetkVBase DistBus1 kVLL=0.4
-SetBusXY DistBus1 20.0 30.0
-SetkVBase DistBus1 kVLL=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
+SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
+SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
 SetkVBase Capacitor-DistBus1 kVLN=0.4
 SetkVBase Transformer-DistBus1 kVLL=12.47
@@ -17,10 +15,10 @@ SetkVBase DistBus1 kVLL=0.4
 SetBusXY DistBus1 20.0 30.0
 SetkVBase DistBus1 kVLL=0.4
 SetkVBase Branch-DistBus1 kVLN=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
+SetkVBase Branch-DistBus2 kVLN=0.4
 SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
-SetkVBase Branch-DistBus2 kVLN=0.4
+SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
 SetkVBase Capacitor-DistBus1 kVLN=0.4
 SetkVBase Transformer-DistBus1 kVLL=12.47
@@ -31,10 +29,10 @@ SetkVBase DistBus1 kVLL=0.4
 SetBusXY DistBus1 20.0 30.0
 SetkVBase DistBus1 kVLL=0.4
 SetkVBase Branch-DistBus1 kVLN=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
+SetkVBase Branch-DistBus2 kVLN=0.4
 SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
-SetkVBase Branch-DistBus2 kVLN=0.4
+SetkVBase Branch-DistBus1 kVLN=0.4
 SetkVBase Branch-DistBus2 kVLN=0.4
 SetkVBase Capacitor-DistBus1 kVLN=0.4
 SetkVBase Transformer-DistBus1 kVLL=12.47
@@ -42,15 +40,3 @@ SetkVBase Transformer-DistBus2 kVLL=0.4
 SetkVBase Load-DistBus1 kVLN=0.4
 SetBusXY DistBus1 20.0 30.0
 SetkVBase DistBus1 kVLL=0.4
-SetBusXY DistBus1 20.0 30.0
-SetkVBase DistBus1 kVLL=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
-SetkVBase Branch-DistBus1 kVLN=0.4
-SetkVBase Branch-DistBus2 kVLN=0.4
-SetkVBase Branch-DistBus2 kVLN=0.4
-SetkVBase Branch-DistBus2 kVLN=0.4
-SetkVBase Capacitor-DistBus1 kVLN=0.4
-SetkVBase Transformer-DistBus1 kVLL=12.47
-SetkVBase Transformer-DistBus2 kVLL=0.4
-SetkVBase Load-DistBus1 kVLN=0.4

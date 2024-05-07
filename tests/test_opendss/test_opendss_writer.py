@@ -24,6 +24,7 @@ MODULES = [
     DistributionTransformer,
     DistributionLoad,
     DistributionVoltageSource,
+    DistributionCapacitor,
 ]
 
 

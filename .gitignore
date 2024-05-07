@@ -165,6 +165,10 @@ cython_debug/
 
 *.csv
 *.json
+*.txt
+*.TXT
+*.swp
+*.swo
 *.DSV
 *.dsv
 *.dbl

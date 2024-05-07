@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
     "opendssdirect.py",
     "grid-data-models",
+    "altdss_schema @ git+https://github.nrel.gov/CADET/altdss-schema@te/ditto",
 ]
 
 [project.urls]

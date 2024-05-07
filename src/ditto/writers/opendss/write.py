@@ -101,7 +101,7 @@ class Writer(AbstractWriter):
 
                 if equipment_dss_string is not None:
                     feeder_substation_equipment = model_map.substation+model_map.feeder+equipment_dss_string
-                    if not feeder_substation_equipment in seen_equipment:
+                    if feeder_substation_equipment not in seen_equipment:
                         seen_equipment.add(feeder_substation_equipment)
                         with open(output_folder / equipment_map.opendss_file, "a", encoding="utf-8") as fp:
                             fp.write(equipment_dss_string)

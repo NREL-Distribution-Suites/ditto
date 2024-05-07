@@ -15,7 +15,7 @@ class GeometryBranchEquipmentMapper(OpenDSSMapper):
         self.opendss_dict['Name'] = self.model.name
 
     def map_common(self):
-        units = [] 
+        units = []
         assert len(self.model.horizontal_positions) == len(self.model.vertical_positions)
 
         for i in range(len(self.model.horizontal_positions)):
@@ -24,7 +24,7 @@ class GeometryBranchEquipmentMapper(OpenDSSMapper):
             x_unit = str(horizontal_position.units)
             h_unit = str(vertical_position.units)
             assert h_unit == x_unit
-            if not x_unit in self.length_units_map:
+            if x_unit not in self.length_units_map:
                 raise ValueError(f"{x_unit} not mapped for OpenDSS")
             units.append(self.length_units_map[x_unit])
         self.opendss_dict['Units'] = units

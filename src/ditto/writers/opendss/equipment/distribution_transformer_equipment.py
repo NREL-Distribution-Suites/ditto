@@ -45,10 +45,10 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
             self.opendss_dict['kVA'] = kVAs
             self.opendss_dict['conn'] = conns
 
-                
 
 
-            
+
+
         pass
 
     def map_coupling_sequences(self):

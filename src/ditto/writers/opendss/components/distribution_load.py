@@ -35,7 +35,7 @@ class DistributionLoadMapper(OpenDSSMapper):
         # P*b_p = P_{0A} * b_{Ap} + P_{0B} * b_{Bp} + P_{0C} * b_{Cp} = i_real
         # P*c_p = P_{0A} * c_{Ap} + P_{0B} * c_{Bp} + P_{0C} * c_{Cp} = p_real
         # a_p + b_p + c_p = 1
-        # 
+        #
         # Gives:
         # P = z_real + i_real + p_real
         # a_p = z_real/ (z_real + i_real + p_real)
@@ -45,7 +45,7 @@ class DistributionLoadMapper(OpenDSSMapper):
         # Similar logic for reactive power.
 
 
-        z_real = 0 
+        z_real = 0
         i_real = 0
         p_real = 0
         z_imag = 0

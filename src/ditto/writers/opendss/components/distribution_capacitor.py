@@ -25,7 +25,7 @@ class DistributionCapacitorMapper(OpenDSSMapper):
     def map_controllers(self):
         controller = self.model.controllers
         #TODO: The controller isn't included in the capacitor mapping.
-        
+
 
     def map_equipment(self):
         equipment = self.model.equipment
@@ -44,6 +44,6 @@ class DistributionCapacitorMapper(OpenDSSMapper):
         self.opendss_dict['kvar'] = total_rated_capacity
         #TODO: We're not building equipment for the Capacitors. This means that there's no guarantee that we're addressing all of the attributes in the equipment in a structured way like we are for the component.
 
-        
+
 
 

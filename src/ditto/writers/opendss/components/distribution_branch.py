@@ -25,9 +25,9 @@ class DistributionBranchMapper(OpenDSSMapper):
     def map_length(self):
         self.opendss_dict['Length'] = self.model.length.magnitude
         model_unit = str(self.model.length.units)
-        if not model_unit in self.length_units_map:
+        if model_unit not in self.length_units_map:
             raise ValueError(f"{model_unit} not mapped for OpenDSS")
-        self.opendss_dict['Units'] = self.length_units_map[model_unit] 
+        self.opendss_dict['Units'] = self.length_units_map[model_unit]
 
     def map_phases(self):
         # Redundant information - included in buses
@@ -36,7 +36,7 @@ class DistributionBranchMapper(OpenDSSMapper):
 
 
 class SwitchedDistributionBranchMapper(DistributionBranchMapper):
-    
+
     def map_is_closed(self):
         # Require every phase to be enabled for the OpenDSS line to be enabled.
         is_enabled = True

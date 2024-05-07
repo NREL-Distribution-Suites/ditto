@@ -17,7 +17,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         for phase in self.model.phases:
             self.opendss_dict['Bus1']+=self.phase_map[phase]
 
-    def map_phases(self): 
+    def map_phases(self):
         #Handled in the map_bus function
         return
 
@@ -26,7 +26,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         x1 = 0
         r0 = 0
         x0 = 0
-        voltage = 0 
+        voltage = 0
         angle = 0
         for phase_source in self.model.equipment.sources:
             r1+=phase_source.r1
@@ -52,6 +52,6 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         self.opendss_dict['Z1'] = complex(r1.magnitude,x1.magnitude)
 
 
-            
+
 
 

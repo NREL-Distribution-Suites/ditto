@@ -1,11 +1,10 @@
-import pint
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 
 class DistributionBusMapper(OpenDSSMapper):
 
     def __init__(self, model):
         super().__init__(model)
-    
+
     altdss_name = "Bus"
     altdss_composition_name = None
     opendss_file = "BusCoords.dss"
@@ -23,7 +22,7 @@ class DistributionBusMapper(OpenDSSMapper):
         kv_nominal_voltage = self.model.nominal_voltage.to("kV")
         if self.model.voltage_type == 'line-to-ground':
             self.opendss_dict['kVLN'] = kv_nominal_voltage.magnitude
-        elif self.model.voltage_type == 'line-to-line': 
+        elif self.model.voltage_type == 'line-to-line':
             self.opendss_dict['kVLL'] = kv_nominal_voltage.magnitude
 
     def map_phases(self):

@@ -11,11 +11,11 @@ class OpenDSSMapper(ABC):
               'S2': '.2'
     }
     length_units_map = { "meter": "m",
-              "mile": "mi", 
-              "feet": "ft", 
-              "foot": "ft", 
-              "kilometer": "km", 
-              "inch": "in", 
+              "mile": "mi",
+              "feet": "ft",
+              "foot": "ft",
+              "kilometer": "km",
+              "inch": "in",
               "centimeter": "cm"
     }
     connection_map = {

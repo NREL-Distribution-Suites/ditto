@@ -56,13 +56,13 @@ class OpenDSSMapper(ABC):
     def map_system_uuid(self):
         return
 
-    def map_belongs_to(self):
-        distribution_component = self.model.belongs_to
-        if distribution_component is not None:
-            if distribution_component.substation is not None:
-                self.substation = distribution_component.substation.name
-            if distribution_component.feeder is not None:
-                self.feeder = distribution_component.feeder.name
+    def map_substation(self):
+        if hasattr(self.model,'substation') and self.model.substation is not None:
+            self.substation = self.model.substation.name
+
+    def map_feeder(self):
+        if hasattr(self.model,'feeder') and self.model.feeder is not None:
+            self.feeder = self.model.feeder.name
 
     def populate_opendss_dictionary(self):
         #Should not be populating an existing dictionary. Assert error if not empty

@@ -1,0 +1,98 @@
+from uuid import uuid4
+
+from gdm import (
+    DistributionBus,
+    DistributionCapacitor,
+    CapacitorEquipment,
+    PhaseCapacitorEquipment,
+    ConnectionType,
+)
+from gdm.quantities import PositiveReactivePower, PositiveResistance, PositiveReactance
+from infrasys.system import System
+import opendssdirect as odd
+from loguru import logger
+
+from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalog
+
+
+def _build_capacitor_source_equipment(
+    phase_capacitor_equipment_catalog: dict[int, PhaseCapacitorEquipment],
+    capacitor_equipment_catalog: dict[int, CapacitorEquipment],
+) -> tuple[CapacitorEquipment, list[str], list[str]]:
+    """Helper function to build a CapacitorEquipment instance
+
+    Args:
+        phase_capacitor_equipment_catalog (dict[int, PhaseCapacitorEquipment]): mapping of model hash to PhaseCapacitorEquipment instance
+        capacitor_equipment_catalog (dict[int, CapacitorEquipment]):  mapping of model hash to CapacitorEquipment instance
+
+    Returns:
+        CapacitorEquipment: Instance of CapacitorEquipment
+        list[str]: List of buses
+        list[str]: List of phases
+    """
+
+    equipment_uuid = uuid4()
+    buses = odd.CktElement.BusNames()
+    num_phase = odd.CktElement.NumPhases()
+    kvar_ = odd.Capacitors.kvar()
+    ph_caps = []
+    nodes = buses[0].split(".")[1:] if num_phase != 3 else ["1", "2", "3"]
+
+    for el in nodes:
+        phase_capacitor = PhaseCapacitorEquipment(
+            name=f"{equipment_uuid}_{el}",
+            rated_capacity=PositiveReactivePower(kvar_ / len(nodes), "kilovar"),
+            num_banks=odd.Capacitors.NumSteps(),
+            num_banks_on=sum(odd.Capacitors.States()),
+            resistance=PositiveResistance(0, "ohm"),
+            reactance=PositiveReactance(0, "ohm"),
+        )
+        phase_capacitor = get_equipment_from_catalog(
+            phase_capacitor, phase_capacitor_equipment_catalog
+        )
+        ph_caps.append(phase_capacitor)
+
+    capacitor_equipment = CapacitorEquipment(
+        name=str(equipment_uuid),
+        phase_capacitors=ph_caps,
+        connection_type=ConnectionType.DELTA if odd.Capacitors.IsDelta() else ConnectionType.STAR,
+    )
+
+    capacitor_equipment = get_equipment_from_catalog(
+        capacitor_equipment, capacitor_equipment_catalog
+    )
+
+    return capacitor_equipment, buses, nodes
+
+
+def get_capacitors(system: System) -> list[DistributionCapacitor]:
+    """Function to return list of all capacitors in Opendss model.
+
+    Args:
+        system (System): Instance of System
+
+    Returns:
+        List[DistributionCapacitor]: List of DistributionCapacitor objects
+    """
+
+    logger.info("parsing capacitor components...")
+    phase_capacitor_equipment_catalog = {}
+    capacitor_equipment_catalog = {}
+    capacitors = []
+    flag = odd.Capacitors.First()
+    while flag > 0:
+        equipment, buses, nodes = _build_capacitor_source_equipment(
+            phase_capacitor_equipment_catalog, capacitor_equipment_catalog
+        )
+        bus1 = buses[0].split(".")[0]
+        capacitors.append(
+            DistributionCapacitor(
+                name=odd.Capacitors.Name().lower(),
+                bus=system.get_component(DistributionBus, bus1),
+                phases=[PHASE_MAPPER[el] for el in nodes],
+                controllers=[],
+                equipment=equipment,
+            )
+        )
+        flag = odd.Capacitors.Next()
+    return capacitors

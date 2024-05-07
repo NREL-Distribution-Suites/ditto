@@ -74,6 +74,7 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
+tests/dump_from_tests/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -166,8 +167,9 @@ cython_debug/
 *.json
 *.txt
 *.TXT
-
-#vim swp files
 *.swp
 *.swo
-
+*.DSV
+*.dsv
+*.dbl
+*.DBL

@@ -1,0 +1,1 @@
+New Linecode.DISCONNECT_SWITCH_4KV_3 units=km nphases=3 Rmatrix=(1e-05 0.0 0.0 | 0.0 1e-05 0.0 | 0.0 0.0 1e-05 ) Xmatrix=(1e-05 0.0 0.0 | 0.0 1e-05 0.0 | 0.0 0.0 1e-05 ) normamps=2000.0

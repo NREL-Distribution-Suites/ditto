@@ -42,7 +42,7 @@ def test_opendss_roundtrip_converion():
     reader = Reader(IEEE_13_NODE_DSS_MODEL)
     writer = Writer(reader.get_system())
     export_path = test_folder / "dump_from_tests" / "writer_export"
-    export_path = Path(".")
+    # export_path = Path(".")
     assert export_path.exists(), f"Export path: {export_path}"
     writer.write(export_path, separate_substations=False, separate_feeders=False)
     dss_master_file = export_path / OpenDSSFileTypes.MASTER_FILE.value

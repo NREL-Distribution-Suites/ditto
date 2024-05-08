@@ -1,4 +1,5 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
+from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionBranchMapper(OpenDSSMapper):
@@ -7,7 +8,7 @@ class DistributionBranchMapper(OpenDSSMapper):
 
     altdss_name = "Line_Common"
     altdss_composition_name = "Line"
-    opendss_file = "Lines.dss"
+    opendss_file = OpenDSSFileTypes.LINES_FILE.value
 
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name

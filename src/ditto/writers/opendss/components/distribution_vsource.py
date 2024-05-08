@@ -1,4 +1,5 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
+from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionVoltageSourceMapper(OpenDSSMapper):
@@ -7,7 +8,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
 
     altdss_name = "Vsource_Z0Z1Z2"
     altdss_composition_name = "Vsource"
-    opendss_file = "Master.dss"
+    opendss_file = OpenDSSFileTypes.MASTER_FILE.value
 
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
@@ -19,6 +20,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
 
     def map_phases(self):
         # Handled in the map_bus function
+        self.opendss_dict["Phases"] = len(self.model.phases)
         return
 
     def map_equipment(self):
@@ -26,10 +28,10 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         x1 = 0
         r0 = 0
         x0 = 0
-
+        print(self.model)
         voltage = self.model.equipment.sources[0].voltage
         angle = self.model.equipment.sources[0].angle
-        num_phases = len(self.model.equipment.sources)
+        num_phases = len(self.model.phases)
         nominal_voltage = self.model.bus.nominal_voltage
 
         for phase_source in self.model.equipment.sources:
@@ -54,6 +56,5 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         self.opendss_dict["BasekV"] = v_nom
         self.opendss_dict["Z0"] = complex(r0.magnitude, x0.magnitude)
         self.opendss_dict["Z1"] = complex(r1.magnitude, x1.magnitude)
-        self.opendss_dict["Phases"] = num_phases
 
         print()

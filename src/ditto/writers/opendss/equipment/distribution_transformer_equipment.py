@@ -1,4 +1,5 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
+from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionTransformerEquipmentMapper(OpenDSSMapper):
@@ -7,7 +8,7 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
 
     altdss_name = "XfmrCode_X12X13X23"
     altdss_composition_name = "XfmrCode"
-    opendss_file = "Transformers.dss"
+    opendss_file = OpenDSSFileTypes.TRANSFORMERS_FILE.value
 
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name

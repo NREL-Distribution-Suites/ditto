@@ -9,9 +9,12 @@ from loguru import logger
 
 from ditto.writers.abstract_writer import AbstractWriter
 import ditto.writers.opendss as opendss_mapper
+from ditto.enumerations import OpenDSSFileTypes
 
 
 class Writer(AbstractWriter):
+    files = []
+
     def _get_dss_string(self, model_map: Any) -> str:
         # Example model_map is instance of DistributionBusMapper
         altdss_class = getattr(altdss_models, model_map.altdss_name)
@@ -77,7 +80,7 @@ class Writer(AbstractWriter):
                 if dss_string.startswith("new Vsource"):
                     dss_string = dss_string.replace("new Vsource", "Clear\n\nNew Circuit")
                 equipment_dss_string = None
-                equipment_map = None
+                equipment_map: list[Path] = None
 
                 if hasattr(model, "equipment"):
                     equipment_mapper_name = model.equipment.__class__.__name__ + "Mapper"
@@ -122,8 +125,8 @@ class Writer(AbstractWriter):
                     fp.write(dss_string)
 
                 if (
-                    model_map.opendss_file == "Master.dss"
-                    or model_map.opendss_file == "BusCoords.dss"
+                    model_map.opendss_file == OpenDSSFileTypes.MASTER_FILE.value
+                    or model_map.opendss_file == OpenDSSFileTypes.COORDINATE_FILE.value
                 ):
                     continue
 
@@ -155,30 +158,43 @@ class Writer(AbstractWriter):
                 if equipment_map is not None:
                     base_redirect.add(output_redirect / equipment_map.opendss_file)
 
+        self._write_base_master(base_redirect)
+        self._write_substation_master(substations_redirect)
+        self._write_feeder_master(feeders_redirect)
+
+    def _write_base_master(self, base_redirect):
         # Only use Masters that have a voltage source, and hence already written.
-        if Path("Master.dss").is_file():
-            with open("Master.dss", "a") as base_master:
+        file_order = [file_type.value for file_type in OpenDSSFileTypes]
+        if Path(OpenDSSFileTypes.MASTER_FILE.value).is_file():
+            with open(OpenDSSFileTypes.MASTER_FILE.value, "a") as base_master:
                 # TODO: provide ordering so LineCodes before Lines
-                for dss_file in base_redirect:
-                    base_master.write("redirect " + str(dss_file))
-                    base_master.write("\n")
+                for file in file_order:
+                    for dss_file in base_redirect:
+                        if dss_file.name == file:
+                            base_master.write("redirect " + str(dss_file))
+                            base_master.write("\n")
+                            break
                 base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
                 base_master.write("calcv\n")
                 base_master.write("Solve\n")
-                base_master.write("redirect BusCoords.dss\n")
+                base_master.write(f"redirect {OpenDSSFileTypes.COORDINATE_FILE.value}\n")
         # base_master.write(f"BusCoords {filename}\n")
 
+    def _write_substation_master(self, substations_redirect):
         for substation in substations_redirect:
-            if (Path(substation) / "Master.dss").is_file():
-                with open(Path(substation) / "Master.dss", "a") as substation_master:
+            if (Path(substation) / OpenDSSFileTypes.MASTER_FILE.value).is_file():
+                with open(
+                    Path(substation) / OpenDSSFileTypes.MASTER_FILE.value, "a"
+                ) as substation_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in substations_redirect[substation]:
                         substation_master.write("redirect " + str(dss_file))
                         substation_master.write("\n")
 
+    def _write_feeder_master(self, feeders_redirect):
         for feeder in feeders_redirect:
-            if (Path(feeder) / "Master.dss").is_file():
-                with open(Path(feeder) / "Master.dss", "a") as feeder_master:
+            if (Path(feeder) / OpenDSSFileTypes.MASTER_FILE.value).is_file():
+                with open(Path(feeder) / OpenDSSFileTypes.MASTER_FILE.value, "a") as feeder_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in feeders_redirect[feeder]:
                         feeder_master.write("redirect " + str(dss_file))

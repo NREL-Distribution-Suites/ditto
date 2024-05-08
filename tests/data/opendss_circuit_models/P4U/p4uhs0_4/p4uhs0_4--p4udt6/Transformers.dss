@@ -1,0 +1,6 @@
+New Transformer.tr(r:p4udt3-p4udt3lv) phases=3 windings=2 %loadloss=1.4645 %Noloadloss=0.266 normhkva=550.0 wdg=1 conn=delta Kv=4.0 kva=500.0 EmergHKVA=750.0 %R=0.73225 bus=p4udt3 wdg=2 conn=wye Kv=0.48 kva=500.0 EmergHKVA=750.0 %R=0.73225 bus=p4udt3lv XHL=4.36
+
+New Transformer.tr(r:p4udt6-p4udt6lv) phases=3 windings=2 %loadloss=1.59763 %Noloadloss=0.2 normhkva=1100.0 wdg=1 conn=delta Kv=4.0 kva=1000.0 EmergHKVA=1500.0 %R=0.798815 bus=p4udt6 wdg=2 conn=wye Kv=0.48 kva=1000.0 EmergHKVA=1500.0 %R=0.798815 bus=p4udt6lv XHL=5.62
+
+New Transformer.tr(r:p4udt28-p4udt28lv) phases=3 windings=2 %loadloss=1.4645 %Noloadloss=0.266 normhkva=550.0 wdg=1 conn=delta Kv=4.0 kva=500.0 EmergHKVA=750.0 %R=0.73225 bus=p4udt28 wdg=2 conn=wye Kv=0.48 kva=500.0 EmergHKVA=750.0 %R=0.73225 bus=p4udt28lv XHL=4.36
+

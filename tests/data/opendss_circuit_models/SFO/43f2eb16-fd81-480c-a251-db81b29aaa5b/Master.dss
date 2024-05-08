@@ -1,0 +1,30 @@
+Clear
+
+New Circuit.feeder_p10udt4838-p10uhs9_1247x bus1=p10udt4838-p10uhs9_1247x pu=1.03 basekV=12.47 R1=1e-05 X1=1e-05 R0=1e-05 X0=1e-05
+
+Redirect LineCodes.dss
+Redirect Lines.dss
+Redirect Transformers.dss
+Redirect Loads.dss
+Redirect Capacitors.dss
+
+new monitor.m1 element=Line.l(r:p10udt4838-p10uhs9_1247) mode=0
+new monitor.m2 element=Line.l(r:p10udt4838-p10uhs9_1247) mode=1
+new energymeter.m3 Line.l(r:p10udt4838-p10uhs9_1247)
+
+
+Set Voltagebases=[0.12, 0.208, 0.48, 12.47]
+
+Calcvoltagebases
+
+Buscoords Buscoords.dss
+set MaxIterations=50
+set maxcontroliter=100
+
+
+Solve
+Plot Circuit Power Max=1500 dots=y labels=n subs=y C1=Blue 1phlinestyle=3 
+Plot Profile Phases=All
+
+CalcVoltagebases
+Solve

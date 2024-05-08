@@ -4,6 +4,7 @@ from typing import Any
 
 from gdm.distribution.components.distribution_component import DistributionComponent
 from altdss_schema import altdss_models
+from gdm import DistributionBus
 from loguru import logger
 
 from ditto.writers.abstract_writer import AbstractWriter
@@ -32,6 +33,13 @@ class Writer(AbstractWriter):
             logger.info(f"Deleting existing file {dss_file}")
             dss_file.unlink()
 
+    def _get_voltage_bases(self) -> list[float]:
+        voltage_bases = []
+        buses: list[DistributionBus] = list(self.system.get_components(DistributionBus))
+        for bus in buses:
+            voltage_bases.append(bus.nominal_voltage.to("kilovolt").magnitude * 1.732)
+        return list(set(voltage_bases))
+
     def write(  # noqa
         self,
         output_path: Path = Path("./"),
@@ -48,6 +56,7 @@ class Writer(AbstractWriter):
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)
+
             mapper_name = component_type.__name__ + "Mapper"
             # Example mapper_name is string DistributionBusMapper
             if not hasattr(opendss_mapper, mapper_name):
@@ -153,6 +162,12 @@ class Writer(AbstractWriter):
                 for dss_file in base_redirect:
                     base_master.write("redirect " + str(dss_file))
                     base_master.write("\n")
+                base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
+                base_master.write("calcv\n")
+                base_master.write("Solve\n")
+                base_master.write("redirect BusCoords.dss\n")
+        # base_master.write(f"BusCoords {filename}\n")
+
         for substation in substations_redirect:
             if (Path(substation) / "Master.dss").is_file():
                 with open(Path(substation) / "Master.dss", "a") as substation_master:

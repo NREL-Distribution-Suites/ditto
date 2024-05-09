@@ -55,7 +55,7 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
         self.opendss_dict["kVA"] = kVAs
         self.opendss_dict["Conn"] = conns
 
-        for x, x_value in zip(["X12", "X13", "X23"], self.model.winding_reactances):
+        for x, x_value in zip(["X12", "X23", "X13"], self.model.winding_reactances):
             self.opendss_dict[x] = x_value
         self.opendss_dict["Phases"] = num_phases
         self.opendss_dict["Tap"] = taps

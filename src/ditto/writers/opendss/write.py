@@ -53,7 +53,7 @@ class Writer(AbstractWriter):
         feeders_redirect = defaultdict(set)
         substations_redirect = defaultdict(set)
 
-        # self.prepare_folder(output_path)
+        self.prepare_folder(output_path)
         component_types = self.system.get_component_types()
         seen_equipment = set()
         for component_type in component_types:
@@ -158,15 +158,17 @@ class Writer(AbstractWriter):
                 if equipment_map is not None:
                     base_redirect.add(output_redirect / equipment_map.opendss_file)
 
-        self._write_base_master(base_redirect)
+        self._write_base_master(base_redirect, output_folder)
         self._write_substation_master(substations_redirect)
         self._write_feeder_master(feeders_redirect)
 
-    def _write_base_master(self, base_redirect):
+    def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.
         file_order = [file_type.value for file_type in OpenDSSFileTypes]
-        if Path(OpenDSSFileTypes.MASTER_FILE.value).is_file():
-            with open(OpenDSSFileTypes.MASTER_FILE.value, "a") as base_master:
+        master_file = output_folder / OpenDSSFileTypes.MASTER_FILE.value
+        if master_file.is_file():
+            master_file = output_folder / OpenDSSFileTypes.MASTER_FILE.value
+            with open(master_file, "a") as base_master:
                 # TODO: provide ordering so LineCodes before Lines
                 for file in file_order:
                     for dss_file in base_redirect:

@@ -28,7 +28,6 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         x1 = 0
         r0 = 0
         x0 = 0
-        print(self.model)
         voltage = self.model.equipment.sources[0].voltage
         angle = self.model.equipment.sources[0].angle
         num_phases = len(self.model.phases)
@@ -56,5 +55,3 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         self.opendss_dict["BasekV"] = v_nom
         self.opendss_dict["Z0"] = complex(r0.magnitude, x0.magnitude)
         self.opendss_dict["Z1"] = complex(r1.magnitude, x1.magnitude)
-
-        print()

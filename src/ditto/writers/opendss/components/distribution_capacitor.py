@@ -61,6 +61,4 @@ class DistributionCapacitorMapper(OpenDSSMapper):
         total_kvar_per_bank = sum(total_rated_capacity) / num_banks
         self.opendss_dict["kvar"] = [total_kvar_per_bank] * num_banks
 
-        print(self.opendss_dict)
-
         # TODO: We're not building equipment for the Capacitors. This means that there's no guarantee that we're addressing all of the attributes in the equipment in a structured way like we are for the component.

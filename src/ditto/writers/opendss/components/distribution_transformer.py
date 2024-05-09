@@ -39,8 +39,6 @@ class DistributionTransformerMapper(OpenDSSMapper):
                 dss_phases = ""
                 for phase in winding_phases:
                     dss_phases += self.phase_map[phase]
-                #                if dss_phases == ".1.2.3":
-                #                    dss_phases = ""
                 phases.append(dss_phases)
 
         for i in range(len(buses)):

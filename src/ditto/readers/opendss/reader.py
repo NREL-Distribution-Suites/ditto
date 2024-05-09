@@ -68,7 +68,6 @@ class Reader(AbscractReader):
 
         for model in models:
             odd.Text.Command(f"batchedit {model}..* enabled=false")
-            print(odd.Text.Result())
 
         odd.Solution.Solve()
 
@@ -77,7 +76,6 @@ class Reader(AbscractReader):
 
         for model in models:
             odd.Text.Command(f"batchedit {model}..* enabled=true")
-            print(odd.Text.Result())
 
         odd.Solution.Solve()
 

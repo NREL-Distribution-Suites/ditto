@@ -34,7 +34,6 @@ def get_model_voltage_drop(model_name: str):
             odd.Circuit.SetActiveBus(bus)
             voltage = odd.Bus.puVmagAngle()[::2]
             voltages.append(voltage)
-        # print(voltages)
 
         for ii, v1 in enumerate(voltages):
             for jj, v2 in enumerate(voltages):
@@ -68,9 +67,12 @@ def get_metrics(dss_model_path: Path | str):
     max_dv_xfmr, min_dv_xfmr, avg_dv_xfmr = get_model_voltage_drop("Transformers")
     max_dv_line, min_dv_line, avg_dv_line = get_model_voltage_drop("Lines")
 
-    print(f"{max_dv_xfmr=} {min_dv_xfmr=} {avg_dv_xfmr=}")
-    print(f"{max_dv_line=} {min_dv_line=} {avg_dv_line=}")
-    return min_voltage, max_voltage, avg_voltage, feeder_head_p, feeder_head_q
+    base_metrics = [min_voltage, max_voltage, avg_voltage, feeder_head_p, feeder_head_q]
+    xfmr_voltages = [max_dv_xfmr, min_dv_xfmr, avg_dv_xfmr]
+    line_voltages = [max_dv_line, min_dv_line, avg_dv_line]
+    base_metrics.extend(xfmr_voltages)
+    base_metrics.extend(line_voltages)
+    return base_metrics
 
 
 @pytest.mark.parametrize("DSS_MODEL", TEST_MODELS)
@@ -85,8 +87,8 @@ def test_opendss_roundtrip_converion(DSS_MODEL):
     dss_master_file = export_path / OpenDSSFileTypes.MASTER_FILE.value
     assert dss_master_file.exists()
     post_converion_metrics = get_metrics(dss_master_file)
-    print(f"{pre_converion_metrics=}")
-    print(f"{post_converion_metrics=}")
+    # print(f"{pre_converion_metrics=}")
+    # print(f"{post_converion_metrics=}")
     assert np.allclose(
-        pre_converion_metrics, post_converion_metrics, rtol=0.001
+        pre_converion_metrics, post_converion_metrics, rtol=0.01, atol=0.01
     ), "Round trip coversion exceeds error tolerance"

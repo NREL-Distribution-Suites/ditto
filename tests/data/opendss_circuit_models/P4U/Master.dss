@@ -32,3 +32,8 @@ Calcvoltagebases
 Buscoords Buscoords.dss
 set maxcontroliter=50
 
+BatchEdit Line..* Switch=No
+BatchEdit Fuse..* Enabled=No
+Set Controlmode=OFF
+
+solve

@@ -85,7 +85,7 @@ class Writer(AbstractWriter):
                 if hasattr(model, "equipment"):
                     equipment_mapper_name = model.equipment.__class__.__name__ + "Mapper"
                     if not hasattr(opendss_mapper, equipment_mapper_name):
-                        logger.info(
+                        logger.warning(
                             f"Equipment Mapper {equipment_mapper_name} not found. Skipping"
                         )
                     else:
@@ -96,18 +96,15 @@ class Writer(AbstractWriter):
 
                 output_folder = output_path
                 output_redirect = Path("")
-                if separate_substations:
-                    output_folder = Path(output_path, model_map.substation)
-                    output_redirect = Path(model_map.substation)
-                    output_folder.mkdir(exist_ok=True)
 
-                else:
-                    output_folder.mkdir(exist_ok=True)
-
-                if separate_feeders:
-                    output_folder /= model_map.feeder
-                    output_redirect /= model_map.feeder
-                    output_folder.mkdir(exist_ok=True)
+                self._build_directory_structure(
+                    separate_substations,
+                    separate_feeders,
+                    output_path,
+                    model_map,
+                    output_redirect,
+                    output_folder,
+                )
 
                 if equipment_dss_string is not None:
                     feeder_substation_equipment = (
@@ -161,6 +158,27 @@ class Writer(AbstractWriter):
         self._write_base_master(base_redirect, output_folder)
         self._write_substation_master(substations_redirect)
         self._write_feeder_master(feeders_redirect)
+
+    def _build_directory_structure(
+        self,
+        separate_substations,
+        separate_feeders,
+        output_path,
+        model_map,
+        output_redirect,
+        output_folder,
+    ):
+        if separate_substations:
+            output_folder = Path(output_path, model_map.substation)
+            output_redirect = Path(model_map.substation)
+            output_folder.mkdir(exist_ok=True)
+        else:
+            output_folder.mkdir(exist_ok=True)
+
+        if separate_feeders:
+            output_folder /= model_map.feeder
+            output_redirect /= model_map.feeder
+            output_folder.mkdir(exist_ok=True)
 
     def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.

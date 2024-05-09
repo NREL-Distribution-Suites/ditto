@@ -22,15 +22,12 @@ class DistributionTransformerMapper(OpenDSSMapper):
             for i in range(len(self.model.buses)):
                 bus = self.model.buses[i]
                 buses.append(bus.name)
-                if i == len(self.model.buses) - 1:
-                    buses.append(bus.name)
-            phases.append(self.phase_map[self.model.winding_phases[0]])
             dss_phases = ""
             for phase in self.model.winding_phases[0]:
                 dss_phases += self.phase_map[phase]
             phases.append(dss_phases)
-            phases.append(".0.1")
             phases.append(".1.0")
+            phases.append(".0.2")
 
         else:
             for bus in self.model.buses:

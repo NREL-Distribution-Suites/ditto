@@ -3,6 +3,7 @@ from pathlib import Path
 import opendssdirect as odd
 from loguru import logger
 import numpy as np
+import pytest
 
 from ditto.writers.opendss.write import Writer
 from ditto.readers.opendss.reader import Reader
@@ -11,12 +12,14 @@ from ditto.enumerations import OpenDSSFileTypes
 test_folder = Path(__file__).parent.parent
 
 
-IEEE_13_NODE_DSS_MODEL = (
-    test_folder / "data" / "opendss_circuit_models" / "ieee13" / OpenDSSFileTypes.MASTER_FILE.value
-)
-IEEE_13_NODE_JSON_MODEL = (
-    test_folder / "data" / "opendss_circuit_models" / "ieee13" / "ieee13.json"
-)
+TEST_MODELS = [
+    test_folder
+    / "data"
+    / "opendss_circuit_models"
+    / "ieee13"
+    / OpenDSSFileTypes.MASTER_FILE.value,
+    test_folder / "data" / "opendss_circuit_models" / "p4u" / OpenDSSFileTypes.MASTER_FILE.value,
+]
 
 
 def get_metrics(dss_model_path: Path | str):
@@ -37,9 +40,10 @@ def get_metrics(dss_model_path: Path | str):
     return min_voltage, max_voltage, avg_voltage, feeder_head_p, feeder_head_q
 
 
-def test_opendss_roundtrip_converion():
-    pre_converion_metrics = get_metrics(IEEE_13_NODE_DSS_MODEL)
-    reader = Reader(IEEE_13_NODE_DSS_MODEL)
+@pytest.mark.parametrize("DSS_MODEL", TEST_MODELS)
+def test_opendss_roundtrip_converion(DSS_MODEL):
+    pre_converion_metrics = get_metrics(DSS_MODEL)
+    reader = Reader(DSS_MODEL)
     writer = Writer(reader.get_system())
     export_path = test_folder / "dump_from_tests" / "writer_export"
     # export_path = Path(".")
@@ -48,6 +52,8 @@ def test_opendss_roundtrip_converion():
     dss_master_file = export_path / OpenDSSFileTypes.MASTER_FILE.value
     assert dss_master_file.exists()
     post_converion_metrics = get_metrics(dss_master_file)
+    print(f"{pre_converion_metrics=}")
+    print(f"{post_converion_metrics=}")
     assert np.allclose(
         pre_converion_metrics, post_converion_metrics, rtol=0.001
     ), "Round trip coversion exceeds error tolerance"

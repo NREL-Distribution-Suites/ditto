@@ -1,0 +1,16 @@
+! Solution Run Script for Ckt7
+
+! generally when running from Opendss.EXE you will open this file first and control
+! the execution from here. Add any commands you wish.
+
+! Ckt7 Consists of
+
+! Devices = 2232
+! Buses = 1255
+! Nodes = 2452
+
+Compile [Master_ckt7.dss]  
+
+! Note:adding full path name in brackets will avoid having to manually change to this directory
+
+solve

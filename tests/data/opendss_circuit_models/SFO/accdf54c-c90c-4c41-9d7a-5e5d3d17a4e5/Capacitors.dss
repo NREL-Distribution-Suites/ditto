@@ -1,0 +1,24 @@
+New Capacitor.p10uc31_1 bus1=p10udt6156.1.2 phases=1 Kv=12.47 conn=Delta Kvar=100.0
+
+New CapControl.p10uc31_1 Capacitor=p10uc31_1 Element=Line.l(r:p10udt6156-p10udt6163) Terminal=1 delay=100.0 Type=voltage Vmin=120.5 Vmax=125.0 Ptratio=103.91666666666667 Ctratio=100.0
+
+New Capacitor.p10uc34_1 bus1=p10udt3873.1.2 phases=1 Kv=12.47 conn=Delta Kvar=100.0
+
+New CapControl.p10uc34_1 Capacitor=p10uc34_1 Element=Line.l(r:p10udt3825-p10udt3873) Terminal=1 delay=100.0 Type=voltage Vmin=120.5 Vmax=125.0 Ptratio=103.91666666666667 Ctratio=100.0
+
+New Capacitor.p10uc31_2 bus1=p10udt6156.2.3 phases=1 Kv=12.47 conn=Delta Kvar=100.0
+
+New CapControl.p10uc31_2 Capacitor=p10uc31_2 Element=Line.l(r:p10udt6156-p10udt6163) Terminal=1 delay=100.0 Type=voltage Vmin=120.5 Vmax=125.0 Ptratio=103.91666666666667 Ctratio=100.0
+
+New Capacitor.p10uc31_3 bus1=p10udt6156.3.1 phases=1 Kv=12.47 conn=Delta Kvar=100.0
+
+New CapControl.p10uc31_3 Capacitor=p10uc31_3 Element=Line.l(r:p10udt6156-p10udt6163) Terminal=1 delay=100.0 Type=voltage Vmin=120.5 Vmax=125.0 Ptratio=103.91666666666667 Ctratio=100.0
+
+New Capacitor.p10uc34_2 bus1=p10udt3873.2.3 phases=1 Kv=12.47 conn=Delta Kvar=100.0
+
+New CapControl.p10uc34_2 Capacitor=p10uc34_2 Element=Line.l(r:p10udt3825-p10udt3873) Terminal=1 delay=100.0 Type=voltage Vmin=120.5 Vmax=125.0 Ptratio=103.91666666666667 Ctratio=100.0
+
+New Capacitor.p10uc34_3 bus1=p10udt3873.3.1 phases=1 Kv=12.47 conn=Delta Kvar=100.0
+
+New CapControl.p10uc34_3 Capacitor=p10uc34_3 Element=Line.l(r:p10udt3825-p10udt3873) Terminal=1 delay=100.0 Type=voltage Vmin=120.5 Vmax=125.0 Ptratio=103.91666666666667 Ctratio=100.0
+

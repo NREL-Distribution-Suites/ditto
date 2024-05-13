@@ -24,7 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "opendssdirect.py",
-    "gdm @ git+https://github.nrel.gov/CADET/grid-data-models.git",
+    "grid-data-models",
 ]
 
 [project.urls]
@@ -35,7 +35,14 @@ Source = "https://github.com/unknown/ditto"
 [tool.hatch.version]
 path = "src/ditto/__init__.py"
 
-
+[project.optional-dependencies]
+doc = [
+  "sphinxcontrib-mermaid",
+  "pydata-sphinx-theme",
+  "autodoc_pydantic",
+  "myst-parser",
+  "sphinx",
+  ]
 
 
 [tool.pytest.ini_options]

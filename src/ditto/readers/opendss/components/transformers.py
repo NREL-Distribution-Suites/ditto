@@ -1,3 +1,4 @@
+from collections import Counter
 from ast import literal_eval
 from typing import Any
 from uuid import uuid4
@@ -30,7 +31,6 @@ class XfmrModelTypes(str, Enum):
 
 
 def _build_xfmr_equipment(
-    system: System,
     model_type: str,
     distribution_transformer_equipment_catalog: dict[int, DistributionTransformerEquipment],
     winding_equipment_catalog: dict[int, WindingEquipment],
@@ -38,7 +38,6 @@ def _build_xfmr_equipment(
     """Helper function to build a DistributionTransformerEquipment instance
 
     Args:
-        system (System): Instance of infrasys System
         model_type (str): Opendss model type e.g. Transformer, XfmrCode
         distribution_transformer_equipment_catalog (dict[int, DistributionTransformerEquipment]): mapping of model hash to DistributionTransformerEquipment instance
         winding_equipment_catalog (dict[int, WindingEquipment]): mapping of model hash to WindingEquipment instance
@@ -83,23 +82,17 @@ def _build_xfmr_equipment(
     ]
 
     number_windings = query("windings", int)
-    xfmr_bus_names = odd.CktElement.BusNames()
-    winding_phases = []
-    xfmr_buses = []
+    wdg_nom_voltages = []
     windings = []
 
-    for wdg_index, bus_name in zip(range(number_windings), xfmr_bus_names):
+    for wdg_index in range(number_windings):
         set_ppty("Wdg", wdg_index + 1)
-        bus = bus_name.split(".")[0]
         num_phase = query("phases", int)
-        nodes = ["1", "2", "3"] if num_phase == 3 else bus_name.split(".")[1:]
-        winding_phases.append([PHASE_MAPPER[node] for node in nodes])
-        xfmr_buses.append(system.get_component(DistributionBus, bus))
         if query("conn", str).lower() == "delta":
             nominal_voltage = query("kv", float) / 1.732
         else:
             nominal_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
-
+        wdg_nom_voltages.append(nominal_voltage)
         min_tap_pu = query("mintap", float)
         max_tap_pu = query("maxtap", float)
         num_taps = query("numtaps", int)
@@ -116,7 +109,7 @@ def _build_xfmr_equipment(
             else ConnectionType.STAR,
             nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
             resistance=query("%r", float),
-            is_grounded=True if "0" in nodes else False,
+            is_grounded=False,  # TODO: Should be moved to the transformer model. Only known once the transformer is installed
             voltage_type=VoltageTypes.LINE_TO_GROUND,
             tap_positions=[tap] * num_phase,
             total_taps=num_taps,
@@ -137,12 +130,12 @@ def _build_xfmr_equipment(
         windings=windings,
         coupling_sequences=coupling_sequences,
         winding_reactances=reactances,
-        is_center_tapped=_is_center_tapped(winding_phases),
+        is_center_tapped=_is_center_tapped(wdg_nom_voltages),
     )
     dist_transformer = get_equipment_from_catalog(
         dist_transformer, distribution_transformer_equipment_catalog
     )
-    return dist_transformer, xfmr_buses, winding_phases
+    return dist_transformer
 
 
 def get_transformer_equipments(system: System) -> list[DistributionTransformerEquipment]:
@@ -163,7 +156,6 @@ def get_transformer_equipments(system: System) -> list[DistributionTransformerEq
         flag = odd.ActiveClass.First()
         while flag > 0:
             _build_xfmr_equipment(
-                system,
                 odd_model_type,
                 distribution_transformer_equipment_catalog,
                 winding_equipment_catalog,
@@ -194,8 +186,16 @@ def get_transformers(
     flag = odd.Transformers.First()
     while flag > 0:
         logger.debug(f"building transformer {odd.Transformers.Name()}")
-        xfmr_equipment, buses, phases = _build_xfmr_equipment(
-            system,
+        bus_names = odd.CktElement.BusNames()
+        buses = []
+        phases = []
+        for bus_name in bus_names:
+            bus_name_clean = bus_name.split(".")[0]
+            bus_phases = bus_name.split(".")[1:] if "." in bus_name else ["1", "2", "3"]
+            bus_phases = [PHASE_MAPPER[ph] for ph in bus_phases]
+            phases.append([Phase(phase) for phase in bus_phases])
+            buses.append(system.get_component(DistributionBus, bus_name_clean))
+        xfmr_equipment = _build_xfmr_equipment(
             XfmrModelTypes.TRANSFORMERS.value,
             distribution_transformer_equipment_catalog,
             winding_equipment_catalog,
@@ -212,18 +212,21 @@ def get_transformers(
     return transformers
 
 
-def _is_center_tapped(winding_phases: list[Phase]) -> bool:
-    """The flag is true if the transformer is center tapped.
+def _is_center_tapped(wdg_nom_voltages: list[float]) -> bool:
+    """The flag is true if the transformer is center tapped
+
+    Args:
+        wdg_nom_voltages (list[float]): list of nomimal voltage for each bus
 
     Returns:
         bool: True if the transfomer equpment is split phase else False
     """
 
     is_split_phase = False
-    if len(winding_phases) == 3:
-        num_phases = [
-            len(wdg_phases) == 2 and Phase.N in wdg_phases for wdg_phases in winding_phases[1:]
-        ]
-        if all(num_phases):
-            is_split_phase = True
+    if len(wdg_nom_voltages) == 3:
+        max_secondary_voltage_kv = 0.6
+        counts = Counter(wdg_nom_voltages)
+        for nom_voltage in counts:
+            if nom_voltage < max_secondary_voltage_kv and counts[nom_voltage] == 2:
+                is_split_phase = True
     return is_split_phase

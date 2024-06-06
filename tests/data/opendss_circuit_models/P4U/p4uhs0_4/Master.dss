@@ -1,0 +1,30 @@
+Clear
+
+New Circuit.substation_p4uhs0_69 bus1=p4uhs0_69 pu=1.0 basekV=69.0 R1=1e-05 X1=1e-05 R0=1e-05 X0=1e-05
+
+Redirect LineCodes.dss
+Redirect p4uhs0_4--p4udt0/LineCodes.dss
+Redirect p4uhs0_4--p4udt4/LineCodes.dss
+Redirect p4uhs0_4--p4udt6/LineCodes.dss
+Redirect Lines.dss
+Redirect p4uhs0_4--p4udt0/Lines.dss
+Redirect p4uhs0_4--p4udt4/Lines.dss
+Redirect p4uhs0_4--p4udt6/Lines.dss
+Redirect Transformers.dss
+Redirect p4uhs0_4--p4udt0/Transformers.dss
+Redirect p4uhs0_4--p4udt4/Transformers.dss
+Redirect p4uhs0_4--p4udt6/Transformers.dss
+Redirect Regulators.dss
+Redirect p4uhs0_4--p4udt0/Loads.dss
+Redirect p4uhs0_4--p4udt4/Loads.dss
+Redirect p4uhs0_4--p4udt6/Loads.dss
+new monitor.m1 element=Line.sb5_p4uhs0_4_426 mode=0
+new monitor.m2 element=Line.sb5_p4uhs0_4_426 mode=1
+new energymeter.m3 Line.sb5_p4uhs0_4_426
+
+Set Voltagebases=[0.12, 0.208, 0.48, 2.309, 4.0, 69.0]
+
+Calcvoltagebases
+
+Buscoords Buscoords.dss
+set maxcontroliter=50

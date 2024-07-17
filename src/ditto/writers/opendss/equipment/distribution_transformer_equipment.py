@@ -25,14 +25,17 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
         kVAs = []
         conns = []
         taps = []
+        min_tap = []
+        max_tap = []
+        num_taps = []
         # TODO: Add TapWindingEquipment
         for i in range(len(self.model.windings)):
             winding = self.model.windings[i]
-            dv = winding.bandwidth.to("kV").magnitude / winding.band_center.to("kV").magnitude
-            dv_dtap = dv / winding.total_taps
-            tap_pu = [1 - dv_dtap * tap for tap in winding.tap_positions]
-
-            taps.append(1.0 if i == 0 else tap_pu[0])
+            tap_pu = winding.tap_positions
+            taps.append(tap_pu[0])
+            min_tap.append(winding.min_tap_pu)
+            max_tap.append(winding.max_tap_pu)
+            num_taps.append(winding.total_taps)
 
             num_phases = winding.num_phases
             # nominal_voltage
@@ -58,6 +61,10 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
             self.opendss_dict[x] = x_value
         self.opendss_dict["Phases"] = num_phases
         self.opendss_dict["Tap"] = taps
+        self.opendss_dict["Tap"] = taps
+        self.opendss_dict["MinTap"] = min_tap
+        self.opendss_dict["MaxTap"] = max_tap
+        self.opendss_dict["NumTaps"] = num_taps
         pass
 
     def map_coupling_sequences(self):

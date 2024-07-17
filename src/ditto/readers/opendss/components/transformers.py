@@ -8,7 +8,6 @@ from gdm.quantities import PositiveApparentPower, PositiveVoltage
 from gdm import (
     DistributionTransformerEquipment,
     DistributionTransformer,
-    TapWindingEquipment,
     WindingEquipment,
     DistributionBus,
     ConnectionType,
@@ -96,12 +95,9 @@ def _build_xfmr_equipment(
         min_tap_pu = query("mintap", float)
         max_tap_pu = query("maxtap", float)
         num_taps = query("numtaps", int)
-        dv_dtap = (max_tap_pu - min_tap_pu) / num_taps
         taps = query("taps", list)
-        taps = [round((1 - tap) / dv_dtap) for tap in taps]
-        tap = taps[-1]
-
-        winding = TapWindingEquipment(
+        tap = [taps[wdg_index]] * num_phase
+        winding = WindingEquipment(
             rated_power=PositiveApparentPower(query("kva", float), "kilova"),
             num_phases=num_phase,
             connection_type=ConnectionType.DELTA
@@ -111,11 +107,10 @@ def _build_xfmr_equipment(
             resistance=query("%r", float),
             is_grounded=False,  # TODO: Should be moved to the transformer model. Only known once the transformer is installed
             voltage_type=VoltageTypes.LINE_TO_GROUND,
-            tap_positions=[tap] * num_phase,
+            tap_positions=tap,
             total_taps=num_taps,
-            band_center=PositiveVoltage(1.0 * nominal_voltage, "kilovolt"),
-            bandwidth=PositiveVoltage((max_tap_pu - min_tap_pu) * nominal_voltage, "kilovolt"),
-            max_step=1,
+            min_tap_pu=min_tap_pu,
+            max_tap_pu=max_tap_pu,
         )
         winding = get_equipment_from_catalog(winding, winding_equipment_catalog)
         windings.append(winding)

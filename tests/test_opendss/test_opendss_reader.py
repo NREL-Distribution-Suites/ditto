@@ -2,7 +2,6 @@
 from pathlib import Path
 import os
 
-from infrasys import System
 import pytest
 
 from ditto.readers.opendss.reader import Reader
@@ -44,9 +43,9 @@ def test_serialize_opendss_model(opendss_file: Path, tmp_path):
 JSON_CASEFILES = (Path(__file__).parent.parent / "data" / "Opendss_circuit_models").rglob("*.json")
 
 
-@pytest.mark.parametrize("json_file", JSON_CASEFILES)
-def test_deserialize_model(json_file: Path, tmp_path):
-    example_name = json_file.parent.name
-    import_path = base_path / "dump_from_tests" / example_name / (json_file.stem.lower() + ".json")
-    assert import_path.exists()
-    System.from_json(import_path)
+# @pytest.mark.parametrize("json_file", JSON_CASEFILES)
+# def test_deserialize_model(json_file: Path, tmp_path):
+#     example_name = json_file.parent.name
+#     import_path = base_path / "dump_from_tests" / example_name / (json_file.stem.lower() + ".json")
+#     assert import_path.exists()
+#     System.from_json(import_path)

@@ -1,8 +1,10 @@
 from uuid import uuid4
 
+from gdm.distribution.equipment.phase_voltagesource_equipment import PhaseVoltageSourceEquipment
+
 from gdm import (
     DistributionBus,
-    PhaseVoltageSourceEquipment,
+    # PhaseVoltageSourceEquipment,
     VoltageSourceEquipment,
     DistributionVoltageSource,
 )

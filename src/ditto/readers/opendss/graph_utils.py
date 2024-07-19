@@ -137,8 +137,9 @@ def _fix_bus_phases(
         model_name = data["name"]
         model_type = getattr(gdm, data["type"])
         model = system.get_component(model_type, model_name)
+        print(model, type(model))
         assert issubclass(
-            model.__class__, gdm.DistributionBranch
+            model.__class__, gdm.DistributionBranchBase
         ), f"Unsupported model type {model.__class__.__name__}"
         for bus in model.buses:
             if bus.name != hv_xfmr_bus:

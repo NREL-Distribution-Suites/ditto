@@ -2,7 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from gdm.distribution.components.distribution_component import DistributionComponent
+from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from altdss_schema import altdss_models
 from gdm import DistributionBus
 from loguru import logger
@@ -72,7 +72,7 @@ class Writer(AbstractWriter):
             # Example mapper is class DistributionBusMapper
             for model in components:
                 # Example model is instance of DistributionBus
-                if not isinstance(model, DistributionComponent):
+                if not isinstance(model, DistributionComponentBase):
                     continue
                 model_map = mapper(model)
                 model_map.populate_opendss_dictionary()

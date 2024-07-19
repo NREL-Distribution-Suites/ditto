@@ -29,6 +29,7 @@ from gdm import (
     DistributionBus,
     ThermalLimitSet,
     GeometryBranch,
+    Phase,
 )
 
 from infrasys.quantities import Distance
@@ -303,9 +304,16 @@ def get_branches(
             assert geometry in mapping
             geometry_hash = mapping[geometry]
             geometry_branch_equipment = geometry_branch_equipment_catalog[geometry_hash]
+
             n_conds = len(geometry_branch_equipment.conductors)
             for _ in range(n_conds - num_phase):
                 nodes.append("4")
+
+            if "4" in nodes:
+                for bus in [bus1, bus2]:
+                    bus_obj = system.get_component(DistributionBus, bus)
+                    bus_obj.phases.append(Phase.N)
+
             geometry_branch = GeometryBranch(
                 name=odd.Lines.Name().lower(),
                 equipment=geometry_branch_equipment,

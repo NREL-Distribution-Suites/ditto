@@ -1,0 +1,10 @@
+New Line.l(r:p4uhs0_69-p4uts0_69) Units=km Length=0.001 bus1=p4uhs0_69-p4uts0_69xx.1.2.3 bus2=p4uhs0_69-p4uts0_69x.1.2.3 switch=n enabled=y phases=3 Linecode=3P_OH_AL_ACSR_477kcmil_Hawk_3
+
+New Line.breaker(r:p4uts0_69-st_mat)p4u_41 Units=km Length=0.001 bus1=st_mat.1.2.3 bus2=p4uts0_69-st_matxx.1.2.3 switch=y enabled=y phases=3 Linecode=breaker_3
+
+New Line.breaker(r:p4uts0_69-st_mat)p4u_42 Units=km Length=0.001 bus1=p4uts0_69-st_matx.1.2.3 bus2=p4uts0_69.1.2.3 switch=y enabled=y phases=3 Linecode=breaker_3_1
+
+New Line.breaker(r:p4uhs0_69-p4uts0_69)p4u_45 Units=km Length=0.001 bus1=p4uts0_69.1.2.3 bus2=p4uhs0_69-p4uts0_69xx.1.2.3 switch=y enabled=y phases=3 Linecode=breaker_3
+
+New Line.breaker(r:p4uhs0_69-p4uts0_69)p4u_46 Units=km Length=0.001 bus1=p4uhs0_69-p4uts0_69x.1.2.3 bus2=p4uhs0_69.1.2.3 switch=y enabled=y phases=3 Linecode=breaker_3
+

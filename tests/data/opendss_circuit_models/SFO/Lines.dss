@@ -1,0 +1,7 @@
+New Line.ss_to_connector1 Units=km Length=0.001 bus1=ss_bus_abodh.1.2.3 bus2=connector_bus.1.2.3 switch=y enabled=y phases=3 Linecode=DISCONNECT_SWITCH_4KV_3
+
+New Line.connector1 Units=km Length=0.001 bus1=p10udt4086-p10uhs8_1247x.1.2.3 bus2=connector_bus.1.2.3 switch=y enabled=y phases=3 Linecode=DISCONNECT_SWITCH_4KV_3
+
+New Line.connector2 Units=km Length=0.001 bus1=p10udt4838-p10uhs9_1247x.1.2.3 bus2=connector_bus.1.2.3 switch=y enabled=y phases=3 Linecode=DISCONNECT_SWITCH_4KV_3
+
+New Line.connector3 Units=km Length=0.001 bus1=p10udt4214-p10uhs4_1247x.1.2.3 bus2=connector_bus.1.2.3 switch=y enabled=y phases=3 Linecode=DISCONNECT_SWITCH_4KV_3

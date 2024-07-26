@@ -1,0 +1,41 @@
+Clear
+
+New Circuit.substation_SFO_abodh bus1=ss_bus_abodh pu=1.02 basekV=12.47 R1=1e-05 X1=1e-05 R0=1e-05 X0=1e-05
+
+Redirect LineCodes.dss
+Redirect 5d88023c-5d47-43d2-ba6a-318c90443177/LineCodes.dss
+Redirect 43f2eb16-fd81-480c-a251-db81b29aaa5b/LineCodes.dss
+Redirect accdf54c-c90c-4c41-9d7a-5e5d3d17a4e5/LineCodes.dss
+
+Redirect Lines.dss
+Redirect 5d88023c-5d47-43d2-ba6a-318c90443177/Lines.dss
+Redirect 43f2eb16-fd81-480c-a251-db81b29aaa5b/Lines.dss
+Redirect accdf54c-c90c-4c41-9d7a-5e5d3d17a4e5/Lines.dss
+
+Redirect 5d88023c-5d47-43d2-ba6a-318c90443177/Transformers.dss
+Redirect 43f2eb16-fd81-480c-a251-db81b29aaa5b/Transformers.dss
+Redirect accdf54c-c90c-4c41-9d7a-5e5d3d17a4e5/Transformers.dss
+
+Redirect 5d88023c-5d47-43d2-ba6a-318c90443177/Loads.dss
+Redirect 43f2eb16-fd81-480c-a251-db81b29aaa5b/Loads.dss
+Redirect accdf54c-c90c-4c41-9d7a-5e5d3d17a4e5/Loads.dss
+
+!Redirect 5d88023c-5d47-43d2-ba6a-318c90443177/Capacitors.dss
+!Redirect 43f2eb16-fd81-480c-a251-db81b29aaa5b/Capacitors.dss
+!Redirect accdf54c-c90c-4c41-9d7a-5e5d3d17a4e5/Capacitors.dss
+
+new monitor.m1 element=Line.ss_to_connector1 mode=0
+new monitor.m2 element=Line.ss_to_connector1 mode=1
+new energymeter.m3 Line.ss_to_connector1
+
+Set Voltagebases=[0.12, 0.208, 0.48, 12.47]
+
+Calcvoltagebases
+
+Buscoords Buscoords.dss
+set MaxIterations=50
+set maxcontroliter=100
+
+Solve
+Plot Circuit Power Max=500 dots=y labels=n subs=y C1=Blue 
+Plot Profile phases=all

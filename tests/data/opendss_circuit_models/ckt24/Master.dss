@@ -1,0 +1,17 @@
+
+!! Solution Run Script for Ckt24
+
+! generally when running from Opendss.EXE you will open this file first and control
+! the execution from here. Add any commands you wish.
+
+! Ckt24 consists of
+!
+! Devices = 9967
+! Buses = 6058
+! Nodes = 7522
+
+Compile "master_ckt24.dss"  
+
+! Note:adding full path name in brackets will avoid having to manually change to this directory
+
+solve

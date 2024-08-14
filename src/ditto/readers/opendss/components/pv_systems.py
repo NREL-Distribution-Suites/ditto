@@ -75,7 +75,7 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
         bus1 = buses[0].split(".")[0]
         pv_systems.append(
             DistributionSolar(
-                name=odd.Capacitors.Name().lower(),
+                name=odd.PVsystems.Name().lower(),
                 bus=system.get_component(DistributionBus, bus1),
                 phases=[PHASE_MAPPER[el] for el in nodes],
                 controllers=[],

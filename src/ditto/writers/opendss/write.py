@@ -181,12 +181,14 @@ class Writer(AbstractWriter):
             output_redirect /= model_map.feeder
             output_folder.mkdir(exist_ok=True)
 
-    def _write_switch_status(self, file_handler:TextIOWrapper):
-        switches: list[MatrixImpedanceSwitch] = list(self.system.get_components(MatrixImpedanceSwitch))
+    def _write_switch_status(self, file_handler: TextIOWrapper):
+        switches: list[MatrixImpedanceSwitch] = list(
+            self.system.get_components(MatrixImpedanceSwitch)
+        )
         for switch in switches:
-            status = "close" if switch.is_closed[0] else "open" 
+            status = "close" if switch.is_closed[0] else "open"
             file_handler.write(f"{status} line.{switch.name}\n")
-        
+
     def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.
         file_order = [file_type.value for file_type in OpenDSSFileTypes]

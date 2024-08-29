@@ -34,4 +34,3 @@ class DistributionBranchMapper(OpenDSSMapper):
         # TODO: remove from GDM?
         self.opendss_dict["Phases"] = len(self.model.phases)
         pass
-

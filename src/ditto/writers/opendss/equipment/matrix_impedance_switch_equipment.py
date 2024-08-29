@@ -1,5 +1,8 @@
-from ditto.writers.opendss.equipment.matrix_impedance_branch_equipment import MatrixImpedanceBranchEquipmentMapper
+from ditto.writers.opendss.equipment.matrix_impedance_branch_equipment import (
+    MatrixImpedanceBranchEquipmentMapper,
+)
 from ditto.enumerations import OpenDSSFileTypes
+
 
 class MatrixImpedanceSwitchEquipmentMapper(MatrixImpedanceBranchEquipmentMapper):
     def __init__(self, model):

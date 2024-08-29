@@ -1,5 +1,8 @@
-from ditto.writers.opendss.equipment.matrix_impedance_branch_equipment import MatrixImpedanceBranchEquipmentMapper
+from ditto.writers.opendss.equipment.matrix_impedance_branch_equipment import (
+    MatrixImpedanceBranchEquipmentMapper,
+)
 from ditto.enumerations import OpenDSSFileTypes
+
 
 class MatrixImpedanceFuseEquipmentMapper(MatrixImpedanceBranchEquipmentMapper):
     def __init__(self, model):
@@ -16,7 +19,7 @@ class MatrixImpedanceFuseEquipmentMapper(MatrixImpedanceBranchEquipmentMapper):
     def map_delay(self):
         # Not mapped in OpenDSS
         pass
-    
+
     def map_tcc_curve(self):
         # Not mapped in OpenDSS
         pass

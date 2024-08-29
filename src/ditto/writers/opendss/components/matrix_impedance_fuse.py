@@ -3,7 +3,6 @@ from ditto.enumerations import OpenDSSFileTypes
 
 
 class MatrixImpedanceFuseMapper(DistributionBranchMapper):
-    
     def __init__(self, model):
         super().__init__(model)
 
@@ -13,7 +12,6 @@ class MatrixImpedanceFuseMapper(DistributionBranchMapper):
 
     def map_equipment(self):
         self.opendss_dict["LineCode"] = self.model.equipment.name
-        
 
     def map_is_closed(self):
         # Require every phase to be enabled for the OpenDSS line to be enabled.

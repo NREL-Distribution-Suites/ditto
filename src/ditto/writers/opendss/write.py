@@ -56,11 +56,12 @@ class Writer(AbstractWriter):
 
         self.prepare_folder(output_path)
         component_types = self.system.get_component_types()
+
         seen_equipment = set()
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)
-
+            
             mapper_name = component_type.__name__ + "Mapper"
             # Example mapper_name is string DistributionBusMapper
             if not hasattr(opendss_mapper, mapper_name):

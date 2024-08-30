@@ -370,10 +370,10 @@ def get_branches(
             if model_class in [MatrixImpedanceSwitch, MatrixImpedanceFuse]:
                 model_dict["is_closed"] = [
                     not (
-                        odd.CktElement.IsOpen(1, int(node))
-                        or odd.CktElement.IsOpen(2, int(node))
+                        odd.CktElement.IsOpen(1, node + 1)
+                        or odd.CktElement.IsOpen(2, node + 1)
                     )
-                    for node in nodes
+                    for node in range(len(nodes))
                 ]
             matrix_branch = model_class(**model_dict)
             branches.append(matrix_branch)

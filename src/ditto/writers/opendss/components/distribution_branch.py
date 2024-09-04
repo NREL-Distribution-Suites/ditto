@@ -34,12 +34,3 @@ class DistributionBranchMapper(OpenDSSMapper):
         # TODO: remove from GDM?
         self.opendss_dict["Phases"] = len(self.model.phases)
         pass
-
-
-class SwitchedDistributionBranchMapper(DistributionBranchMapper):
-    def map_is_closed(self):
-        # Require every phase to be enabled for the OpenDSS line to be enabled.
-        is_enabled = True
-        for phase_closed in self.model.is_closed:
-            is_enabled = is_enabled and phase_closed
-        self.opendss_dict["Enabled"] = is_enabled

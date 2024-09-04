@@ -1,3 +1,5 @@
+from gdm import Phase
+
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
@@ -32,5 +34,8 @@ class DistributionBranchMapper(OpenDSSMapper):
     def map_phases(self):
         # Redundant information - included in buses
         # TODO: remove from GDM?
-        self.opendss_dict["Phases"] = len(self.model.phases)
+
+        live_phases = [phase for phase in self.model.phases if phase != Phase.N]
+
+        self.opendss_dict["Phases"] = len(live_phases)
         pass

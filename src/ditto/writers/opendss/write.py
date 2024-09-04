@@ -187,8 +187,8 @@ class Writer(AbstractWriter):
             self.system.get_components(MatrixImpedanceSwitch)
         )
         for switch in switches:
-            status = "close" if switch.is_closed[0] else "open"
-            file_handler.write(f"{status} line.{switch.name}\n")
+            if not switch.is_closed[0]:
+                file_handler.write(f"open line.{switch.name}\n")
 
     def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.

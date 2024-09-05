@@ -19,10 +19,9 @@ class DistributionBranchMapper(OpenDSSMapper):
         self.opendss_dict["Bus1"] = self.model.buses[0].name
         self.opendss_dict["Bus2"] = self.model.buses[1].name
         for phase in self.model.phases:
-            self.opendss_dict["Bus1"] += self.phase_map[phase]
-
-        for phase in self.model.phases:
-            self.opendss_dict["Bus2"] += self.phase_map[phase]
+            if phase != Phase.N:
+                self.opendss_dict["Bus1"] += self.phase_map[phase]
+                self.opendss_dict["Bus2"] += self.phase_map[phase]
 
     def map_length(self):
         self.opendss_dict["Length"] = self.model.length.magnitude

@@ -136,22 +136,26 @@ def _fix_bus_phases(
     for _, _, data in subgraph.edges(data=True):
         model_name = data["name"]
         model_type = getattr(gdm, data["type"])
-        model = system.get_component(model_type, model_name)
-        print(model, type(model))
+        model: gdm.DistributionBranchBase = system.get_component(model_type, model_name)
         assert issubclass(
             model.__class__, gdm.DistributionBranchBase
         ), f"Unsupported model type {model.__class__.__name__}"
         for bus in model.buses:
             if bus.name != hv_xfmr_bus:
-                bus.phases = list(
-                    set(
-                        [
-                            mapped_split_phases[phase] if phase in mapped_split_phases else phase
-                            for phase in bus.phases
-                        ]
-                        + [gdm.Phase.N]
-                    )
-                )
+                bus.phases = _mapped_phases(mapped_split_phases, bus.phases)
+        model.phases = _mapped_phases(mapped_split_phases, model.phases)
+
+
+def _mapped_phases(mapped_split_phases, phases):
+    return list(
+        set(
+            [
+                mapped_split_phases[phase] if phase in mapped_split_phases else phase
+                for phase in phases
+            ]
+            + [gdm.Phase.N]
+        )
+    )
 
 
 def _fix_transformer_phases(

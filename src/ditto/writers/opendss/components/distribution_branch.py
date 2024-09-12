@@ -1,3 +1,5 @@
+from gdm import Phase
+
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
@@ -17,10 +19,9 @@ class DistributionBranchMapper(OpenDSSMapper):
         self.opendss_dict["Bus1"] = self.model.buses[0].name
         self.opendss_dict["Bus2"] = self.model.buses[1].name
         for phase in self.model.phases:
-            self.opendss_dict["Bus1"] += self.phase_map[phase]
-
-        for phase in self.model.phases:
-            self.opendss_dict["Bus2"] += self.phase_map[phase]
+            if phase != Phase.N:
+                self.opendss_dict["Bus1"] += self.phase_map[phase]
+                self.opendss_dict["Bus2"] += self.phase_map[phase]
 
     def map_length(self):
         self.opendss_dict["Length"] = self.model.length.magnitude
@@ -32,14 +33,8 @@ class DistributionBranchMapper(OpenDSSMapper):
     def map_phases(self):
         # Redundant information - included in buses
         # TODO: remove from GDM?
-        self.opendss_dict["Phases"] = len(self.model.phases)
+
+        live_phases = [phase for phase in self.model.phases if phase != Phase.N]
+
+        self.opendss_dict["Phases"] = len(live_phases)
         pass
-
-
-class SwitchedDistributionBranchMapper(DistributionBranchMapper):
-    def map_is_closed(self):
-        # Require every phase to be enabled for the OpenDSS line to be enabled.
-        is_enabled = True
-        for phase_closed in self.model.is_closed:
-            is_enabled = is_enabled and phase_closed
-        self.opendss_dict["Enabled"] = is_enabled

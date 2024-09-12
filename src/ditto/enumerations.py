@@ -12,3 +12,7 @@ class OpenDSSFileTypes(str, Enum):
     WIRES_FILE = "WireData.dss"
     PV_FILE = "PVSystems.dss"
     LINE_GEOMETRIES_FILE = "LineGeometry.dss"
+    SWITCH_CODES_FILE = "SwitchCodes.dss"
+    SWITCH_FILE = "Switches.dss"
+    FUSE_CODES_FILE = "FuseCodes.dss"
+    FUSE_FILE = "Fuses.dss"

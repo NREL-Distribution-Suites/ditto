@@ -1,10 +1,11 @@
 from collections import defaultdict
+from io import TextIOWrapper
 from pathlib import Path
 from typing import Any
 
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
+from gdm import DistributionBus, MatrixImpedanceSwitch
 from altdss_schema import altdss_models
-from gdm import DistributionBus
 from loguru import logger
 
 from ditto.writers.abstract_writer import AbstractWriter
@@ -55,6 +56,7 @@ class Writer(AbstractWriter):
 
         self.prepare_folder(output_path)
         component_types = self.system.get_component_types()
+
         seen_equipment = set()
         for component_type in component_types:
             # Example component_type is DistributionBus
@@ -180,6 +182,14 @@ class Writer(AbstractWriter):
             output_redirect /= model_map.feeder
             output_folder.mkdir(exist_ok=True)
 
+    def _write_switch_status(self, file_handler: TextIOWrapper):
+        switches: list[MatrixImpedanceSwitch] = list(
+            self.system.get_components(MatrixImpedanceSwitch)
+        )
+        for switch in switches:
+            if not switch.is_closed[0]:
+                file_handler.write(f"open line.{switch.name}\n")
+
     def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.
         file_order = [file_type.value for file_type in OpenDSSFileTypes]
@@ -194,6 +204,7 @@ class Writer(AbstractWriter):
                             base_master.write("redirect " + str(dss_file))
                             base_master.write("\n")
                             break
+                self._write_switch_status(base_master)
                 base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
                 base_master.write("calcv\n")
                 base_master.write("Solve\n")

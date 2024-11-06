@@ -11,7 +11,7 @@ import pandas as pd
 # cp libmdb.so.2.0.1 libmdb.so.2
 # cp libiconv.so.2.6.1 libiconv.so.2
 # And repackage the tar file
-def read_table(database_name, table_name):
+def read_synergi_data(database_name, table_name):
     operating_system = platform.system()
     current_dir = os.path.realpath(os.path.dirname(__file__))
     if operating_system == "Windows":

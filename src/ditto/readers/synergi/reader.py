@@ -1,8 +1,11 @@
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm import DistributionSystem
 from gdm.distribution.components.distribution_bus import DistributionBus
-from ditto.writers.abstract_reader import AbstractReader
-from utils import read_synergi_table, download_mdbtools
+from gdm import DistributionSystem
+from ditto.readers.reader import AbstractReader
+from ditto.readers.synergi.utils import read_synergi_data, download_mdbtools
+import ditto.readers.synergi as synergi_mapper
+from loguru import logger
 
 class Reader(AbstractReader):
 
@@ -10,9 +13,10 @@ class Reader(AbstractReader):
             DistributionBus,
     ]
 
-    def __init__(self):
+    def __init__(self, model_file, equipment_file):
         download_mdbtools()
-        self.system = DistributionSytem(auto_add_composed_components=True)
+        self.system = DistributionSystem(auto_add_composed_components=True)
+        self.read(model_file, equipment_file)
 
     def read(self, model_file, equipment_file):
         # TODO: Base this off of the components in the init file
@@ -28,15 +32,18 @@ class Reader(AbstractReader):
 
             table_data = None
             if database == "Model":
-                table_data = read_synergi_data(model_file,table)
+                table_data = read_synergi_data(model_file,table_name)
             elif database == "Equipment":
-                table_data = read_synergi_data(equipment_file,table)
+                table_data = read_synergi_data(equipment_file,table_name)
             else:
                 raise ValueError("Invalid database type")
 
             components = []
-            for row in table_data:
+            for idx,row in table_data.iterrows():
                 mapper_name = component_type.__name__ + "Mapper"
-                model_entry = mapper(row)
+                model_entry = mapper.parse(row)
                 components.append(model_entry)
-                self.system.add_components(*components)
+            self.system.add_components(*components)
+
+    def get_system(self) -> DistributionSystem:
+        return self.system  

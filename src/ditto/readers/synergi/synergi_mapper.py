@@ -3,6 +3,6 @@ from abc import ABC, abstractproperty
 class SynergiMapper(ABC):
 
 
-    def __init__(self):
-        pass
+    def __init__(self, system):
+        self.system = system
 

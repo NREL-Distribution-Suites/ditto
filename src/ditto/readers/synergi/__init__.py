@@ -1,1 +1,2 @@
 from ditto.readers.synergi.components.distribution_bus import DistributionBusMapper
+from ditto.readers.synergi.components.distribution_capacitor import DistributionCapacitorMapper

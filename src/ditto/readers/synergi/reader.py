@@ -2,6 +2,7 @@ from gdm.distribution.components.base.distribution_component_base import Distrib
 from gdm import DistributionSystem
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_capacitor import DistributionCapacitor
+from gdm.distribution.components.distribution_load import DistributionLoad
 from gdm import DistributionSystem
 from ditto.readers.reader import AbstractReader
 from ditto.readers.synergi.utils import read_synergi_data, download_mdbtools
@@ -14,6 +15,7 @@ class Reader(AbstractReader):
     component_types = [
             DistributionBus,
             DistributionCapacitor,
+            DistributionLoad,
     ]
 
     def __init__(self, model_file, equipment_file):

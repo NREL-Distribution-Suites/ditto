@@ -12,21 +12,21 @@ class DistributionCapacitorMapper(SynergiMapper):
     synergi_database = "Model"
 
     def parse(self, row, section_id_sections, from_node_sections, to_node_sections):
-        name = self.parse_name(row)
-        bus = self.parse_bus(row, section_id_sections)
-        phases = self.parse_phases(row)
-        controllers = self.parse_controllers(row)
-        equipment = self.parse_equipment(row)
+        name = self.map_name(row)
+        bus = self.map_bus(row, section_id_sections)
+        phases = self.map_phases(row)
+        controllers = self.map_controllers(row)
+        equipment = self.map_equipment(row)
         return DistributionCapacitor(name=name,
                                       bus=bus,
                                       phases=phases,
                                       controllers=controllers,
                                       equipment=equipment)
 
-    def parse_name(self, row):
+    def map_name(self, row):
         return row["UniqueDeviceId"]
 
-    def parse_phases(self, row):
+    def map_phases(self, row):
         phase_info = row["ConnectedPhases"]
         phases = []
         for phase in phase_info:
@@ -38,7 +38,7 @@ class DistributionCapacitorMapper(SynergiMapper):
                 phases.append(Phase.C)
         return phases
 
-    def parse_bus(self, row, section_id_sections):
+    def map_bus(self, row, section_id_sections):
         section_id = row["SectionId"]
         section = section_id_sections[section_id]
         from_bus_name = section["FromNodeId"]
@@ -55,20 +55,17 @@ class DistributionCapacitorMapper(SynergiMapper):
         except:
             pass
 
-        # Attach it to the bus with the most phases
         if from_bus is None:
             return to_bus
-        if to_bus is None:
-            return from_bus
-        if len(from_bus.phases) > len(to_bus.phases):
-            return from_bus
-        return to_bus
+        if from_bus is None:
+            logger.warning(f"Load {section_id} has no bus")
+        return from_bus
 
 
-    def parse_controllers(self, row):
+    def map_controllers(self, row):
         return []
 
-    def parse_equipment(self, row):
+    def map_equipment(self, row):
         mapper = CapacitorEquipmentMapper(self.system)
         equipment = mapper.parse(row)
         return equipment

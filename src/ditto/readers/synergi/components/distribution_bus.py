@@ -36,8 +36,9 @@ class DistributionBusMapper(SynergiMapper):
         location = Location(x = X, y = Y, crs = crs)
         return location
 
+    # Nominal voltage is only defined by transformers
     def map_nominal_voltage(self, row):
-        return []
+        return 0
 
     def map_phases(self, row, from_node_sections, to_node_sections):
         node_id = row["NodeId"]

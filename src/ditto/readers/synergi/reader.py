@@ -2,6 +2,8 @@ from gdm.distribution.components.base.distribution_component_base import Distrib
 from gdm import DistributionSystem
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_capacitor import DistributionCapacitor
+from gdm.distribution.equipment.distribution_transformer_equipment import DistributionTransformerEquipment
+from gdm.distribution.components.distribution_transformer import DistributionTransformer
 from gdm.distribution.components.distribution_load import DistributionLoad
 from gdm import DistributionSystem
 from ditto.readers.reader import AbstractReader
@@ -16,6 +18,8 @@ class Reader(AbstractReader):
             DistributionBus,
             DistributionCapacitor,
             DistributionLoad,
+            DistributionTransformerEquipment,
+            DistributionTransformer,
     ]
 
     def __init__(self, model_file, equipment_file):

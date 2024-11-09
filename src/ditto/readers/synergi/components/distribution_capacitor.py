@@ -3,6 +3,7 @@ from ditto.readers.synergi.equipment.capacitor_equipment import CapacitorEquipme
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_capacitor import DistributionCapacitor
 from gdm import Phase
+from loguru import logger
 
 class DistributionCapacitorMapper(SynergiMapper):
     def __init__(self, system):

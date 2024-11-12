@@ -1,12 +1,7 @@
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
+from gdm.distribution.equipment.geometry_branch_equipment import GeometryBranchEquipment
 from gdm import DistributionSystem
-from gdm.distribution.components.distribution_bus import DistributionBus
-from gdm.distribution.components.distribution_capacitor import DistributionCapacitor
-from gdm.distribution.equipment.distribution_transformer_equipment import DistributionTransformerEquipment
-from gdm.distribution.components.distribution_transformer import DistributionTransformer
-from gdm.distribution.components.distribution_load import DistributionLoad
-from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm import DistributionSystem
+from gdm.quantities import Distance
 from ditto.readers.reader import AbstractReader
 from ditto.readers.synergi.utils import read_synergi_data, download_mdbtools
 import ditto.readers.synergi as synergi_mapper
@@ -22,11 +17,36 @@ class Reader(AbstractReader):
             "DistributionTransformerEquipment",
             "DistributionTransformer",
             "ConductorEquipment",
+            "GeometryBranchEquipment",
+            "GeometryBranch",
     ]
 
     def __init__(self, model_file, equipment_file):
         download_mdbtools()
         self.system = DistributionSystem(auto_add_composed_components=True)
+        default_geometries = []
+        default_geometries.append(GeometryBranchEquipment(
+                name="Default_OH_3PH",
+                horizontal_positions = Distance([0,0.5,1.0, 1.5],"m"),
+                vertical_positions = Distance([0,0,0,0],"m")))
+
+        default_geometries.append(GeometryBranchEquipment(
+                name="Default_OH_1PH",
+                horizontal_positions = Distance([0,0.5],"m"),
+                vertical_positions = Distance([0,0],"m")))
+
+        default_geometries.append(GeometryBranchEquipment(
+                name="Default_UG_3PH",
+                horizontal_positions = Distance([0,0.5,1.0, 1.5],"m"),
+                vertical_positions = Distance([-1,-1,-1,-1],"m")))
+
+        default_geometries.append(GeometryBranchEquipment(
+                name="Default_UG_1PH",
+                horizontal_positions = Distance([0,0.5],"m"),
+                vertical_positions = Distance([-1,-1],"m")))
+
+        self.system.add_components(*default_geometries)
+
         self.read(model_file, equipment_file)
 
     def read(self, model_file, equipment_file):

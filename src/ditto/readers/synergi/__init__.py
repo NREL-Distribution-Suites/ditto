@@ -4,3 +4,5 @@ from ditto.readers.synergi.components.distribution_load import DistributionLoadM
 from ditto.readers.synergi.components.distribution_transformer import DistributionTransformerMapper
 from ditto.readers.synergi.equipment.distribution_transformer_equipment import DistributionTransformerEquipmentMapper
 from ditto.readers.synergi.equipment.conductor_equipment import ConductorEquipmentMapper
+from ditto.readers.synergi.equipment.geometry_branch_equipment import GeometryBranchEquipmentMapper
+from ditto.readers.synergi.components.geometry_branch import GeometryBranchMapper

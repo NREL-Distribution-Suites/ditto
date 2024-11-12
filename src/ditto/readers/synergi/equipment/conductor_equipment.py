@@ -52,15 +52,14 @@ class ConductorEquipmentMapper(SynergiMapper):
                                             phase_ac_resistance=phase_ac_resistance,
                                             strand_ac_resistance=strand_ac_resistance,
                                             num_neutral_strands=num_neutral_strands,
-                                            rated_voltage=rated_voltage,
-                                            loading_limit=None)
+                                            rated_voltage=rated_voltage)
 
 
     def map_name(self, row):
         return row["ConductorName"]
 
     def map_strand_diameter(self, row, unit_type):
-        value = row["CableConNeutStrandDiameter_SUL"] * MAGIC_NUMBER_2
+        value = row["CableConNeutStrandDiameter_SUL"] * self.MAGIC_NUMBER_2
         unit = length_units[unit_type]["SUL"]
         return PositiveDistance(value, unit).to("mm")
 
@@ -70,7 +69,7 @@ class ConductorEquipmentMapper(SynergiMapper):
         return PositiveDistance(value, unit).to("mm")
 
     def map_cable_diameter(self, row, unit_type):
-        value = row["CableDiamOutside_SUL"] * MAGIC_NUMBER_1
+        value = row["CableDiamOutside_SUL"] * self.MAGIC_NUMBER_1
         unit = length_units[unit_type]["SUL"]
         return PositiveDistance(value, unit).to("mm")
 
@@ -82,7 +81,7 @@ class ConductorEquipmentMapper(SynergiMapper):
         return PositiveDistance(thickness, unit).to("mm")
 
     def map_insulation_diameter(self, row, unit_type):
-        value = row["CableDiamOverInsul_SUL"] * MAGIC_NUMBER_1
+        value = row["CableDiamOverInsul_SUL"] * self.MAGIC_NUMBER_1
         unit = length_units[unit_type]["SUL"]
         return PositiveDistance(value, unit).to("mm")
 

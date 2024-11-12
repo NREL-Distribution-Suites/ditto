@@ -24,6 +24,8 @@ class Reader(AbstractReader):
     def __init__(self, model_file, equipment_file):
         download_mdbtools()
         self.system = DistributionSystem(auto_add_composed_components=True)
+
+        # TODO: Add delta-configured lines as well
         default_geometries = []
         default_geometries.append(GeometryBranchEquipment(
                 name="Default_OH_3PH",

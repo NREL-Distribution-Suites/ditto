@@ -3,3 +3,4 @@ from ditto.readers.synergi.components.distribution_capacitor import Distribution
 from ditto.readers.synergi.components.distribution_load import DistributionLoadMapper
 from ditto.readers.synergi.components.distribution_transformer import DistributionTransformerMapper
 from ditto.readers.synergi.equipment.distribution_transformer_equipment import DistributionTransformerEquipmentMapper
+from ditto.readers.synergi.equipment.conductor_equipment import ConductorEquipmentMapper

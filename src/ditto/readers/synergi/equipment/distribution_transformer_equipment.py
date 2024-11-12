@@ -13,7 +13,7 @@ class DistributionTransformerEquipmentMapper(SynergiMapper):
     synergi_table = "DevTransformers"
     synergi_database = "Equipment"
 
-    def parse(self, row, section_id_sections, from_node_sections, to_node_sections):
+    def parse(self, row, unit_type, section_id_sections, from_node_sections, to_node_sections):
         name = self.map_name(row)
         pct_no_load_loss = self.map_pct_no_load_loss(row)
         pct_full_load_loss = self.map_pct_full_load_loss(row)

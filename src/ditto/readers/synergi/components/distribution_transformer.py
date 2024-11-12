@@ -13,7 +13,7 @@ class DistributionTransformerMapper(SynergiMapper):
     synergi_table = "InstDTrans"
     synergi_database = "Model"
 
-    def parse(self, row, section_id_sections, from_node_sections, to_node_sections):
+    def parse(self, row, unit_type, section_id_sections, from_node_sections, to_node_sections):
         name = self.map_name(row)
         buses = self.map_bus(row, section_id_sections)
         winding_phases = self.map_winding_phases(row)

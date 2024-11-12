@@ -5,6 +5,7 @@ from gdm.distribution.components.distribution_capacitor import DistributionCapac
 from gdm.distribution.equipment.distribution_transformer_equipment import DistributionTransformerEquipment
 from gdm.distribution.components.distribution_transformer import DistributionTransformer
 from gdm.distribution.components.distribution_load import DistributionLoad
+from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
 from gdm import DistributionSystem
 from ditto.readers.reader import AbstractReader
 from ditto.readers.synergi.utils import read_synergi_data, download_mdbtools
@@ -15,11 +16,12 @@ class Reader(AbstractReader):
 
     # Order matters here
     component_types = [
-            DistributionBus,
-            DistributionCapacitor,
-            DistributionLoad,
-            DistributionTransformerEquipment,
-            DistributionTransformer,
+            "DistributionBus",
+            "DistributionCapacitor",
+            "DistributionLoad",
+            "DistributionTransformerEquipment",
+            "DistributionTransformer",
+            "ConductorEquipment",
     ]
 
     def __init__(self, model_file, equipment_file):
@@ -28,6 +30,9 @@ class Reader(AbstractReader):
         self.read(model_file, equipment_file)
 
     def read(self, model_file, equipment_file):
+
+        # Read the measurement unit
+        unit_type = read_synergi_data(model_file,"SAI_Control").iloc[0]["LengthUnits"]
 
         # Section data read separately as it links to other tables
         section_id_sections = {}
@@ -52,7 +57,7 @@ class Reader(AbstractReader):
         # TODO: Base this off of the components in the init file
         for component_type in self.component_types:
 
-            mapper_name = component_type.__name__ + "Mapper"
+            mapper_name = component_type+ "Mapper"
             if not hasattr(synergi_mapper, mapper_name):
                 logger.warning(f"Mapper for {mapper_name} not found. Skipping")
                 continue
@@ -70,8 +75,8 @@ class Reader(AbstractReader):
 
             components = []
             for idx,row in table_data.iterrows():
-                mapper_name = component_type.__name__ + "Mapper"
-                model_entry = mapper.parse(row, section_id_sections, from_node_sections, to_node_sections)
+                mapper_name = component_type+ "Mapper"
+                model_entry = mapper.parse(row, unit_type, section_id_sections, from_node_sections, to_node_sections)
                 components.append(model_entry)
             self.system.add_components(*components)
 

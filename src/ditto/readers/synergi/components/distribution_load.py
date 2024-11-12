@@ -12,7 +12,7 @@ class DistributionLoadMapper(SynergiMapper):
     synergi_database = "Model"
 
 
-    def parse(self, row, section_id_sections, from_node_sections, to_node_sections):
+    def parse(self, row, unit_type, section_id_sections, from_node_sections, to_node_sections):
         name = self.map_name(row)
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)

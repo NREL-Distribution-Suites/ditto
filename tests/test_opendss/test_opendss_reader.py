@@ -7,32 +7,19 @@ import pytest
 from ditto.readers.opendss.reader import Reader
 
 
-base_path = Path(__file__).parent.parent
-opendss_circuit_models = base_path / "data" / "Opendss_circuit_models"
+base_path = Path(__file__).parents[1]
+opendss_circuit_models = base_path / "data" / "opendss_circuit_models"
 assert opendss_circuit_models.exists, f"{opendss_circuit_models} does not exist"
 OPENDSS_CASEFILES = opendss_circuit_models.rglob("Master.dss")
-# OPENDSS_CASEFILES = [Path(r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/ckt24/Master.dss")]
-# OPENDSS_CASEFILES = [
-#     Path(
-#         r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/ieee13/Master.dss"
-#     )
-# ]
-# OPENDSS_CASEFILES = [
-#     Path(
-#         r"C:/Users/alatif/Documents/GitHub/ditto/tests/data/opendss_circuit_models/p4u/Master.dss"
-#     )
-#
 
 
 @pytest.mark.parametrize("opendss_file", OPENDSS_CASEFILES)
 def test_serialize_opendss_model(opendss_file: Path, tmp_path):
     example_name = opendss_file.parent.name
-
     # export_path = Path(tmp_path) / example_name
     export_path = base_path / "dump_from_tests" / example_name
-
     if not export_path.exists():
-        os.mkdir(export_path)
+        export_path.mkdir(parents=True, exist_ok=True)
     parser = Reader(opendss_file)
     system = parser.get_system()
     json_path = export_path / (opendss_file.stem.lower() + ".json")
@@ -40,12 +27,5 @@ def test_serialize_opendss_model(opendss_file: Path, tmp_path):
     assert json_path.exists(), "Failed to export the json file"
 
 
-JSON_CASEFILES = (Path(__file__).parent.parent / "data" / "Opendss_circuit_models").rglob("*.json")
+JSON_CASEFILES = (Path(__file__).parent.parent / "data" / "opendss_circuit_models").rglob("*.json")
 
-
-# @pytest.mark.parametrize("json_file", JSON_CASEFILES)
-# def test_deserialize_model(json_file: Path, tmp_path):
-#     example_name = json_file.parent.name
-#     import_path = base_path / "dump_from_tests" / example_name / (json_file.stem.lower() + ".json")
-#     assert import_path.exists()
-#     System.from_json(import_path)

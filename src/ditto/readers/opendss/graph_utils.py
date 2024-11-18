@@ -75,9 +75,9 @@ def _get_split_phase_sub_graph(
 
     xfmr_info = graph[hv_xfmr_bus][lv_xfmr_bus]
     assert (
-        xfmr_info["type"] == "DistributionTransformer"
+        xfmr_info["type"] == DistributionTransformer
     ), f"Unsupported model type {xfmr_info['type']}"
-    model_type = getattr(gdm, xfmr_info["type"])
+    model_type = xfmr_info["type"]
     xfmr_model = system.get_component(model_type, xfmr_info["name"])
 
     filter_nodes = []
@@ -134,9 +134,7 @@ def _fix_bus_phases(
         system (DistributionSystem): Instance of an gdm DistributionSystem
     """
     for _, _, data in subgraph.edges(data=True):
-        model_name = data["name"]
-        model_type = getattr(gdm, data["type"])
-        model: gdm.DistributionBranchBase = system.get_component(model_type, model_name)
+        model: gdm.DistributionBranchBase = system.get_component(data["type"], data["name"])
         assert issubclass(
             model.__class__, gdm.DistributionBranchBase
         ), f"Unsupported model type {model.__class__.__name__}"

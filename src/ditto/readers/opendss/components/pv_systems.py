@@ -4,8 +4,10 @@ from gdm import (
     DistributionSolar,
     DistributionBus,
     SolarEquipment,
+    PowerfactorInverterController,
+    InverterEquipment,
 )
-from gdm.quantities import PositiveActivePower
+from gdm.quantities import PositiveActivePower, PositiveApparentPower
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
@@ -75,10 +77,20 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
         bus1 = buses[0].split(".")[0]
         pv_systems.append(
             DistributionSolar(
-                name=odd.Capacitors.Name().lower(),
+                name=odd.PVsystems.Name().lower(),
                 bus=system.get_component(DistributionBus, bus1),
                 phases=[PHASE_MAPPER[el] for el in nodes],
-                controllers=[],
+                controller=PowerfactorInverterController(
+                    name=str(uuid4()),
+                    power_factor=1.0,
+                    equipment=InverterEquipment(
+                        name=str(uuid4()),
+                        capacity=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
+                        rise_limit=None,
+                        fall_limit=None,
+                        eff_curve=None
+                    ),
+                ),
                 equipment=solar_equipment,
             )
         )

@@ -106,7 +106,7 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
                         distribution_solar,
                         profile_type=profile_type,
                         profile_name=profile_name,
-                        use_time_series=ts_data['use_actual']
+                        use_actual=ts_data['use_actual']
                     )
                     logger.debug(
                         f"Adding timeseries profile '{profile_name} / {profile_type}' to solar '{solar_name}'"

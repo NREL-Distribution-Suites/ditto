@@ -115,7 +115,7 @@ def get_loads(system: System) -> list[DistributionLoad]:
                         distribution_load,
                         profile_type=profile_type,
                         profile_name=profile_name,
-                        use_time_series=ts_profile['use_actual']
+                        use_actual=ts_profile['use_actual']
                     )
                     logger.debug(
                         f"Adding timeseries profile '{profile_name} / {profile_type}' to load '{load_name}'"

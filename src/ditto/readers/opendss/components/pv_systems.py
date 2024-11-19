@@ -13,6 +13,8 @@ import opendssdirect as odd
 from loguru import logger
 
 from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalog
+from ditto.readers.opendss.components.loadshapes import build_profiles, ObjectsWithProfile
+
 
 
 def _build_pv_equipment(
@@ -68,16 +70,16 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
 
     logger.info("parsing pvsystem components...")
     solar_equipment_catalog = {}
+    profile_catalog = {}
     pv_systems = []
     flag = odd.PVsystems.First()
     while flag > 0:
         logger.info(f"building pvsystem {odd.PVsystems.Name()}...")
-
+        solar_name = odd.PVsystems.Name().lower()
         solar_equipment, buses, nodes = _build_pv_equipment(solar_equipment_catalog)
         bus1 = buses[0].split(".")[0]
-        pv_systems.append(
-            DistributionSolar(
-                name=odd.PVsystems.Name().lower(),
+        distribution_solar = DistributionSolar(
+                name=solar_name,
                 bus=system.get_component(DistributionBus, bus1),
                 phases=[PHASE_MAPPER[el] for el in nodes],
                 controller=PowerfactorInverterController(
@@ -93,6 +95,22 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
                 ),
                 equipment=solar_equipment,
             )
-        )
+        profile_names = [odd.PVsystems.daily(), odd.PVsystems.yearly(), odd.PVsystems.duty()]
+        profiles = build_profiles(profile_names, ObjectsWithProfile.PV_SYSTEM, profile_catalog)
+
+        for profile_name in profile_names:
+            if profile_name in profiles:
+                for profile_type, ts_data in profiles[profile_name].items():
+                    system.add_time_series(
+                        ts_data['data'],
+                        distribution_solar,
+                        profile_type=profile_type,
+                        profile_name=profile_name,
+                        use_time_series=ts_data['use_actual']
+                    )
+                    logger.debug(
+                        f"Adding timeseries profile '{profile_name} / {profile_type}' to solar '{solar_name}'"
+                    )
+        pv_systems.append(distribution_solar)
         flag = odd.PVsystems.Next()
     return pv_systems

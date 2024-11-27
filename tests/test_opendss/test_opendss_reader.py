@@ -1,6 +1,5 @@
 """ Module for testing parsers."""
 from pathlib import Path
-import os
 
 import pytest
 
@@ -28,4 +27,3 @@ def test_serialize_opendss_model(opendss_file: Path, tmp_path):
 
 
 JSON_CASEFILES = (Path(__file__).parent.parent / "data" / "opendss_circuit_models").rglob("*.json")
-

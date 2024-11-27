@@ -10,7 +10,7 @@ from ditto.readers.opendss.reader import Reader
 base_path = Path(__file__).parents[1]
 opendss_circuit_models = base_path / "data" / "opendss_circuit_models"
 assert opendss_circuit_models.exists, f"{opendss_circuit_models} does not exist"
-OPENDSS_CASEFILES = opendss_circuit_models.rglob("Master.dss")
+OPENDSS_CASEFILES = list(opendss_circuit_models.rglob("Master.dss"))
 
 
 @pytest.mark.parametrize("opendss_file", OPENDSS_CASEFILES)

@@ -18,7 +18,7 @@ TEST_MODELS = [
     / "opendss_circuit_models"
     / "ieee13"
     / OpenDSSFileTypes.MASTER_FILE.value,
-    test_folder / "data" / "opendss_circuit_models" / "p4u" / OpenDSSFileTypes.MASTER_FILE.value,
+    test_folder / "data" / "opendss_circuit_models" / "P4U" / OpenDSSFileTypes.MASTER_FILE.value,
 ]
 
 

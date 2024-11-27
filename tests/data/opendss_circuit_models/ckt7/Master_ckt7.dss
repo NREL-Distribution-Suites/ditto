@@ -1,7 +1,7 @@
 Clear
 Set DefaultBaseFrequency=60
 
-Redirect LoadShapes_ckt7.dss
+Redirect Loadshapes_ckt7.dss
 Redirect Substation_ckt7.dss
 Redirect LineCodes_ckt7.dss
 Redirect Lines_ckt7.dss

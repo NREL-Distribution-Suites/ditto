@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from gdm.distribution.components.distribution_inverter import DistrbutionInverter
 from gdm import (
     DistributionSolar,
     DistributionBus,
@@ -51,8 +52,7 @@ def _build_pv_equipment(
         solar_power=PositiveActivePower(kw_dc, "kilova"),
         resistance=float(query(r"%r")),
         reactance=float(query(r"%x")),
-        cutout_percent=float(query(r"%cutout")),
-        cutin_percent=float(query(r"%cutin")),
+        
     )
     solar_equipment = get_equipment_from_catalog(solar_equipment, solar_equipment_catalog)
     return solar_equipment, buses, nodes
@@ -76,22 +76,34 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
     while flag > 0:
         logger.info(f"building pvsystem {odd.PVsystems.Name()}...")
         solar_name = odd.PVsystems.Name().lower()
+        
+        def query(ppty):
+            odd.Text.Command(f"? pvsystem.{solar_name}.{ppty}")
+            return odd.Text.Result()
+        
         solar_equipment, buses, nodes = _build_pv_equipment(solar_equipment_catalog)
         bus1 = buses[0].split(".")[0]
         distribution_solar = DistributionSolar(
                 name=solar_name,
                 bus=system.get_component(DistributionBus, bus1),
                 phases=[PHASE_MAPPER[el] for el in nodes],
-                controller=PowerfactorInverterController(
-                    name=str(uuid4()),
-                    power_factor=1.0,
+                
+                inverter= DistrbutionInverter(
+                    name = solar_name + "_inverter",
+                    controller = PowerfactorInverterController(
+                        name=str(uuid4()),
+                        power_factor=1.0,  
+                    ),
                     equipment=InverterEquipment(
                         name=str(uuid4()),
                         capacity=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
                         rise_limit=None,
                         fall_limit=None,
-                        eff_curve=None
+                        eff_curve=None,
+                        cutout_percent=float(query(r"%cutout")),
+                        cutin_percent=float(query(r"%cutin")),
                     ),
+
                 ),
                 equipment=solar_equipment,
             )

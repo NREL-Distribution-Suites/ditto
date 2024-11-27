@@ -44,7 +44,9 @@ doc = [
   "myst-parser",
   "sphinx",
   ]
-
+dev = [
+  "pytest"
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

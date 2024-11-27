@@ -118,7 +118,7 @@ def query_model_data(model_type: str, model_name: str, property: str, dtype: typ
     result = odd.Text.Result()
     if result == "Property Unknown":
         return None
-    if dtype == list:
+    if dtype is list:
         result = result.replace("[ ", "[").replace(" ", ",")
         return ast.literal_eval(result)
     else:

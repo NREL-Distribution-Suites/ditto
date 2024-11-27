@@ -61,12 +61,12 @@ def _build_xfmr_equipment(
         if result is None:
             if dtype in [float, int]:
                 return 0
-            elif dtype == str:
+            elif dtype is str:
                 return ""
             else:
                 return None
         else:
-            if dtype == list:
+            if dtype is list:
                 return literal_eval(result)
             else:
                 return dtype(result)

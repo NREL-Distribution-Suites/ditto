@@ -45,7 +45,8 @@ doc = [
   "sphinx",
   ]
 dev = [
-  "pytest"
+  "pytest",
+  "ruff"
 ]
 
 [tool.pytest.ini_options]

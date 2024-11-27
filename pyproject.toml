@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "ditto"
 dynamic = ["version"]
 description = 'Many to one to many distrbution system model converter '
-readme = "README.md"
+readme = "readme.md"
 requires-python = ">=3.10"
 license = "MIT"
 keywords = []

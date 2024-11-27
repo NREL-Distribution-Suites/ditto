@@ -17,7 +17,6 @@ from ditto.readers.opendss.common import PHASE_MAPPER, get_equipment_from_catalo
 from ditto.readers.opendss.components.loadshapes import build_profiles, ObjectsWithProfile
 
 
-
 def _build_pv_equipment(
     solar_equipment_catalog: dict[int, SolarEquipment],
 ) -> tuple[SolarEquipment, list[str], str, list[str]]:
@@ -52,7 +51,6 @@ def _build_pv_equipment(
         solar_power=PositiveActivePower(kw_dc, "kilova"),
         resistance=float(query(r"%r")),
         reactance=float(query(r"%x")),
-        
     )
     solar_equipment = get_equipment_from_catalog(solar_equipment, solar_equipment_catalog)
     return solar_equipment, buses, nodes
@@ -76,37 +74,35 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
     while flag > 0:
         logger.info(f"building pvsystem {odd.PVsystems.Name()}...")
         solar_name = odd.PVsystems.Name().lower()
-        
+
         def query(ppty):
             odd.Text.Command(f"? pvsystem.{solar_name}.{ppty}")
             return odd.Text.Result()
-        
+
         solar_equipment, buses, nodes = _build_pv_equipment(solar_equipment_catalog)
         bus1 = buses[0].split(".")[0]
         distribution_solar = DistributionSolar(
-                name=solar_name,
-                bus=system.get_component(DistributionBus, bus1),
-                phases=[PHASE_MAPPER[el] for el in nodes],
-                
-                inverter= DistrbutionInverter(
-                    name = solar_name + "_inverter",
-                    controller = PowerfactorInverterController(
-                        name=str(uuid4()),
-                        power_factor=1.0,  
-                    ),
-                    equipment=InverterEquipment(
-                        name=str(uuid4()),
-                        capacity=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
-                        rise_limit=None,
-                        fall_limit=None,
-                        eff_curve=None,
-                        cutout_percent=float(query(r"%cutout")),
-                        cutin_percent=float(query(r"%cutin")),
-                    ),
-
+            name=solar_name,
+            bus=system.get_component(DistributionBus, bus1),
+            phases=[PHASE_MAPPER[el] for el in nodes],
+            inverter=DistrbutionInverter(
+                name=solar_name + "_inverter",
+                controller=PowerfactorInverterController(
+                    name=str(uuid4()),
+                    power_factor=1.0,
                 ),
-                equipment=solar_equipment,
-            )
+                equipment=InverterEquipment(
+                    name=str(uuid4()),
+                    capacity=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
+                    rise_limit=None,
+                    fall_limit=None,
+                    eff_curve=None,
+                    cutout_percent=float(query(r"%cutout")),
+                    cutin_percent=float(query(r"%cutin")),
+                ),
+            ),
+            equipment=solar_equipment,
+        )
         profile_names = [odd.PVsystems.daily(), odd.PVsystems.yearly(), odd.PVsystems.duty()]
         profiles = build_profiles(profile_names, ObjectsWithProfile.PV_SYSTEM, profile_catalog)
 
@@ -114,11 +110,11 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
             if profile_name in profiles:
                 for profile_type, ts_data in profiles[profile_name].items():
                     system.add_time_series(
-                        ts_data['data'],
+                        ts_data["data"],
                         distribution_solar,
                         profile_type=profile_type,
                         profile_name=profile_name,
-                        use_actual=ts_data['use_actual']
+                        use_actual=ts_data["use_actual"],
                     )
                     logger.debug(
                         f"Adding timeseries profile '{profile_name} / {profile_type}' to solar '{solar_name}'"

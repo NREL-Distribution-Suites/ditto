@@ -7,7 +7,12 @@ from gdm import (
     PhaseCapacitorEquipment,
     ConnectionType,
 )
-from gdm.quantities import PositiveReactivePower, PositiveResistance, PositiveReactance, PositiveVoltage
+from gdm.quantities import (
+    PositiveReactivePower,
+    PositiveResistance,
+    PositiveReactance,
+    PositiveVoltage,
+)
 from gdm.distribution.distribution_enum import VoltageTypes
 from infrasys.system import System
 import opendssdirect as odd
@@ -41,7 +46,11 @@ def _build_capacitor_source_equipment(
     nodes = buses[0].split(".")[1:] if num_phase != 3 else ["1", "2", "3"]
     live_nodes = [node for node in nodes if node != "0"]
 
-    voltage_type = VoltageTypes.LINE_TO_GROUND if num_phase == 1 and len(live_nodes) else VoltageTypes.LINE_TO_LINE
+    voltage_type = (
+        VoltageTypes.LINE_TO_GROUND
+        if num_phase == 1 and len(live_nodes)
+        else VoltageTypes.LINE_TO_LINE
+    )
 
     for el in nodes:
         phase_capacitor = PhaseCapacitorEquipment(
@@ -62,7 +71,7 @@ def _build_capacitor_source_equipment(
         phase_capacitors=ph_caps,
         connection_type=ConnectionType.DELTA if odd.Capacitors.IsDelta() else ConnectionType.STAR,
         nominal_voltage=PositiveVoltage(odd.Capacitors.kV(), "kilovolt"),
-        voltage_type = voltage_type,
+        voltage_type=voltage_type,
     )
 
     capacitor_equipment = get_equipment_from_catalog(

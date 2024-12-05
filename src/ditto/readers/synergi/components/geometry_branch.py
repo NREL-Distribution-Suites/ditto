@@ -20,14 +20,15 @@ class GeometryBranchMapper(SynergiMapper):
         buses = self.map_buses(row, section_id_sections)
         length = self.map_length(row, unit_type)
         phases = self.map_phases(row)   
-        conductors = self.map_conductors(row)
-        geometry = self.map_geometry(row, conductors)
-        return GeometryBranch(name=name,
+        equipment = self.map_equipment(row)
+        try: 
+            return GeometryBranch(name=name,
                                        buses=buses,
                                        length=length,
                                        phases=phases,
-                                       geometry=geometry,
-                                       conductors=conductors)
+                                       equipment=equipment)
+        except:
+            import pdb;pdb.set_trace()
 
     def map_name(self, row):
         return row["SectionId"]
@@ -76,66 +77,114 @@ class GeometryBranchMapper(SynergiMapper):
         return phases 
  
 
-    def map_geometry(self, row, conductors):
+    def map_equipment(self, row):
         input_geometry = row["ConfigurationId"]
         phases = row["SectionPhases"].replace(" ","")
         num_phases = len(phases.replace("N",""))
+        delta = False
+        if len(phases) == len(phases.replace("N","")):
+            delta = True
 
-        if isinstance(conductors[0], BareConductorEquipment):
+        conductors = []
+        for phase in phases:
+            conductor = None
+            if phase == "N":
+                conductor = row["NeutralConductorId"]
+            else:    
+                # Sample model has missing conductors for PhaseConductor2Id, PhaseConductor3Id
+                # Use PhaseConductorId for all non-neutral conductors
+                #conductor = row[f"PhaseConductor{phase_count}Id"]
+                conductor = row["PhaseConductorId"]
+            conductors.append(conductor)    
+
+        try:
+            self.system.get_component(BareConductorEquipment, conductors[0])
             is_OH = True
-        else:
+        except:
             is_OH = False
 
-        default_three_phase_OH_geometry = "Default_OH_3PH"
-        default_single_phase_OH_geometry = "Default_OH_1PH"
-        default_three_phase_UG_geometry = "Default_UG_3PH"
-        default_single_phase_UG_geometry = "Default_UG_1PH"
+        default_three_phase_OH_geometry = "Default_OH_3PH_" + "_".join(conductors)
+        default_two_phase_OH_geometry = "Default_OH_2PH_" + "_".join(conductors)
+        default_single_phase_OH_geometry = "Default_OH_1PH_" + "_".join(conductors)
+        default_three_phase_UG_geometry = "Default_UG_3PH_" + "_".join(conductors)
+        default_two_phase_UG_geometry = "Default_UG_2PH_" + "_".join(conductors)
+        default_single_phase_UG_geometry = "Default_UG_1PH_" + "_".join(conductors)
+
+        default_three_phase_OH_delta_geometry = "Default_OH_3PH_Delta_" + "_".join(conductors)
+        default_two_phase_OH_delta_geometry = "Default_OH_2PH_Delta_" + "_".join(conductors)
+        default_single_phase_OH_delta_geometry = "Default_OH_1PH_Delta_" + "_".join(conductors)
+        default_three_phase_UG_delta_geometry = "Default_UG_3PH_Delta_" + "_".join(conductors)
+        default_two_phase_UG_delta_geometry = "Default_UG_2PH_Delta_" + "_".join(conductors)
+        default_single_phase_UG_delta_geometry = "Default_UG_1PH_Delta_" + "_".join(conductors)
         found_geometry = False
         geometry = None
 
-        if input_geometry == "Unknown":
-            pass
-        else:
+        if input_geometry != "Unknown":
+            name = input_geometry+"_"+"_".join(conductors) 
             try:
-                geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=input_geometry)
+                geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=name)
                 if len(geometry.horizontal_positions) != len(phases):
-                    logger.warning(f"Geometry {input_geometry} does not have the correct number of horizontal positions. Using default geometry")
+                    logger.warning(f"Geometry of section {row['SectionId']} {input_geometry} does not have the correct number of horizontal positions. Using default geometry")
                     found_geometry = False
+                else:
+                    found_geometry = True
             except Exception as e:
                 found_geometry = False
 
         
 
         if not found_geometry: 
-            logger.warning(f"Geometry {input_geometry} not found. Using default geometry")
+            logger.warning(f"Geometry of section {row['SectionId']} {input_geometry} not found. Using default geometry")
             if num_phases == 3:
                 if is_OH:
-                    geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_three_phase_OH_geometry)
+                    if delta:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_three_phase_OH_delta_geometry)
+                    else:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_three_phase_OH_geometry)
                 else:
-                    geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_three_phase_UG_geometry)
+                    if delta:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_three_phase_UG_delta_geometry)
+                    else:    
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_three_phase_UG_geometry)
+            elif num_phases == 2:
+                if is_OH:
+                    if delta:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_two_phase_OH_delta_geometry)
+                    else:    
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_two_phase_OH_geometry)
+                else:
+                    if delta:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_two_phase_UG_delta_geometry)
+                    else:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_two_phase_UG_geometry)
+
             else:
                 if is_OH:
-                    geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_single_phase_OH_geometry)
+                    if delta:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_single_phase_OH_delta_geometry)
+                    else:    
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_single_phase_OH_geometry)
                 else:
-                    geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_single_phase_UG_geometry)
+                    if delta:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_single_phase_UG_delta_geometry)
+                    else:
+                        geometry = self.system.get_component(component_type=GeometryBranchEquipment,name=default_single_phase_UG_geometry)
 
         return geometry
 
     def map_conductors(self, row):
         conductors = []
         phases = row["SectionPhases"].replace(" ","")
-        phase_count = 1
+        # TODO: Currently including neutral conductors even if cables. Need to check this.
         for phase in phases:
             conductor = None
             if phase == "N":
                 conductor = row["NeutralConductorId"]
-            elif phase_count == 1:
-                conductor = row["PhaseConductorId"]
             else:    
                 # Sample model has missing conductors for PhaseConductor2Id, PhaseConductor3Id
-                conductor = row[f"PhaseConductor{phase_count}Id"]
+                # Use PhaseConductorId for all non-neutral conductors
+                #conductor = row[f"PhaseConductor{phase_count}Id"]
                 conductor = row["PhaseConductorId"]
-            phase_count += 1
             if conductor != "Unknown":
                 bare_equipment = None
                 concentric_equipment = None

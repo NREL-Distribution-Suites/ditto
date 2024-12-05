@@ -3,7 +3,11 @@ from pathlib import Path
 import os
 import pytest
 from ditto.readers.synergi.reader import Reader
+from ditto.writers.opendss.write import Writer
+import sys
+from loguru import logger
 
+logger.add(sys.stderr, level="WARNING")
 
 base_path = Path(__file__).parent.parent
 synergi_circuit_models = base_path / "data" / "synergi_test_cases"
@@ -30,6 +34,8 @@ def test_synergi_reader(synergi_folder: Path, tmp_path):
         export_path.mkdir(parents=True, exist_ok=True)
 
     reader = Reader(synergi_folder/ synergi_model_name, synergi_folder / synergi_equipment_name )    
+    writer = Writer(reader.get_system())
+    writer.write(export_path / "opendss", separate_substations=False, separate_feeders=False)
     system = reader.get_system()
     json_path = (export_path / synergi_folder.stem.lower()).with_suffix(".json")
     system.to_json(json_path, overwrite=True, indent=4)

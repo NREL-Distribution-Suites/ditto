@@ -12,6 +12,7 @@ class OpenDSSMapper(ABC):
         "kilometer": "km",
         "inch": "in",
         "centimeter": "cm",
+        "millimeter": "mm"
     }
     connection_map = {"STAR": "wye", "DELTA": "delta", "OPEN_DELTA": "delta", "OPEN_STAR": "wye"}
 

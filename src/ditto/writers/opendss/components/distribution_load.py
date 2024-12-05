@@ -1,5 +1,7 @@
 from gdm import ConnectionType
 
+from gdm.quantities import ActivePower, ReactivePower
+
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
@@ -56,12 +58,12 @@ class DistributionLoadMapper(OpenDSSMapper):
         #
         # Similar logic for reactive power.
 
-        z_real = 0
-        i_real = 0
-        p_real = 0
-        z_imag = 0
-        i_imag = 0
-        p_imag = 0
+        z_real = ActivePower(0, "kilowatt") 
+        i_real = ActivePower(0, "kilowatt") 
+        p_real = ActivePower(0, "kilowatt") 
+        z_imag = ReactivePower(0, "kilovar")
+        i_imag = ReactivePower(0, "kilovar")
+        p_imag = ReactivePower(0, "kilovar")
         for phase_load in equipment.phase_loads:
             z_real += phase_load.real_power * phase_load.z_real
             i_real += phase_load.real_power * phase_load.i_real

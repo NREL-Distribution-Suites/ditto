@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
+from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
+from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
 from gdm import DistributionBus, MatrixImpedanceSwitch
 from altdss_schema import altdss_models
 from loguru import logger
@@ -74,7 +76,7 @@ class Writer(AbstractWriter):
             # Example mapper is class DistributionBusMapper
             for model in components:
                 # Example model is instance of DistributionBus
-                if not isinstance(model, DistributionComponentBase):
+                if not isinstance(model, DistributionComponentBase) and not (isinstance(model, BareConductorEquipment) or isinstance(model, ConcentricCableEquipment)):
                     continue
                 model_map = mapper(model)
                 model_map.populate_opendss_dictionary()

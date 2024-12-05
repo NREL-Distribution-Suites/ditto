@@ -1,6 +1,6 @@
 from infrasys.location import Location
 from gdm.distribution.components.distribution_bus import DistributionBus
-from gdm import VoltageTypes, Phase
+from gdm import VoltageTypes, Phase, PositiveVoltage
 from ditto.readers.synergi.synergi_mapper import SynergiMapper
 
 class DistributionBusMapper(SynergiMapper):
@@ -38,7 +38,7 @@ class DistributionBusMapper(SynergiMapper):
 
     # Nominal voltage is only defined by transformers
     def map_nominal_voltage(self, row):
-        return 0
+        return PositiveVoltage(12.47, "kilovolts") 
 
     def map_phases(self, row, from_node_sections, to_node_sections):
         node_id = row["NodeId"]

@@ -3,6 +3,7 @@ from ditto.readers.synergi.equipment.load_equipment import LoadEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_load import DistributionLoad
 from gdm import Phase
+from loguru import logger
 
 class DistributionLoadMapper(SynergiMapper):
     def __init__(self, system):
@@ -17,6 +18,9 @@ class DistributionLoadMapper(SynergiMapper):
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
         equipment = self.map_equipment(row)
+        if len(phases) == 0:
+            logger.warning(f"Load {name} has no kW values. Skipping...")
+            return None
         return DistributionLoad(name=name,
                                 bus=bus,
                                 phases=phases,

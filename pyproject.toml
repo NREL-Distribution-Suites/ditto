@@ -26,6 +26,7 @@ dependencies = [
   "opendssdirect.py",
   "grid-data-models",
   "altdss_schema @ git+https://github.com/NREL-Distribution-Suites/altdss-schema@main",
+  "rdflib",
 ]
 
 [project.urls]

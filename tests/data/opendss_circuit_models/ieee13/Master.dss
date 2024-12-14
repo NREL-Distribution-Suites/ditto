@@ -177,7 +177,7 @@ Set Controlmode=OFF
 
 Solve
 
-
+export cim100
 /*
 Transformer.Reg1.Taps=[1.0 1.0]
 Transformer.Reg2.Taps=[1.0 1.0]

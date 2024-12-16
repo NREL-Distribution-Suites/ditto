@@ -1,12 +1,12 @@
 from uuid import uuid4
 
-from gdm.distribution.components.distribution_inverter import DistrbutionInverter
 from gdm import (
+    PowerfactorInverterController,
+    DistributionInverter,
+    InverterEquipment,
     DistributionSolar,
     DistributionBus,
     SolarEquipment,
-    PowerfactorInverterController,
-    InverterEquipment,
 )
 from gdm.quantities import PositiveActivePower, PositiveApparentPower
 from infrasys.system import System
@@ -85,7 +85,7 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
             name=solar_name,
             bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],
-            inverter=DistrbutionInverter(
+            inverter=DistributionInverter(
                 name=solar_name + "_inverter",
                 controller=PowerfactorInverterController(
                     name=str(uuid4()),

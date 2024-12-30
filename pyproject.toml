@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ditto"
+name = "NREL-ditto"
 dynamic = ["version"]
 description = 'Many to one to many distrbution system model converter '
 readme = "readme.md"
@@ -103,3 +103,9 @@ docstring-code-line-length = "dynamic"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ditto"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/ditto"]

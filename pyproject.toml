@@ -103,3 +103,9 @@ docstring-code-line-length = "dynamic"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ditto"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/ditto"]

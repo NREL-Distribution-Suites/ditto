@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ditto"
+name = "NREL-ditto"
 dynamic = ["version"]
 description = 'Many to one to many distrbution system model converter '
 readme = "readme.md"

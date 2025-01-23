@@ -16,3 +16,6 @@ class MatrixImpedanceSwitchMapper(DistributionBranchMapper):
     def map_is_closed(self):
         # Require every phase to be enabled for the OpenDSS line to be enabled.
         self.opendss_dict["Switch"] = "true"
+
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service

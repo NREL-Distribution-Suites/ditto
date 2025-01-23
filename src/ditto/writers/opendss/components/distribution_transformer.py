@@ -10,6 +10,9 @@ class DistributionTransformerMapper(OpenDSSMapper):
     altdss_composition_name = "Transformer"
     opendss_file = OpenDSSFileTypes.TRANSFORMERS_FILE.value
 
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service
+
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
 

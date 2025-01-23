@@ -12,6 +12,9 @@ class DistributionLoadMapper(OpenDSSMapper):
     altdss_composition_name = "Load"
     opendss_file = OpenDSSFileTypes.LOADS_FILE.value
 
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service
+
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
         # TODO: Want to set the Yearly attribute here, but need to access the system. Is that possible?

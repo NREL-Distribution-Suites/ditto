@@ -12,3 +12,6 @@ class GeometryBranchMapper(DistributionBranchMapper):
 
     def map_equipment(self):
         self.opendss_dict["Geometry"] = self.model.equipment.name
+
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service

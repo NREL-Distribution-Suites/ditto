@@ -12,3 +12,6 @@ class SequenceImpedanceBranchMapper(DistributionBranchMapper):
 
     def map_equipment(self):
         self.opendss_dict["LineCode"] = self.model.equipment.name
+
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service

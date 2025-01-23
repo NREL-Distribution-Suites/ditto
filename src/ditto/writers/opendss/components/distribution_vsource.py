@@ -10,6 +10,9 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
     altdss_composition_name = "Vsource"
     opendss_file = OpenDSSFileTypes.MASTER_FILE.value
 
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service
+
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
 

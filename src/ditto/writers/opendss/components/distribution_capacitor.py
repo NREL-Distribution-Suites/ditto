@@ -12,6 +12,9 @@ class DistributionCapacitorMapper(OpenDSSMapper):
     altdss_composition_name = "Capacitor"
     opendss_file = OpenDSSFileTypes.CAPACITORS_FILE.value
 
+    def map_in_service(self):
+        self.opendss_dict["enabled"] = self.model.in_service
+
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
 

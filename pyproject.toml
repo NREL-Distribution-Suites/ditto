@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ditto"
+name = "NREL-ditto"
 dynamic = ["version"]
 description = 'Many to one to many distrbution system model converter '
-readme = "README.md"
+readme = "readme.md"
 requires-python = ">=3.10"
 license = "MIT"
 keywords = []
@@ -24,8 +24,8 @@ classifiers = [
 ]
 dependencies = [
   "opendssdirect.py",
-  "grid-data-models",
-  "altdss_schema @ git+https://github.nrel.gov/CADET/altdss-schema@main",
+  "grid-data-models==1.4.0",
+  "altdss_schema @ git+https://github.com/NREL-Distribution-Suites/altdss-schema@main",
 ]
 
 [project.urls]
@@ -44,7 +44,10 @@ doc = [
   "myst-parser",
   "sphinx",
   ]
-
+dev = [
+  "pytest",
+  "ruff"
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -100,3 +103,9 @@ docstring-code-line-length = "dynamic"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ditto"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/ditto"]

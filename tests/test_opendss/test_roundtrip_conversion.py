@@ -18,7 +18,7 @@ TEST_MODELS = [
     / "opendss_circuit_models"
     / "ieee13"
     / OpenDSSFileTypes.MASTER_FILE.value,
-    test_folder / "data" / "opendss_circuit_models" / "p4u" / OpenDSSFileTypes.MASTER_FILE.value,
+    test_folder / "data" / "opendss_circuit_models" / "P4U" / OpenDSSFileTypes.MASTER_FILE.value,
 ]
 
 
@@ -80,7 +80,7 @@ def test_opendss_roundtrip_converion(DSS_MODEL):
     pre_converion_metrics = get_metrics(DSS_MODEL)
     reader = Reader(DSS_MODEL)
     writer = Writer(reader.get_system())
-    export_path = test_folder / "dump_from_tests" / "writer_export"
+    export_path = test_folder / "dump_from_tests"
     # export_path = Path(".")
     assert export_path.exists(), f"Export path: {export_path}"
     writer.write(export_path, separate_substations=False, separate_feeders=False)

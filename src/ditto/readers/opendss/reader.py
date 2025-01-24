@@ -4,6 +4,7 @@ from gdm import DistributionSystem
 from gdm import SequencePair
 import opendssdirect as odd
 from loguru import logger
+from infrasys import Component
 
 from ditto.readers.opendss.components.conductors import get_conductors_equipment
 from ditto.readers.opendss.components.cables import get_cables_equipment
@@ -13,7 +14,6 @@ from ditto.readers.opendss.graph_utils import update_split_phase_nodes
 from ditto.readers.opendss.components.pv_systems import get_pvsystems
 from ditto.readers.opendss.components.buses import get_buses
 from ditto.readers.opendss.components.loads import get_loads
-from ditto.readers.opendss.components.admittance_matrix import get_admittance_matrix
 from ditto.readers.opendss.components.transformers import (
     get_transformer_equipments,
     get_transformers,
@@ -47,6 +47,11 @@ class Reader(AbstractReader):
         self.crs = crs
         self.read()
 
+    def _add_components(self, components: list[Component]):
+        """Internal method to add components to the system."""
+        if components:
+            self.system.add_components(*components)
+
     def read(self):
         """Takes the master file path and returns instance of OpendssParser
 
@@ -64,52 +69,31 @@ class Reader(AbstractReader):
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
         logger.info(f"Model loaded from {self.Opendss_master_file}.")
 
-        models = ["load", "capacitor", "pvsystem", "storage"]
-
-        for model in models:
-            odd.Text.Command(f"batchedit {model}..* enabled=false")
-
         odd.Solution.Solve()
 
-        impedance_matrix = get_admittance_matrix()
-        self.system.add_components(impedance_matrix)
-
-        for model in models:
-            odd.Text.Command(f"batchedit {model}..* enabled=true")
-
-        odd.Solution.Solve()
-
-        buses = get_buses(self.crs)
-        self.system.add_components(*buses)
-        voltage_sources = get_voltage_sources(self.system)
-        self.system.add_components(*voltage_sources)
-        caps = get_capacitors(self.system)
-        self.system.add_components(*caps)
-        loads = get_loads(self.system)
-        self.system.add_components(*loads)
-        pv_systems = get_pvsystems(self.system)
-        self.system.add_components(*pv_systems)
+        self._add_components(get_buses(self.crs))
+        self._add_components(get_voltage_sources(self.system))
+        self._add_components(get_capacitors(self.system))
+        self._add_components(get_loads(self.system))
+        self._add_components(get_pvsystems(self.system))
         (
             distribution_transformer_equipment_catalog,
             winding_equipment_catalog,
         ) = get_transformer_equipments(self.system)
-        self.system.add_components(*distribution_transformer_equipment_catalog.values())
-        transformers = get_transformers(
+        self._add_components(distribution_transformer_equipment_catalog.values())
+        self._add_components(get_transformers(
             self.system, distribution_transformer_equipment_catalog, winding_equipment_catalog
-        )
-        self.system.add_components(*transformers)
-        conductor_equipment = get_conductors_equipment()
-        self.system.add_components(*conductor_equipment)
-        concentric_cable_equipment = get_cables_equipment()
-        self.system.add_components(*concentric_cable_equipment)
+        ))
+        self._add_components(get_conductors_equipment())
+        self._add_components(get_cables_equipment())
         matrix_branch_equipments_catalog, thermal_limit_catalog = get_matrix_branch_equipments()
         for catalog in matrix_branch_equipments_catalog:
-            self.system.add_components(*matrix_branch_equipments_catalog[catalog].values())
+            self._add_components(matrix_branch_equipments_catalog[catalog].values())
 
         geometry_branch_equipment_catalog, mapped_geometry = get_geometry_branch_equipments(
             self.system
         )
-        self.system.add_components(*geometry_branch_equipment_catalog.values())
+        self._add_components(geometry_branch_equipment_catalog.values())
         branches = get_branches(
             self.system,
             mapped_geometry,
@@ -117,7 +101,7 @@ class Reader(AbstractReader):
             matrix_branch_equipments_catalog,
             thermal_limit_catalog,
         )
-        self.system.add_components(*branches)
+        self._add_components(branches)
 
         logger.info("parsing complete...")
         logger.info(f"\n{self.system.info()}")

@@ -100,6 +100,7 @@ def build_profiles(
     for profile_name in profile_names:
         if profile_name and profile_name not in profile_catalog:
             profiles = {}
+            odd.LoadShape.Name(profile_name)
             for profile in model_type_to_profile_type_map[component_type]:
                 profile_type = profile.profile_type
                 profile_base = profile_type_to_base_type_map[profile_type]
@@ -117,6 +118,7 @@ def build_profiles(
                     ]
                     variable_name = profile.variable
 
+
                     if odd.LoadShape.Normalize() and base_func():
                         normalization = NormalizationByValue(value=base_func())
                     elif odd.LoadShape.Normalize() and not base_func():
@@ -127,7 +129,7 @@ def build_profiles(
                     ts = SingleTimeSeries.from_time_array(
                         data, variable_name, time_array, normalization=normalization
                     )
-                    profiles[profile_type.value] = ts
+                    profiles[profile_type.value] = {"data": ts, "use_actual": odd.LoadShape.UseActual()}
             profile_catalog[profile_name] = profiles
 
     return profile_catalog

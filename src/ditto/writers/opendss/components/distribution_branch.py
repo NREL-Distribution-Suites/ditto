@@ -35,6 +35,5 @@ class DistributionBranchMapper(OpenDSSMapper):
         # TODO: remove from GDM?
 
         live_phases = [phase for phase in self.model.phases if phase != Phase.N]
-
         self.opendss_dict["Phases"] = len(live_phases)
         pass

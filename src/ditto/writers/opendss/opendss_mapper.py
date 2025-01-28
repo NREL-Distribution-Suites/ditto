@@ -1,4 +1,5 @@
 from abc import ABC, abstractproperty
+from infrasys import Component
 
 
 # TODO: Define a BaseMapper class one level up from this?
@@ -12,12 +13,12 @@ class OpenDSSMapper(ABC):
         "kilometer": "km",
         "inch": "in",
         "centimeter": "cm",
-        "millimeter": "mm"
+        "millimeter": "mm",
     }
     connection_map = {"STAR": "wye", "DELTA": "delta", "OPEN_DELTA": "delta", "OPEN_STAR": "wye"}
 
     def __init__(self, model):
-        self.model = model
+        self.model: Component = model
         self.opendss_dict = {}
         self.substation = ""
         self.feeder = ""

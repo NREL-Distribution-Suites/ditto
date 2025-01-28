@@ -61,9 +61,9 @@ class DistributionLoadMapper(OpenDSSMapper):
         #
         # Similar logic for reactive power.
 
-        z_real = ActivePower(0, "kilowatt") 
-        i_real = ActivePower(0, "kilowatt") 
-        p_real = ActivePower(0, "kilowatt") 
+        z_real = ActivePower(0, "kilowatt")
+        i_real = ActivePower(0, "kilowatt")
+        p_real = ActivePower(0, "kilowatt")
         z_imag = ReactivePower(0, "kilovar")
         i_imag = ReactivePower(0, "kilovar")
         p_imag = ReactivePower(0, "kilovar")

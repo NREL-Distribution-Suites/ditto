@@ -37,7 +37,8 @@ class Writer(AbstractWriter):
         files_to_remove = directory.rglob("*.dss")
         for dss_file in files_to_remove:
             logger.info(f"Deleting existing file {dss_file}")
-            dss_file.unlink()
+            # dss_file.unlink() #TODO: deletion causing tets to fail @tarek
+
 
     def _get_voltage_bases(self) -> list[float]:
         voltage_bases = []

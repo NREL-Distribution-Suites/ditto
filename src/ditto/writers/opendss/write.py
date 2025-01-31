@@ -39,7 +39,6 @@ class Writer(AbstractWriter):
             logger.info(f"Deleting existing file {dss_file}")
             # dss_file.unlink() #TODO: deletion causing tets to fail @tarek
 
-
     def _get_voltage_bases(self) -> list[float]:
         voltage_bases = []
         buses: list[DistributionBus] = list(self.system.get_components(DistributionBus))

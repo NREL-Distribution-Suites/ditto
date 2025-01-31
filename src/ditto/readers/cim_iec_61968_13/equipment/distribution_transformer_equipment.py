@@ -14,12 +14,12 @@ class DistributionTransformerEquipmentMapper(CimMapper):
     def parse(self, row):
         self.s = float(row["wdg_1_apparent_power"])
         self.v_h = float(row["wdg_1_rated_voltage"])
-        self.v_l = float(row["wdg_1_rated_voltage"])
+        self.v_l = float(row["wdg_2_rated_voltage"])
         self.r_h = float(row["wdg_1_per_resistance"])
         self.r_l = float(row["wdg_2_per_resistance"])
 
-        self.per_r_1 = self.r_h / (self.v_h**2 / self.s) * 1000
-        self.per_r_2 = self.r_l / (self.v_l**2 / self.s) * 1000
+        self.per_r_1 = self.r_h / (self.v_h**2 / self.s) * 100
+        self.per_r_2 = self.r_l / (self.v_l**2 / self.s) * 100
 
         return DistributionTransformerEquipment(
             name=self.map_name(row),
@@ -35,17 +35,10 @@ class DistributionTransformerEquipmentMapper(CimMapper):
         return row["xfmr"] + "_equipment"
 
     def map_pct_no_load_loss(self, row):
-        if "x0" in row and "x1" in row:
-            x0 = float(row["x0"])
-            x1 = float(row["x1"])
-            x_hl = 1 / 3 * (2 * x1 + x0)
-            per_x = x_hl / (self.v_h**2 / self.s) * 1000
-
-            return per_x
-        else:
-            return 0.01
+        return 0
 
     def map_pct_full_load_loss(self, row):
+        print(self.per_r_1, self.per_r_2)
         return self.per_r_1 + self.per_r_2
 
     def map_windings(self, row):
@@ -57,10 +50,16 @@ class DistributionTransformerEquipmentMapper(CimMapper):
         return [SequencePair(1, 2)]
 
     def map_winding_reactances(self, row):
-        if "x1" in row:
-            return [float(row["x1"])]
-        else:
-            return [0.01]
+        if "x0" in row and "x1" in row:
+            x0 = float(row["x0"])
+            x1 = float(row["x1"])
+            x_hl = 1 / 3 * (2 * x1 + x0)
+            per_x = x_hl / (self.v_h**2 / self.s) * 100
+
+            return [per_x] 
+
+        else: 
+            return [1]
 
     def map_is_center_tapped(self, row):
         return False

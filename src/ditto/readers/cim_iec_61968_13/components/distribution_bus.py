@@ -16,6 +16,8 @@ class DistributionBusMapper(CimMapper):
         super().__init__(system)
 
     def parse(self, row):
+        phases = row["phase"].split(",")
+        self.n_phase = len(phases)
         return DistributionBus(
             name=self.map_name(row),
             coordinate=self.map_coordinate(row),
@@ -36,7 +38,7 @@ class DistributionBusMapper(CimMapper):
 
     # Nominal voltage is only defined by transformers
     def map_nominal_voltage(self, row):
-        return PositiveVoltage(float(row["nominal_voltage"]), "volt")
+        return PositiveVoltage(float(row["nominal_voltage"]) / 1.732, "volt")
 
     def map_phases(self, row):
         phases = row["phase"].split(",")
@@ -56,4 +58,5 @@ class DistributionBusMapper(CimMapper):
         ]
 
     def map_voltage_type(self, row):
-        return VoltageTypes.LINE_TO_LINE.value
+        return VoltageTypes.LINE_TO_GROUND.value
+

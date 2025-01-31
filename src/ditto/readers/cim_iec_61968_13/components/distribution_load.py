@@ -27,10 +27,21 @@ class DistributionLoadMapper(CimMapper):
         return bus
 
     def map_phases(self, row):
+        bus_name = row["bus"]
+        bus = self.system.get_component(component_type=DistributionBus, name=bus_name)
         phases = row["phase"]
+        
         if phases is None:
             phases = ["A", "B", "C"]
-        return [phase_mapper[phase] for phase in phases]
+        else:
+            phases = phases.split(",")
+        phases = [phase_mapper[phase] for phase in phases]  
+
+        if row["grounded"] == "false" and len(phases) == 1:
+            diff = list(set(bus.phases).difference(phases))
+            if diff:
+                phases.append(sorted(diff)[0].value)
+        return phases
 
     def map_equipment(self, row):
         mapper = LoadEquipmentMapper(self.system)

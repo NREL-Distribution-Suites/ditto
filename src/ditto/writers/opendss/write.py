@@ -6,7 +6,7 @@ from typing import Any
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm import DistributionBus, MatrixImpedanceSwitch
+from gdm import DistributionBus, MatrixImpedanceSwitch, DistributionRegulator
 from altdss_schema import altdss_models
 from loguru import logger
 
@@ -60,6 +60,7 @@ class Writer(AbstractWriter):
         component_types = self.system.get_component_types()
 
         seen_equipment = set()
+        seen_controller = set()
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)
@@ -78,13 +79,17 @@ class Writer(AbstractWriter):
                 # Example model is instance of DistributionBus
                 if not isinstance(model, DistributionComponentBase) and not (isinstance(model, BareConductorEquipment) or isinstance(model, ConcentricCableEquipment)):
                     continue
+            
                 model_map = mapper(model)
                 model_map.populate_opendss_dictionary()
+
                 dss_string = self._get_dss_string(model_map)
                 if dss_string.startswith("new Vsource"):
                     dss_string = dss_string.replace("new Vsource", "Clear\n\nNew Circuit")
                 equipment_dss_string = None
                 equipment_map: list[Path] = None
+                controller_dss_string = None
+                controller_map: list[Path] = None
 
                 if hasattr(model, "equipment"):
                     equipment_mapper_name = model.equipment.__class__.__name__ + "Mapper"
@@ -97,6 +102,19 @@ class Writer(AbstractWriter):
                         equipment_map = equipment_mapper(model.equipment)
                         equipment_map.populate_opendss_dictionary()
                         equipment_dss_string = self._get_dss_string(equipment_map)
+
+                if hasattr(model, "controllers"):
+                    for controller in model.controllers:
+                        controller_mapper_name = controller.__class__.__name__ + "Mapper"
+                        if not hasattr(opendss_mapper, controller_mapper_name):
+                            logger.warning(
+                                f"Equipment Mapper {controller_mapper_name} not found. Skipping"
+                            )
+                        else:
+                            controller_mapper = getattr(opendss_mapper, controller_mapper_name)
+                            controller_map = controller_mapper(controller, model.name)
+                            controller_map.populate_opendss_dictionary()
+                            controller_dss_string = self._get_dss_string(controller_map)
 
                 output_folder = output_path
                 output_redirect = Path("")
@@ -120,6 +138,18 @@ class Writer(AbstractWriter):
                             output_folder / equipment_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
                             fp.write(equipment_dss_string)
+
+                if controller_dss_string is not None:
+                    feeder_substation_controller = (
+                        model_map.substation + model_map.feeder + controller_dss_string
+                    )
+                    if feeder_substation_controller not in seen_controller:
+                        seen_controller.add(feeder_substation_controller)
+                        with open(
+                            output_folder / controller_map.opendss_file, "a", encoding="utf-8"
+                        ) as fp:
+                            fp.write(controller_dss_string)
+
 
                 # TODO: Check that there aren't multiple voltage sources for the same master file
                 with open(output_folder / model_map.opendss_file, "a", encoding="utf-8") as fp:

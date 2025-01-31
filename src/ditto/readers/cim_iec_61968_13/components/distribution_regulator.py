@@ -12,7 +12,7 @@ class DistributionRegulatorMapper(CimMapper):
     def __init__(self, system):
         super().__init__(system)
 
-    def parse(self, row):
+    def parse(self, row):      
         return DistributionRegulator(
             name=self.map_name(row),
             buses=self.map_bus(row),

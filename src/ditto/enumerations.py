@@ -5,6 +5,7 @@ class OpenDSSFileTypes(str, Enum):
     MASTER_FILE = "Master.dss"
     COORDINATE_FILE = "BusCoords.dss"
     TRANSFORMERS_FILE = "Transformers.dss"
+    REGULATOR_CONTROLLERS_FILE = "RegControllers.dss"
     CAPACITORS_FILE = "Capacitors.dss"
     LINECODES_FILE = "LineCodes.dss"
     LINES_FILE = "Lines.dss"

@@ -106,6 +106,40 @@ def query_line_codes(graph: Graph) -> pd.DataFrame:
     return pd.DataFrame(data_set).T
 
 
+def query_load_break_switches(graph: Graph) -> pd.DataFrame:
+    columns = ["switch_name", "capacity", "ratedCurrent", "normally_open", "is_open", "voltage", "bus"]
+
+    query = """
+    SELECT  ?switch_name ?capacity ?ratedCurrent ?normally_open ?is_open ?voltage ?node_name
+    WHERE {
+        ?switch rdf:type cim:LoadBreakSwitch  .
+        ?switch cim:IdentifiedObject.name ?switch_name .
+        ?switch cim:ProtectedSwitch.breakingCapacity ?capacity .
+        ?switch cim:Switch.ratedCurrent ?ratedCurrent .
+        ?switch cim:Switch.normalOpen ?normally_open .
+        ?switch cim:Switch.open ?is_open .
+        ?switch cim:ConductingEquipment.BaseVoltage ?basevoltage .
+        ?basevoltage cim:BaseVoltage.nominalVoltage ?voltage .
+        ?term cim:Terminal.ConductingEquipment ?switch .
+        ?term cim:Terminal.ConnectivityNode ?node .
+        ?node cim:IdentifiedObject.name ?node_name .
+
+    }
+    """
+    data = query_to_df(graph.query(add_prefixes(query, graph)), columns)
+    data_set = []
+    for line_name in data["switch_name"].unique():
+        filt_data = data[data["switch_name"] == line_name]
+        buses = filt_data["bus"].unique()
+        reduced_data = filt_data.drop_duplicates()
+        reduced_data["bus_1"] = buses[0]
+        reduced_data["bus_2"] = buses[1]
+        data_set.append(reduced_data)
+    data = pd.concat(data_set)
+    data.drop("bus", axis=1, inplace=True)
+    data = data.drop_duplicates()
+    return data
+
 def query_line_segments(graph: Graph) -> pd.DataFrame:
     columns = ["line", "voltage", "length", "bus", "phase_count", "line_code", "phase"]
 
@@ -292,7 +326,7 @@ def _get_bus_base_voltages(data: pd.DataFrame) -> pd.DataFrame:
     return filt_data_final
 
 
-def query_distribution_transformers(graph: Graph) -> pd.DataFrame:
+def query_distribution_regulators(graph: Graph) -> pd.DataFrame:
     columns = [
         "xfmr",
         "apparent_power",
@@ -348,14 +382,16 @@ def query_distribution_transformers(graph: Graph) -> pd.DataFrame:
             ?xfmr_tank_end cim:TransformerTankEnd.orderedPhases ?phases .
         } .
 
-        ?tap_chgr rdf:type  cim:RatioTapChanger .
-        ?tap_chgr cim:RatioTapChanger.TransformerEnd ?xfmr_tank_end .
-        ?tap_chgr cim:TapChanger.highStep ?max_tap .
-        ?tap_chgr cim:TapChanger.lowStep ?min_tap .
-        ?tap_chgr cim:TapChanger.neutralStep ?neutral_tap .
-        ?tap_chgr cim:TapChanger.normalStep ?normal_tap .
-        ?tap_chgr cim:RatioTapChanger.stepVoltageIncrement ?dv .
-        ?tap_chgr cim:TapChanger.step ?current_tap .
+        OPTIONAL {
+            ?tap_chgr rdf:type  cim:RatioTapChanger .
+            ?tap_chgr cim:RatioTapChanger.TransformerEnd ?xfmr_tank_end .
+            ?tap_chgr cim:TapChanger.highStep ?max_tap .
+            ?tap_chgr cim:TapChanger.lowStep ?min_tap .
+            ?tap_chgr cim:TapChanger.neutralStep ?neutral_tap .
+            ?tap_chgr cim:TapChanger.normalStep ?normal_tap .
+            ?tap_chgr cim:RatioTapChanger.stepVoltageIncrement ?dv .
+            ?tap_chgr cim:TapChanger.step ?current_tap .
+        } .
 
         OPTIONAL {
             ?sc_test cim:ShortCircuitTest.EnergisedEnd ?xfmr_end .
@@ -524,11 +560,12 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         "grounded",
         "phase",
         "conn",
-        "bus",
+        "bus", "z_p", "i_p", "p_p", "z_q", "i_q", "p_q", "p_exp", "q_exp"
+
     ]
 
     query = """
-    SELECT  ?load_name ?p ?q ?nominal_voltage ?is_grounded ?phase ?conn ?node_name
+    SELECT  ?load_name ?p ?q ?nominal_voltage ?is_grounded ?phase ?conn ?node_name ?z_p ?i_p ?p_p ?z_q ?i_q ?p_q ?p_exp ?q_exp
     WHERE {
         ?load rdf:type cim:EnergyConsumer .
         ?load cim:IdentifiedObject.name ?load_name .
@@ -548,12 +585,23 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         ?term cim:Terminal.ConductingEquipment ?load .
         ?term cim:Terminal.ConnectivityNode ?node .
         ?node cim:IdentifiedObject.name ?node_name .
-    }
+
+        ?load cim:EnergyConsumer.LoadResponse ?zip_params . 
+        ?zip_params cim:LoadResponseCharacteristic.pConstantImpedance ?z_p .
+        ?zip_params cim:LoadResponseCharacteristic.pConstantCurrent ?i_p .
+        ?zip_params cim:LoadResponseCharacteristic.pConstantPower ?p_p .
+        ?zip_params cim:LoadResponseCharacteristic.qConstantImpedance ?z_q .
+        ?zip_params cim:LoadResponseCharacteristic.qConstantCurrent ?i_q .
+        ?zip_params cim:LoadResponseCharacteristic.qConstantPower ?p_q .
+        ?zip_params cim:LoadResponseCharacteristic.pVoltageExponent ?p_exp .
+        ?zip_params cim:LoadResponseCharacteristic.qVoltageExponent ?q_exp .
+    }   
     """
     return query_to_df(graph.query(add_prefixes(query, graph)), columns)
 
 
 def query_regulator_controllers(graph: Graph) -> pd.DataFrame:
+    
     columns = [
         "regulator",
         "neutral_voltage",

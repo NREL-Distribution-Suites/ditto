@@ -19,18 +19,30 @@ class WindingEquipmentMapper(CimMapper):
         return windings
 
     def _build_winding(self, row, index, xfmr_name):
+
         if f"wdg_{index}_phase" in row:
             self.phases = [phase_mapper[phs] for phs in row[f"wdg_{index}_phase"].replace("N", "")]
         else:
             self.phases = [Phase.A, Phase.B, Phase.C]
         self.n_phases = len(self.phases)
 
-        self.normal_tap = (
-            float(row[f"wdg_{index}_normal_tap"]) if f"wdg_{index}_normal_tap" in row else 0
-        )
-        self.max_tap = float(row[f"wdg_{index}_max_tap"]) if f"wdg_{index}_max_tap" in row else 16
-        self.min_tap = float(row[f"wdg_{index}_min_tap"]) if f"wdg_{index}_min_tap" in row else -16
-        self.dv = float(row[f"wdg_{index}_dv"]) / 100 if f"wdg_{index}_dv" in row else 0.00625
+        mapping = {
+            f"wdg_{index}_normal_tap": ["normal_tap", 0],
+            f"wdg_{index}_max_tap": ["max_tap", 16],
+            f"wdg_{index}_min_tap": ["min_tap", -16],
+            f"wdg_{index}_dv": ["dv", 0.625],
+        }
+        
+        for k, v in mapping.items():
+            if k in row:
+                if row[k]:
+                    setattr(self, v[0], float(row[k]))
+                else:
+                    setattr(self, v[0], v[1])
+            else:
+                setattr(self, v[0], v[1])
+        
+        self.dv = self.dv / 100.0
         self.total_taps = self.max_tap - self.min_tap
         self.pu_tap = self.normal_tap * self.dv + 1
         self.max_tap_pu = self.max_tap * self.dv + 1
@@ -58,7 +70,7 @@ class WindingEquipmentMapper(CimMapper):
         s = float(row[f"wdg_{winding_number}_apparent_power"])
         v = float(row[f"wdg_{winding_number}_rated_voltage"])
         r = float(row[f"wdg_{winding_number}_per_resistance"])
-        per_r = r / (v**2 / s) * 1000
+        per_r = r / (v**2 / s) * 100
         return per_r
 
     def map_is_grounded(self, row, winding_number):
@@ -66,17 +78,14 @@ class WindingEquipmentMapper(CimMapper):
 
     def map_nominal_voltage(self, row, winding_number):
         voltage = float(row[f"wdg_{winding_number}_rated_voltage"])
-
-        return PositiveVoltage(voltage, "volt")
-
-    def map_voltage_type(self, row, winding_number):
-        if hasattr(self, "n_phases"):
-            if self.n_phases == 3:
-                return VoltageTypes.LINE_TO_LINE
-            else:
-                return VoltageTypes.LINE_TO_GROUND
+        if self.n_phases > 1:
+            return PositiveVoltage(voltage / 1.732, "volt")
         else:
-            return VoltageTypes.LINE_TO_LINE
+            return PositiveVoltage(voltage, "volt")
+
+    def map_voltage_type(self, row, winding_number): 
+        return VoltageTypes.LINE_TO_GROUND
+
 
     def map_rated_power(self, row, winding_number):
         rated_power = float(row[f"wdg_{winding_number}_apparent_power"])

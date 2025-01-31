@@ -6,7 +6,7 @@ from typing import Any
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm import DistributionBus, MatrixImpedanceSwitch, DistributionRegulator
+from gdm import DistributionBus, MatrixImpedanceSwitch
 from altdss_schema import altdss_models
 from loguru import logger
 
@@ -77,9 +77,12 @@ class Writer(AbstractWriter):
             # Example mapper is class DistributionBusMapper
             for model in components:
                 # Example model is instance of DistributionBus
-                if not isinstance(model, DistributionComponentBase) and not (isinstance(model, BareConductorEquipment) or isinstance(model, ConcentricCableEquipment)):
+                if not isinstance(model, DistributionComponentBase) and not (
+                    isinstance(model, BareConductorEquipment)
+                    or isinstance(model, ConcentricCableEquipment)
+                ):
                     continue
-            
+
                 model_map = mapper(model)
                 model_map.populate_opendss_dictionary()
 
@@ -149,7 +152,6 @@ class Writer(AbstractWriter):
                             output_folder / controller_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
                             fp.write(controller_dss_string)
-
 
                 # TODO: Check that there aren't multiple voltage sources for the same master file
                 with open(output_folder / model_map.opendss_file, "a", encoding="utf-8") as fp:

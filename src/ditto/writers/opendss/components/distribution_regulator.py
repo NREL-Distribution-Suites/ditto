@@ -1,6 +1,7 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
-from ditto.writers.opendss.controllers.distribution_regulator_controller import RegulatorControllerMapper
+
+
 class DistributionRegulatorMapper(OpenDSSMapper):
     def __init__(self, model):
         super().__init__(model)
@@ -51,7 +52,6 @@ class DistributionRegulatorMapper(OpenDSSMapper):
     def map_equipment(self):
         equipment = self.model.equipment
         self.opendss_dict["XfmrCode"] = equipment.name
-    
+
     def map_controllers(self):
         ...
-            

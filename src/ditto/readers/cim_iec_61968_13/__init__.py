@@ -29,4 +29,4 @@ from ditto.readers.cim_iec_61968_13.components.distribution_regulator import (
 
 from ditto.readers.cim_iec_61968_13.components.matrix_impedance_switch import (
     MatrixImpedanceSwitchMapper,
-)   
+)

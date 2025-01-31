@@ -56,9 +56,9 @@ class DistributionTransformerEquipmentMapper(CimMapper):
             x_hl = 1 / 3 * (2 * x1 + x0)
             per_x = x_hl / (self.v_h**2 / self.s) * 100
 
-            return [per_x] 
+            return [per_x]
 
-        else: 
+        else:
             return [1]
 
     def map_is_center_tapped(self, row):

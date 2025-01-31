@@ -19,7 +19,6 @@ class WindingEquipmentMapper(CimMapper):
         return windings
 
     def _build_winding(self, row, index, xfmr_name):
-
         if f"wdg_{index}_phase" in row:
             self.phases = [phase_mapper[phs] for phs in row[f"wdg_{index}_phase"].replace("N", "")]
         else:
@@ -32,7 +31,7 @@ class WindingEquipmentMapper(CimMapper):
             f"wdg_{index}_min_tap": ["min_tap", -16],
             f"wdg_{index}_dv": ["dv", 0.625],
         }
-        
+
         for k, v in mapping.items():
             if k in row:
                 if row[k]:
@@ -41,7 +40,7 @@ class WindingEquipmentMapper(CimMapper):
                     setattr(self, v[0], v[1])
             else:
                 setattr(self, v[0], v[1])
-        
+
         self.dv = self.dv / 100.0
         self.total_taps = self.max_tap - self.min_tap
         self.pu_tap = self.normal_tap * self.dv + 1
@@ -83,9 +82,8 @@ class WindingEquipmentMapper(CimMapper):
         else:
             return PositiveVoltage(voltage, "volt")
 
-    def map_voltage_type(self, row, winding_number): 
+    def map_voltage_type(self, row, winding_number):
         return VoltageTypes.LINE_TO_GROUND
-
 
     def map_rated_power(self, row, winding_number):
         rated_power = float(row[f"wdg_{winding_number}_apparent_power"])

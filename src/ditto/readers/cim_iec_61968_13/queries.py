@@ -107,7 +107,15 @@ def query_line_codes(graph: Graph) -> pd.DataFrame:
 
 
 def query_load_break_switches(graph: Graph) -> pd.DataFrame:
-    columns = ["switch_name", "capacity", "ratedCurrent", "normally_open", "is_open", "voltage", "bus"]
+    columns = [
+        "switch_name",
+        "capacity",
+        "ratedCurrent",
+        "normally_open",
+        "is_open",
+        "voltage",
+        "bus",
+    ]
 
     query = """
     SELECT  ?switch_name ?capacity ?ratedCurrent ?normally_open ?is_open ?voltage ?node_name
@@ -139,6 +147,7 @@ def query_load_break_switches(graph: Graph) -> pd.DataFrame:
     data.drop("bus", axis=1, inplace=True)
     data = data.drop_duplicates()
     return data
+
 
 def query_line_segments(graph: Graph) -> pd.DataFrame:
     columns = ["line", "voltage", "length", "bus", "phase_count", "line_code", "phase"]
@@ -560,8 +569,15 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         "grounded",
         "phase",
         "conn",
-        "bus", "z_p", "i_p", "p_p", "z_q", "i_q", "p_q", "p_exp", "q_exp"
-
+        "bus",
+        "z_p",
+        "i_p",
+        "p_p",
+        "z_q",
+        "i_q",
+        "p_q",
+        "p_exp",
+        "q_exp",
     ]
 
     query = """
@@ -586,7 +602,7 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         ?term cim:Terminal.ConnectivityNode ?node .
         ?node cim:IdentifiedObject.name ?node_name .
 
-        ?load cim:EnergyConsumer.LoadResponse ?zip_params . 
+        ?load cim:EnergyConsumer.LoadResponse ?zip_params .
         ?zip_params cim:LoadResponseCharacteristic.pConstantImpedance ?z_p .
         ?zip_params cim:LoadResponseCharacteristic.pConstantCurrent ?i_p .
         ?zip_params cim:LoadResponseCharacteristic.pConstantPower ?p_p .
@@ -595,13 +611,12 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         ?zip_params cim:LoadResponseCharacteristic.qConstantPower ?p_q .
         ?zip_params cim:LoadResponseCharacteristic.pVoltageExponent ?p_exp .
         ?zip_params cim:LoadResponseCharacteristic.qVoltageExponent ?q_exp .
-    }   
+    }
     """
     return query_to_df(graph.query(add_prefixes(query, graph)), columns)
 
 
 def query_regulator_controllers(graph: Graph) -> pd.DataFrame:
-    
     columns = [
         "regulator",
         "neutral_voltage",

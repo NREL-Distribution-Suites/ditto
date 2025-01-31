@@ -70,7 +70,7 @@ class Reader(AbstractReader):
 
         logger.info("Querying for loads...")
         datasets[DistributionLoad] = query_loads(self.graph)
-        
+
         logger.info("Querying for capacitors...")
         datasets[DistributionCapacitor] = query_capacitors(self.graph)
 
@@ -92,7 +92,7 @@ class Reader(AbstractReader):
 
         logger.info("Querying for load break switches...")
         datasets[MatrixImpedanceSwitch] = query_load_break_switches(self.graph)
-  
+
         datasets[DistributionBus] = self._set_bus_phases(datasets)
 
         for component_type in self.component_types:

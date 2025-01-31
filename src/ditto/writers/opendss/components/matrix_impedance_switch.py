@@ -6,6 +6,7 @@ class MatrixImpedanceSwitchMapper(DistributionBranchMapper):
     def __init__(self, model):
         super().__init__(model)
         model.pprint()
+
     altdss_name = "Line_LineCode"
     altdss_composition_name = "Line"
     opendss_file = OpenDSSFileTypes.SWITCH_FILE.value

@@ -30,12 +30,12 @@ class DistributionLoadMapper(CimMapper):
         bus_name = row["bus"]
         bus = self.system.get_component(component_type=DistributionBus, name=bus_name)
         phases = row["phase"]
-        
+
         if phases is None:
             phases = ["A", "B", "C"]
         else:
             phases = phases.split(",")
-        phases = [phase_mapper[phase] for phase in phases]  
+        phases = [phase_mapper[phase] for phase in phases]
 
         if row["grounded"] == "false" and len(phases) == 1:
             diff = list(set(bus.phases).difference(phases))

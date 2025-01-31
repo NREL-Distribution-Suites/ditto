@@ -30,5 +30,5 @@ from ditto.writers.opendss.equipment.matrix_impedance_fuse_equipment import (
 from ditto.writers.opendss.components.matrix_impedance_fuse import MatrixImpedanceFuseMapper
 from ditto.writers.opendss.components.distribution_regulator import DistributionRegulatorMapper
 from ditto.writers.opendss.controllers.distribution_regulator_controller import (
-    RegulatorControllerMapper
+    RegulatorControllerMapper,
 )

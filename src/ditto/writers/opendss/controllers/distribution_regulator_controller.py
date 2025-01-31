@@ -1,20 +1,19 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
-from altdss_schema import altdss_models
 
 from gdm import RegulatorController
 
+
 class RegulatorControllerMapper(OpenDSSMapper):
     altdss_name = "RegControl"
-    #altdss_composition_name = "RegControl"
+    # altdss_composition_name = "RegControl"
     altdss_composition_name = None
     opendss_file = OpenDSSFileTypes.REGULATOR_CONTROLLERS_FILE.value
-    
-    def __init__(self, model:RegulatorController, xfmr_name:str):
+
+    def __init__(self, model: RegulatorController, xfmr_name: str):
         super().__init__(model)
-        self.model:RegulatorController = model
+        self.model: RegulatorController = model
         self.xfmr_name = xfmr_name
-        
 
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
@@ -39,7 +38,7 @@ class RegulatorControllerMapper(OpenDSSMapper):
         ...
 
     def map_is_reversible(self):
-        self.opendss_dict["Reversible"] =  self.model.is_reversible
+        self.opendss_dict["Reversible"] = self.model.is_reversible
 
     def map_ldc_R(self):
         self.opendss_dict["R"] = self.model.ldc_R.to("volts").magnitude
@@ -57,8 +56,9 @@ class RegulatorControllerMapper(OpenDSSMapper):
         self.opendss_dict["Band"] = self.model.bandwidth.to("volts").magnitude
 
     def map_controlled_bus(self):
-        self.opendss_dict["Bus"] = f"{self.model.controlled_bus.name}{self.phase_map[self.model.controlled_phase]}"
+        self.opendss_dict[
+            "Bus"
+        ] = f"{self.model.controlled_bus.name}{self.phase_map[self.model.controlled_phase]}"
 
-      
     def map_controlled_phase(self):
         ...

@@ -59,4 +59,3 @@ class DistributionBusMapper(CimMapper):
 
     def map_voltage_type(self, row):
         return VoltageTypes.LINE_TO_GROUND.value
-

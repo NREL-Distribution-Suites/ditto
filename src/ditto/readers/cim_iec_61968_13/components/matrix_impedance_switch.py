@@ -1,8 +1,12 @@
-from gdm import PositiveDistance, MatrixImpedanceSwitch, MatrixImpedanceSwitchEquipment, MatrixImpedanceBranchEquipment, Phase
+from gdm import (
+    PositiveDistance,
+    MatrixImpedanceSwitch,
+    MatrixImpedanceSwitchEquipment,
+    MatrixImpedanceBranchEquipment,
+)
 from gdm.distribution.components.distribution_bus import DistributionBus
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
-from ditto.readers.cim_iec_61968_13.common import phase_mapper
 
 
 class MatrixImpedanceSwitchMapper(CimMapper):
@@ -10,7 +14,6 @@ class MatrixImpedanceSwitchMapper(CimMapper):
         super().__init__(system)
 
     def parse(self, row):
-
         self.bus_2 = self.system.get_component(DistributionBus, row["bus_2"])
         self.n_phases = len(self.bus_2.phases)
 
@@ -41,16 +44,21 @@ class MatrixImpedanceSwitchMapper(CimMapper):
         length = float(row["length"])
         return PositiveDistance(length, "m")
 
-    def map_phases(self, row):       
+    def map_phases(self, row):
         return self.bus_2.phases
 
     def map_equipment(self, row):
-        equipments:list[MatrixImpedanceBranchEquipment] = list(
-            self.system.get_components(MatrixImpedanceBranchEquipment, filter_func=lambda x: len(x.r_matrix) == self.n_phases)
+        equipments: list[MatrixImpedanceBranchEquipment] = list(
+            self.system.get_components(
+                MatrixImpedanceBranchEquipment,
+                filter_func=lambda x: len(x.r_matrix) == self.n_phases,
+            )
         )
         if len(equipments):
             model_dict = equipments[0].model_dump()
             equipment = MatrixImpedanceSwitchEquipment(**model_dict)
             return equipment
         else:
-            raise Exception("No Matrix Impedance Branch Equipment found with {} phases".format(self.n_phases))
+            raise Exception(
+                "No Matrix Impedance Branch Equipment found with {} phases".format(self.n_phases)
+            )

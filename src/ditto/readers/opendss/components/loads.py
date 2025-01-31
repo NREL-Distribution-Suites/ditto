@@ -46,7 +46,7 @@ def _build_load_equipment() -> tuple[LoadEquipment, list[str], str, list[str]]:
         elif model == LoadTypes.CONST_IMPEDANCE:
             zip_params_dict.update({"z_imag": 1, "z_real": 1})
         elif model == LoadTypes.ZIP:
-            zip_params_dict = dict(zip_param_keys, zip_params)
+            zip_params_dict = dict(zip(zip_param_keys, zip_params))
         elif model == LoadTypes.CONST_P__QUARDRATIC_Q:
             zip_params_dict.update({"p_real": 1, "z_imag": 1})
         elif model == LoadTypes.LINEAR_P__QUARDRATIC_Q:

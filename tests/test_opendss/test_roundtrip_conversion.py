@@ -1,4 +1,6 @@
 from pathlib import Path
+import glob
+import os
 
 import opendssdirect as odd
 from loguru import logger
@@ -81,6 +83,12 @@ def test_opendss_roundtrip_converion(DSS_MODEL):
     reader = Reader(DSS_MODEL)
     writer = Writer(reader.get_system())
     export_path = test_folder / "dump_from_tests"
+
+    csv_files = glob.glob(os.path.join(export_path, "*.dss"))
+    for file in csv_files:
+        os.remove(file)
+        print(f"Deleted: {file}")
+
     # export_path = Path(".")
     assert export_path.exists(), f"Export path: {export_path}"
     writer.write(export_path, separate_substations=False, separate_feeders=False)

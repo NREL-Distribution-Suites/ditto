@@ -1,5 +1,4 @@
 Clear 
-Set DefaultBaseFrequency=60
 
 !
 ! This script is based on a script developed by Tennessee Tech Univ students
@@ -7,7 +6,7 @@ Set DefaultBaseFrequency=60
 !
 
 new circuit.IEEE13Nodeckt 
-~ basekv=115 pu=1.0001 phases=3 bus1=SourceBus  
+~ basekv=115 pu=1.02 phases=3 bus1=SourceBus  
 ~ Angle=30                                                         ! advance angle 30 deg so result agree with published angle
 ~ MVAsc3=20000 MVASC1=21000    ! stiffen the source to approximate inf source
 
@@ -16,31 +15,32 @@ new circuit.IEEE13Nodeckt
 !SUB TRANSFORMER DEFINITION 
 ! Although this data was given, it does not appear to be used in the test case results
 ! The published test case starts at 1.0 per unit at Bus 650. To make this happen, we will change the impedance
-! on the transformer to something tiny by dividing by 1000 using the DSS in-line RPN math
+! on the transformer to something tiny by dividing by 1000 using the dss in-line RPN math
+
 New Transformer.Sub Phases=3 Windings=2   XHL=(8 1000 /)
-~ wdg=1 bus=SourceBus   conn=delta  kv=115  kva=5000   %r=(.5 1000 /) 
-~ wdg=2 bus=650             conn=wye    kv=4.16  kva=5000   %r=(.5 1000 /)  
+~ wdg=1 bus=SourceBus   conn=delta  kv=115  kva=5000   %r=(.5 1000 /)  XHT=4
+~ wdg=2 bus=650             conn=wye    kv=4.16  kva=5000   %r=(.5 1000 /)   XLT=4
 
 ! FEEDER 1-PHASE VOLTAGE REGULATORS
 ! Define low-impedance 2-wdg transformer
 
-New Transformer.Reg1 phases=1 bank=reg1 XHL=0.01 kVAs=[1666 1666]
+New Transformer.Reg1 phases=1 XHL=0.01 kVAs=[1666 1666]
 ~ Buses=[650.1 RG60.1] kVs=[2.4  2.4] %LoadLoss=0.01
-new regcontrol.Reg1  transformer=Reg1 winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
+!new regcontrol.Reg1  transformer=Reg1 winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
 
-New Transformer.Reg2 phases=1 bank=reg1 XHL=0.01 kVAs=[1666 1666]
+New Transformer.Reg2 phases=1 XHL=0.01 kVAs=[1666 1666]
 ~ Buses=[650.2 RG60.2] kVs=[2.4  2.4] %LoadLoss=0.01
-new regcontrol.Reg2  transformer=Reg2 winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
+!new regcontrol.Reg2  transformer=Reg2 winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
 
-New Transformer.Reg3 phases=1 bank=reg1 XHL=0.01 kVAs=[1666 1666]
+New Transformer.Reg3 phases=1 XHL=0.01 kVAs=[1666 1666]
 ~ Buses=[650.3 RG60.3] kVs=[2.4  2.4] %LoadLoss=0.01
-new regcontrol.Reg3  transformer=Reg3 winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
+!new regcontrol.Reg3  transformer=Reg3 winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
 
 
 !TRANSFORMER DEFINITION 
 New Transformer.XFM1  Phases=3   Windings=2  XHL=2
-~ wdg=1 bus=633       conn=Wye kv=4.16    kva=500    %r=.55 
-~ wdg=2 bus=634       conn=Wye kv=0.480    kva=500    %r=.55
+~ wdg=1 bus=633       conn=Wye kv=4.16    kva=500    %r=.55     XHT=1
+~ wdg=2 bus=634       conn=Wye kv=0.480    kva=500    %r=.55   XLT=1
 
 
 !LINE CODES
@@ -144,12 +144,14 @@ New Line.684652    Phases=1 Bus1=684.1        Bus2=652.1      LineCode=mtx607 Le
 
 
 !SWITCH DEFINITIONS 
-New Line.671692    Phases=3 Bus1=671   Bus2=692  Switch=y  r1=1e-4 r0=1e-4 x1=0.000 x0=0.000 c1=0.000 c0=0.000
+! New Line.671692    Phases=3 Bus1=671   Bus2=692  Switch=y  r1=1e-4 r0=1e-4 x1=0.000 x0=0.000 c1=0.000 c0=0.000
+
+New Line.671692    Phases=3 Bus1=671   Bus2=692 r1=1e-4 r0=1e-4 x1=0.000 x0=0.000 c1=0.000 c0=0.000
 
 Set Voltagebases=[115, 4.16, .48]
 calcv
 Solve
-BusCoords IEEE13Node_BusXY.csv
+BusCoords IEEE13Node_BusXY.dss
 
 !---------------------------------------------------------------------------------------------------------------------------------------------------
 !----------------Show some Results -----------------------------------------------------------------------------------------------------------------
@@ -167,10 +169,19 @@ BusCoords IEEE13Node_BusXY.csv
 ! Alternate Solution Script
 ! To force the taps to be same as published results, set the transformer taps manually and disable the controls
 !---------------------------------------------------------------------------------------------------------------------------------------------------
-/*
+
 Transformer.Reg1.Taps=[1.0 1.0625]
 Transformer.Reg2.Taps=[1.0 1.0500]
 Transformer.Reg3.Taps=[1.0 1.06875]
+Set Controlmode=OFF
+
+Solve
+
+
+/*
+Transformer.Reg1.Taps=[1.0 1.0]
+Transformer.Reg2.Taps=[1.0 1.0]
+Transformer.Reg3.Taps=[1.0 1.0]
 Set Controlmode=OFF
 
 Solve

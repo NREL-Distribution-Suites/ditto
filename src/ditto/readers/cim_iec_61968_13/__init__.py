@@ -9,7 +9,6 @@ from ditto.readers.cim_iec_61968_13.components.distribution_transformer import (
 from ditto.readers.cim_iec_61968_13.equipment.distribution_transformer_equipment import (
     DistributionTransformerEquipmentMapper,
 )
-from ditto.readers.cim_iec_61968_13.equipment.conductor_equipment import ConductorEquipmentMapper
 from ditto.readers.cim_iec_61968_13.equipment.matrix_branch_equipment import (
     MatrixImpedanceBranchEquipmentMapper,
 )

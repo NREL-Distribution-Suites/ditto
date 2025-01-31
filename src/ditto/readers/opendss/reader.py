@@ -81,9 +81,11 @@ class Reader(AbstractReader):
             winding_equipment_catalog,
         ) = get_transformer_equipments(self.system)
         self._add_components(distribution_transformer_equipment_catalog.values())
-        self._add_components(get_transformers(
-            self.system, distribution_transformer_equipment_catalog, winding_equipment_catalog
-        ))
+        self._add_components(
+            get_transformers(
+                self.system, distribution_transformer_equipment_catalog, winding_equipment_catalog
+            )
+        )
         self._add_components(get_conductors_equipment())
         self._add_components(get_cables_equipment())
         matrix_branch_equipments_catalog, thermal_limit_catalog = get_matrix_branch_equipments()

@@ -88,9 +88,7 @@ def get_geometry_branch_equipments(
             x_coordinates.append(float(odd.Text.Result()))
 
             equipments = list(
-                system.get_components(
-                    BareConductorEquipment, filter_func=lambda x: x.name == wire
-                )
+                system.get_components(BareConductorEquipment, filter_func=lambda x: x.name == wire)
             )
             if not equipments:
                 equipments = list(
@@ -121,9 +119,7 @@ def _build_matrix_branch(
     model_type: str,
     matrix_branch_equipments_catalog: dict[int, Component],
     thermal_limit_catalog: dict[int, Component],
-    model_class: (
-        type[MatrixImpedanceSwitchEquipment] | type[MatrixImpedanceBranchEquipment]
-    ),
+    model_class: (type[MatrixImpedanceSwitchEquipment] | type[MatrixImpedanceBranchEquipment]),
     fuse: dict,
     recloser: dict,
 ) -> MatrixImpedanceBranchEquipment:
@@ -155,21 +151,9 @@ def _build_matrix_branch(
 
     length_units = UNIT_MAPPER[module.Units().value]
 
-    r_matrix = (
-        module.RMatrix()
-        if model_type == MatrixBranchTypes.LINE.value
-        else module.Rmatrix()
-    )
-    x_matrix = (
-        module.XMatrix()
-        if model_type == MatrixBranchTypes.LINE.value
-        else module.Xmatrix()
-    )
-    c_matrix = (
-        module.CMatrix()
-        if model_type == MatrixBranchTypes.LINE.value
-        else module.Cmatrix()
-    )
+    r_matrix = module.RMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Rmatrix()
+    x_matrix = module.XMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Xmatrix()
+    c_matrix = module.CMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Cmatrix()
     matrix_branch_dict = {
         "name": equipment_uuid,
         "r_matrix": PositiveResistancePULength(
@@ -248,10 +232,7 @@ def get_matrix_branch_equipments() -> (
                 ):
                     recloser = reclosers[odd.Lines.Name().lower()]
                     model_type = MatrixImpedanceRecloserEquipment
-                elif (
-                    odd_model_type == MatrixBranchTypes.LINE.value
-                    and odd.Lines.IsSwitch()
-                ):
+                elif odd_model_type == MatrixBranchTypes.LINE.value and odd.Lines.IsSwitch():
                     model_type = MatrixImpedanceSwitchEquipment
                 else:
                     model_type = MatrixImpedanceBranchEquipment
@@ -321,9 +302,7 @@ def get_branches(
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                length=PositiveDistance(
-                    odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]
-                ),
+                length=PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
                 phases=[PHASE_MAPPER[node] for node in nodes],
             )
             branches.append(geometry_branch)
@@ -361,18 +340,13 @@ def get_branches(
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                "length": PositiveDistance(
-                    odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]
-                ),
+                "length": PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
                 "phases": [PHASE_MAPPER[node] for node in nodes],
                 "equipment": equipment,
             }
             if model_class in [MatrixImpedanceSwitch, MatrixImpedanceFuse]:
                 model_dict["is_closed"] = [
-                    not (
-                        odd.CktElement.IsOpen(1, node + 1)
-                        or odd.CktElement.IsOpen(2, node + 1)
-                    )
+                    not (odd.CktElement.IsOpen(1, node + 1) or odd.CktElement.IsOpen(2, node + 1))
                     for node in range(len(nodes))
                 ]
             matrix_branch = model_class(**model_dict)

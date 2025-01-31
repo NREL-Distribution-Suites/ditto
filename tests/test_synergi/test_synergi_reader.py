@@ -1,6 +1,5 @@
 """ Module for testing parsers."""
 from pathlib import Path
-import os
 import pytest
 from ditto.readers.synergi.reader import Reader
 from ditto.writers.opendss.write import Writer
@@ -26,14 +25,14 @@ for folder in Path(synergi_circuit_models).rglob("*"):
         if target_files.issubset(files_in_folder):
             matching_folders.append(folder)
 
+
 @pytest.mark.parametrize("synergi_folder", matching_folders)
 def test_synergi_reader(synergi_folder: Path, tmp_path):
-
     export_path = base_path / "dump_from_tests" / "synergi" / synergi_folder.name
     if not export_path.exists():
         export_path.mkdir(parents=True, exist_ok=True)
 
-    reader = Reader(synergi_folder/ synergi_model_name, synergi_folder / synergi_equipment_name )    
+    reader = Reader(synergi_folder / synergi_model_name, synergi_folder / synergi_equipment_name)
     writer = Writer(reader.get_system())
     writer.write(export_path / "opendss", separate_substations=False, separate_feeders=False)
     system = reader.get_system()

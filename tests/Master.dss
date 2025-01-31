@@ -1,0 +1,30 @@
+Clear
+
+New Circuit.source Bus1=sourcebus.1.2.3 BasekV=115.00000000000001 pu=1.02 Angle=296.0881345217841 Phases=3 Z1=[0.16037668, 0.64150673] Z0=[0.17960358, 0.53881075]
+redirect Transformers.dss
+redirect Capacitors.dss
+redirect LineCodes.dss
+redirect Lines.dss
+redirect Loads.dss
+redirect SwitchCodes.dss
+redirect Switches.dss
+Set Voltagebases=[0.48, 115.00000000000001, 4.16]
+calcv
+Solve
+redirect BusCoords.dss
+redirect Loads.dss
+redirect SwitchCodes.dss
+redirect Transformers.dss
+redirect LineCodes.dss
+redirect Lines.dss
+redirect Capacitors.dss
+redirect Switches.dss
+redirect Loads.dss
+redirect SwitchCodes.dss
+redirect Transformers.dss
+redirect LineCodes.dss
+redirect Lines.dss
+redirect Capacitors.dss
+redirect Switches.dss
+redirect WireData.dss
+redirect WireData.dss

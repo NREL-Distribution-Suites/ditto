@@ -36,9 +36,6 @@ Source = "https://github.com/unknown/ditto"
 [tool.hatch.version]
 path = "src/ditto/__init__.py"
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [project.optional-dependencies]
 doc = [
   "sphinxcontrib-mermaid",

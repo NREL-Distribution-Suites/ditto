@@ -87,16 +87,14 @@ def test_opendss_roundtrip_converion(DSS_MODEL):
     csv_files = glob.glob(os.path.join(export_path, "*.dss"))
     for file in csv_files:
         os.remove(file)
-        print(f"Deleted: {file}")
+        logger.info(f"Deleted: {file}")
+        
 
-    # export_path = Path(".")
     assert export_path.exists(), f"Export path: {export_path}"
     writer.write(export_path, separate_substations=False, separate_feeders=False)
     dss_master_file = export_path / OpenDSSFileTypes.MASTER_FILE.value
     assert dss_master_file.exists()
     post_converion_metrics = get_metrics(dss_master_file)
-    # print(f"{pre_converion_metrics=}")
-    # print(f"{post_converion_metrics=}")
     assert np.allclose(
         pre_converion_metrics, post_converion_metrics, rtol=0.01, atol=0.01
     ), "Round trip coversion exceeds error tolerance"

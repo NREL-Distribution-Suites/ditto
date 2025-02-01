@@ -38,7 +38,6 @@ class DistributionTransformerEquipmentMapper(CimMapper):
         return 0
 
     def map_pct_full_load_loss(self, row):
-        print(self.per_r_1, self.per_r_2)
         return self.per_r_1 + self.per_r_2
 
     def map_windings(self, row):

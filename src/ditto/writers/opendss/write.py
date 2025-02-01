@@ -140,7 +140,11 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / equipment_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
+                            # logger.info(
+                            #     f"Writing equipment file to {output_folder / equipment_map.opendss_file}"
+                            # )
                             fp.write(equipment_dss_string)
+                            
 
                 if controller_dss_string is not None:
                     feeder_substation_controller = (
@@ -151,10 +155,16 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / controller_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
+                            # logger.info(
+                            #     f"Writing controller file to {output_folder / controller_map.opendss_file}"
+                            # )
                             fp.write(controller_dss_string)
 
                 # TODO: Check that there aren't multiple voltage sources for the same master file
                 with open(output_folder / model_map.opendss_file, "a", encoding="utf-8") as fp:
+                    # logger.info(
+                    #     f"Writing component file to {output_folder / model_map.opendss_file}"
+                    # )
                     fp.write(dss_string)
 
                 if (
@@ -190,6 +200,8 @@ class Writer(AbstractWriter):
                 base_redirect.add(output_redirect / model_map.opendss_file)
                 if equipment_map is not None:
                     base_redirect.add(output_redirect / equipment_map.opendss_file)
+                if controller_map is not None:
+                    base_redirect.add(output_redirect / controller_map.opendss_file)
 
         self._write_base_master(base_redirect, output_folder)
         self._write_substation_master(substations_redirect)
@@ -235,14 +247,16 @@ class Writer(AbstractWriter):
                 for file in file_order:
                     for dss_file in base_redirect:
                         if dss_file.name == file:
-                            base_master.write("redirect " + str(dss_file))
-                            base_master.write("\n")
-                            break
+                            if (master_file.parent/ dss_file).exists():
+                                base_master.write("redirect " + str(dss_file))
+                                base_master.write("\n")
+                                break
                 self._write_switch_status(base_master)
                 base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
                 base_master.write("calcv\n")
                 base_master.write("Solve\n")
                 base_master.write(f"redirect {OpenDSSFileTypes.COORDINATE_FILE.value}\n")
+
         # base_master.write(f"BusCoords {filename}\n")
 
     def _write_substation_master(self, substations_redirect):
@@ -253,8 +267,9 @@ class Writer(AbstractWriter):
                 ) as substation_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in substations_redirect[substation]:
-                        substation_master.write("redirect " + str(dss_file))
-                        substation_master.write("\n")
+                        if (Path(substation).parent / dss_file).exists(): 
+                            substation_master.write("redirect " + str(dss_file))
+                            substation_master.write("\n")
 
     def _write_feeder_master(self, feeders_redirect):
         for feeder in feeders_redirect:
@@ -262,5 +277,6 @@ class Writer(AbstractWriter):
                 with open(Path(feeder) / OpenDSSFileTypes.MASTER_FILE.value, "a") as feeder_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in feeders_redirect[feeder]:
-                        feeder_master.write("redirect " + str(dss_file))
-                        feeder_master.write("\n")
+                        if (Path(feeder).parent / dss_file).exists(): 
+                            feeder_master.write("redirect " + str(dss_file))
+                            feeder_master.write("\n")

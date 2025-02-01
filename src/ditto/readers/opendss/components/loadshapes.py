@@ -118,7 +118,6 @@ def build_profiles(
                     ]
                     variable_name = profile.variable
 
-
                     if odd.LoadShape.Normalize() and base_func():
                         normalization = NormalizationByValue(value=base_func())
                     elif odd.LoadShape.Normalize() and not base_func():
@@ -129,7 +128,10 @@ def build_profiles(
                     ts = SingleTimeSeries.from_time_array(
                         data, variable_name, time_array, normalization=normalization
                     )
-                    profiles[profile_type.value] = {"data": ts, "use_actual": odd.LoadShape.UseActual()}
+                    profiles[profile_type.value] = {
+                        "data": ts,
+                        "use_actual": odd.LoadShape.UseActual(),
+                    }
             profile_catalog[profile_name] = profiles
 
     return profile_catalog

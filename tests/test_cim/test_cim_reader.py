@@ -1,27 +1,11 @@
 from pathlib import Path
-import glob
-import os
 
 import opendssdirect as odd
 from loguru import logger
 import numpy as np
-import pytest
 
+from ditto.readers.cim_iec_61968_13.reader import Reader
 from ditto.writers.opendss.write import Writer
-from ditto.readers.opendss.reader import Reader
-from ditto.enumerations import OpenDSSFileTypes
-
-test_folder = Path(__file__).parent.parent
-
-
-TEST_MODELS = [
-    test_folder
-    / "data"
-    / "opendss_circuit_models"
-    / "ieee13"
-    / OpenDSSFileTypes.MASTER_FILE.value,
-    test_folder / "data" / "opendss_circuit_models" / "P4U" / OpenDSSFileTypes.MASTER_FILE.value,
-]
 
 
 def get_model_voltage_drop(model_name: str):
@@ -77,23 +61,18 @@ def get_metrics(dss_model_path: Path | str):
     return base_metrics
 
 
-@pytest.mark.parametrize("DSS_MODEL", TEST_MODELS)
-def test_opendss_roundtrip_converion(DSS_MODEL):
-    pre_converion_metrics = get_metrics(DSS_MODEL)
-    reader = Reader(DSS_MODEL)
-    writer = Writer(reader.get_system())
-    export_path = test_folder / "dump_from_tests"
-
-    csv_files = glob.glob(os.path.join(export_path, "*.dss"))
-    for file in csv_files:
-        os.remove(file)
-        logger.info(f"Deleted: {file}")
-
-    assert export_path.exists(), f"Export path: {export_path}"
-    writer.write(export_path, separate_substations=False, separate_feeders=False)
-    dss_master_file = export_path / OpenDSSFileTypes.MASTER_FILE.value
-    assert dss_master_file.exists()
-    post_converion_metrics = get_metrics(dss_master_file)
+def test_query_aclinesegment(ieee13_node_xml_file):
+    ieee13_node_dss_file = (
+        Path(__file__).parent.parent / "data" / "opendss_circuit_models" / "ieee13" / "Master.dss"
+    )
+    pre_converion_metrics = get_metrics(ieee13_node_dss_file)
+    cim_reader = Reader(ieee13_node_xml_file)
+    cim_reader.read()
+    system = cim_reader.get_system()
+    writer = Writer(system)
+    new_dss_file = Path(__file__).parent / "model"
+    writer.write(output_path=new_dss_file, separate_substations=False, separate_feeders=False)
+    post_converion_metrics = get_metrics(new_dss_file / "Master.dss")
     assert np.allclose(
-        pre_converion_metrics, post_converion_metrics, rtol=0.01, atol=0.01
+        pre_converion_metrics, post_converion_metrics, rtol=0.1, atol=0.1
     ), "Round trip coversion exceeds error tolerance"

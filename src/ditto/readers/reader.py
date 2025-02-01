@@ -6,7 +6,7 @@ from loguru import logger
 from infrasys.system import System
 
 
-class AbscractReader(ABC):
+class AbstractReader(ABC):
     @abstractmethod
     def get_system(self) -> System:
         """Method return parsed Infrasys system

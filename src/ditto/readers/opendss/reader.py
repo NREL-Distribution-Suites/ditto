@@ -25,13 +25,13 @@ from ditto.readers.opendss.components.branches import (
 )
 from gdm import build_graph_from_system
 
-from ditto.readers.reader import AbscractReader
+from ditto.readers.reader import AbstractReader
 
 
 SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 
 
-class Reader(AbscractReader):
+class Reader(AbstractReader):
     """Class interface for Opendss case file reader"""
 
     def __init__(self, Opendss_master_file: Path, crs: str | None = None) -> None:
@@ -81,9 +81,11 @@ class Reader(AbscractReader):
             winding_equipment_catalog,
         ) = get_transformer_equipments(self.system)
         self._add_components(distribution_transformer_equipment_catalog.values())
-        self._add_components(get_transformers(
-            self.system, distribution_transformer_equipment_catalog, winding_equipment_catalog
-        ))
+        self._add_components(
+            get_transformers(
+                self.system, distribution_transformer_equipment_catalog, winding_equipment_catalog
+            )
+        )
         self._add_components(get_conductors_equipment())
         self._add_components(get_cables_equipment())
         matrix_branch_equipments_catalog, thermal_limit_catalog = get_matrix_branch_equipments()

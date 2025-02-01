@@ -6,8 +6,7 @@ build-backend = "hatchling.build"
 name = "NREL-ditto"
 dynamic = ["version"]
 description = 'Many to one to many distrbution system model converter '
-readme = "readme.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 keywords = []
 authors = [
@@ -24,7 +23,8 @@ classifiers = [
 ]
 dependencies = [
   "opendssdirect.py",
-  "grid-data-models==1.4.0",
+  "grid-data-models==1.4.1",
+  "rdflib",
   "altdss_schema @ git+https://github.com/NREL-Distribution-Suites/altdss-schema@main",
 ]
 
@@ -48,6 +48,8 @@ dev = [
   "pytest",
   "ruff"
 ]
+
+
 
 [tool.pytest.ini_options]
 minversion = "6.0"

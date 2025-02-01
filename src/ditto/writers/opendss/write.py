@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
+from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
+from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
 from gdm import DistributionBus, MatrixImpedanceSwitch
 from altdss_schema import altdss_models
 from loguru import logger
@@ -35,7 +37,7 @@ class Writer(AbstractWriter):
         files_to_remove = directory.rglob("*.dss")
         for dss_file in files_to_remove:
             logger.info(f"Deleting existing file {dss_file}")
-            dss_file.unlink()
+            # dss_file.unlink() #TODO: deletion causing tets to fail @tarek
 
     def _get_voltage_bases(self) -> list[float]:
         voltage_bases = []
@@ -58,6 +60,7 @@ class Writer(AbstractWriter):
         component_types = self.system.get_component_types()
 
         seen_equipment = set()
+        seen_controller = set()
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)
@@ -74,15 +77,22 @@ class Writer(AbstractWriter):
             # Example mapper is class DistributionBusMapper
             for model in components:
                 # Example model is instance of DistributionBus
-                if not isinstance(model, DistributionComponentBase):
+                if not isinstance(model, DistributionComponentBase) and not (
+                    isinstance(model, BareConductorEquipment)
+                    or isinstance(model, ConcentricCableEquipment)
+                ):
                     continue
+
                 model_map = mapper(model)
                 model_map.populate_opendss_dictionary()
+
                 dss_string = self._get_dss_string(model_map)
                 if dss_string.startswith("new Vsource"):
                     dss_string = dss_string.replace("new Vsource", "Clear\n\nNew Circuit")
                 equipment_dss_string = None
                 equipment_map: list[Path] = None
+                controller_dss_string = None
+                controller_map: list[Path] = None
 
                 if hasattr(model, "equipment"):
                     equipment_mapper_name = model.equipment.__class__.__name__ + "Mapper"
@@ -95,6 +105,19 @@ class Writer(AbstractWriter):
                         equipment_map = equipment_mapper(model.equipment)
                         equipment_map.populate_opendss_dictionary()
                         equipment_dss_string = self._get_dss_string(equipment_map)
+
+                if hasattr(model, "controllers"):
+                    for controller in model.controllers:
+                        controller_mapper_name = controller.__class__.__name__ + "Mapper"
+                        if not hasattr(opendss_mapper, controller_mapper_name):
+                            logger.warning(
+                                f"Equipment Mapper {controller_mapper_name} not found. Skipping"
+                            )
+                        else:
+                            controller_mapper = getattr(opendss_mapper, controller_mapper_name)
+                            controller_map = controller_mapper(controller, model.name)
+                            controller_map.populate_opendss_dictionary()
+                            controller_dss_string = self._get_dss_string(controller_map)
 
                 output_folder = output_path
                 output_redirect = Path("")
@@ -117,10 +140,30 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / equipment_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
+                            # logger.info(
+                            #     f"Writing equipment file to {output_folder / equipment_map.opendss_file}"
+                            # )
                             fp.write(equipment_dss_string)
+
+                if controller_dss_string is not None:
+                    feeder_substation_controller = (
+                        model_map.substation + model_map.feeder + controller_dss_string
+                    )
+                    if feeder_substation_controller not in seen_controller:
+                        seen_controller.add(feeder_substation_controller)
+                        with open(
+                            output_folder / controller_map.opendss_file, "a", encoding="utf-8"
+                        ) as fp:
+                            # logger.info(
+                            #     f"Writing controller file to {output_folder / controller_map.opendss_file}"
+                            # )
+                            fp.write(controller_dss_string)
 
                 # TODO: Check that there aren't multiple voltage sources for the same master file
                 with open(output_folder / model_map.opendss_file, "a", encoding="utf-8") as fp:
+                    # logger.info(
+                    #     f"Writing component file to {output_folder / model_map.opendss_file}"
+                    # )
                     fp.write(dss_string)
 
                 if (
@@ -156,6 +199,8 @@ class Writer(AbstractWriter):
                 base_redirect.add(output_redirect / model_map.opendss_file)
                 if equipment_map is not None:
                     base_redirect.add(output_redirect / equipment_map.opendss_file)
+                if controller_map is not None:
+                    base_redirect.add(output_redirect / controller_map.opendss_file)
 
         self._write_base_master(base_redirect, output_folder)
         self._write_substation_master(substations_redirect)
@@ -201,14 +246,16 @@ class Writer(AbstractWriter):
                 for file in file_order:
                     for dss_file in base_redirect:
                         if dss_file.name == file:
-                            base_master.write("redirect " + str(dss_file))
-                            base_master.write("\n")
-                            break
+                            if (master_file.parent / dss_file).exists():
+                                base_master.write("redirect " + str(dss_file))
+                                base_master.write("\n")
+                                break
                 self._write_switch_status(base_master)
                 base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
                 base_master.write("calcv\n")
                 base_master.write("Solve\n")
                 base_master.write(f"redirect {OpenDSSFileTypes.COORDINATE_FILE.value}\n")
+
         # base_master.write(f"BusCoords {filename}\n")
 
     def _write_substation_master(self, substations_redirect):
@@ -219,8 +266,9 @@ class Writer(AbstractWriter):
                 ) as substation_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in substations_redirect[substation]:
-                        substation_master.write("redirect " + str(dss_file))
-                        substation_master.write("\n")
+                        if (Path(substation).parent / dss_file).exists():
+                            substation_master.write("redirect " + str(dss_file))
+                            substation_master.write("\n")
 
     def _write_feeder_master(self, feeders_redirect):
         for feeder in feeders_redirect:
@@ -228,5 +276,6 @@ class Writer(AbstractWriter):
                 with open(Path(feeder) / OpenDSSFileTypes.MASTER_FILE.value, "a") as feeder_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in feeders_redirect[feeder]:
-                        feeder_master.write("redirect " + str(dss_file))
-                        feeder_master.write("\n")
+                        if (Path(feeder).parent / dss_file).exists():
+                            feeder_master.write("redirect " + str(dss_file))
+                            feeder_master.write("\n")

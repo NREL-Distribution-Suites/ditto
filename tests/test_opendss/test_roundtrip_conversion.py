@@ -88,7 +88,6 @@ def test_opendss_roundtrip_converion(DSS_MODEL):
     for file in csv_files:
         os.remove(file)
         logger.info(f"Deleted: {file}")
-        
 
     assert export_path.exists(), f"Export path: {export_path}"
     writer.write(export_path, separate_substations=False, separate_feeders=False)

@@ -144,7 +144,6 @@ class Writer(AbstractWriter):
                             #     f"Writing equipment file to {output_folder / equipment_map.opendss_file}"
                             # )
                             fp.write(equipment_dss_string)
-                            
 
                 if controller_dss_string is not None:
                     feeder_substation_controller = (
@@ -247,7 +246,7 @@ class Writer(AbstractWriter):
                 for file in file_order:
                     for dss_file in base_redirect:
                         if dss_file.name == file:
-                            if (master_file.parent/ dss_file).exists():
+                            if (master_file.parent / dss_file).exists():
                                 base_master.write("redirect " + str(dss_file))
                                 base_master.write("\n")
                                 break
@@ -267,7 +266,7 @@ class Writer(AbstractWriter):
                 ) as substation_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in substations_redirect[substation]:
-                        if (Path(substation).parent / dss_file).exists(): 
+                        if (Path(substation).parent / dss_file).exists():
                             substation_master.write("redirect " + str(dss_file))
                             substation_master.write("\n")
 
@@ -277,6 +276,6 @@ class Writer(AbstractWriter):
                 with open(Path(feeder) / OpenDSSFileTypes.MASTER_FILE.value, "a") as feeder_master:
                     # TODO: provide ordering so LineCodes before Lines
                     for dss_file in feeders_redirect[feeder]:
-                        if (Path(feeder).parent / dss_file).exists(): 
+                        if (Path(feeder).parent / dss_file).exists():
                             feeder_master.write("redirect " + str(dss_file))
                             feeder_master.write("\n")

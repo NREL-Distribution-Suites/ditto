@@ -7,8 +7,7 @@ DiTTo is the _Distribution Transformation Tool_. It is an open-source tool to co
 Flexible representations for power system components are defined in [Grid-Data-Models (GDM)](https://github.com/NREL-Distribution-Suites/grid-data-models) format. 
 DiTTo implements a _many-to-one-to-many_ parsing framework, making it modular and robust. The [reader modules](https://github.com/NREL-Distribution-Suites/ditto/tree/main/src/ditto/readers) parse data files of distribution system format (e.g. OpenDSS) and create an object for each electrical component. These objects are stored in a [GDM DistributionSystem](https://github.com/NREL-Distribution-Suites/grid-data-models/blob/main/src/gdm/distribution/distribution_system.py) instance. The [writer modules](https://github.com/NREL-Distribution-Suites/ditto/tree/main/src/ditto/writers) are then used to export the data stored in memory to a selected output distribution system format (e.g. OpenDSS) which are written to disk.
 
-Additional functionality can be found in the documentation [here](https://nrel.github.io/ditto).
-
+Additional documentation is currently under development and will e made available soon.
 ## Quick Start
 
 ### Install DiTTo

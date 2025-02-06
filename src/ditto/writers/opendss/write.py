@@ -6,7 +6,8 @@ from typing import Any
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm import DistributionBus, MatrixImpedanceSwitch
+from gdm import DistributionBus, MatrixImpedanceSwitch, DistributionBranchBase, DistributionTransformer
+from gdm import build_graph_from_system
 from altdss_schema import altdss_models
 from loguru import logger
 
@@ -237,6 +238,21 @@ class Writer(AbstractWriter):
 
     def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.
+        
+        bus = self.system.get_source_bus()
+        equipment = self.system.get_bus_connected_components(
+            bus.name, DistributionTransformer
+        )
+        if equipment:
+            equipment_type = "Transformer"
+            equipment_name = equipment[0].name
+        else:
+            equipment = self.system.get_bus_connected_components(
+                bus.name, DistributionBranchBase
+            )
+            equipment_type = "Line"
+            equipment_name = equipment[0].name
+
         file_order = [file_type.value for file_type in OpenDSSFileTypes]
         master_file = output_folder / OpenDSSFileTypes.MASTER_FILE.value
         if master_file.is_file():
@@ -251,6 +267,8 @@ class Writer(AbstractWriter):
                                 base_master.write("\n")
                                 break
                 self._write_switch_status(base_master)
+
+                base_master.write(f"New EnergyMeter.SourceMeter element={equipment_type}.{equipment_name}\n")
                 base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
                 base_master.write("calcv\n")
                 base_master.write("Solve\n")

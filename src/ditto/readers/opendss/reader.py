@@ -43,16 +43,16 @@ class Reader(AbstractReader):
         """
 
         self.system = DistributionSystem(auto_add_composed_components=True)
-        self.Opendss_master_file = Opendss_master_file
+        self.Opendss_master_file = Path(Opendss_master_file)
         self.crs = crs
-        self.read()
+        self._read()
 
     def _add_components(self, components: list[Component]):
         """Internal method to add components to the system."""
         if components:
             self.system.add_components(*components)
 
-    def read(self):
+    def _read(self):
         """Takes the master file path and returns instance of OpendssParser
 
         Raises:

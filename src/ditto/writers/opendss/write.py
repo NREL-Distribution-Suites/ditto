@@ -3,16 +3,18 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import Any
 
-from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
-from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
-from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm import (
-    DistributionBus,
-    MatrixImpedanceSwitch,
-    DistributionBranchBase,
-    DistributionTransformer,
-)
+
 from altdss_schema import altdss_models
+from gdm import (
+    DistributionVoltageSource,
+    DistributionComponentBase,
+    ConcentricCableEquipment,
+    DistributionTransformer,
+    DistributionBranchBase,
+    BareConductorEquipment,
+    MatrixImpedanceSwitch,
+    DistributionBus,
+)
 from loguru import logger
 
 from ditto.writers.abstract_writer import AbstractWriter
@@ -145,9 +147,6 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / equipment_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
-                            # logger.debug(
-                            #     f"Writing equipment file to {output_folder / equipment_map.opendss_file}"
-                            # )
                             fp.write(equipment_dss_string)
 
                 if controller_dss_string is not None:
@@ -159,16 +158,10 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / controller_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
-                            # logger.debug(
-                            #     f"Writing controller file to {output_folder / controller_map.opendss_file}"
-                            # )
                             fp.write(controller_dss_string)
 
                 # TODO: Check that there aren't multiple voltage sources for the same master file
                 with open(output_folder / model_map.opendss_file, "a", encoding="utf-8") as fp:
-                    # logger.debug(
-                    #     f"Writing component file to {output_folder / model_map.opendss_file}"
-                    # )
                     fp.write(dss_string)
 
                 if (
@@ -242,16 +235,24 @@ class Writer(AbstractWriter):
 
     def _write_base_master(self, base_redirect, output_folder):
         # Only use Masters that have a voltage source, and hence already written.
-
-        bus = self.system.get_source_bus()
-        equipment = self.system.get_bus_connected_components(bus.name, DistributionTransformer)
-        if equipment:
-            equipment_type = "Transformer"
-            equipment_name = equipment[0].name
-        else:
-            equipment = self.system.get_bus_connected_components(bus.name, DistributionBranchBase)
-            equipment_type = "Line"
-            equipment_name = equipment[0].name
+        sources = list(self.system.get_components(DistributionVoltageSource))
+        has_source = True if sources else False
+        
+        if has_source:
+            bus = self.system.get_source_bus()
+            
+            equipment = self.system.get_bus_connected_components(bus.name, DistributionTransformer)
+            if equipment:
+                equipment_type = "Transformer"
+                equipment_name = equipment[0].name
+            else:
+                equipment = self.system.get_bus_connected_components(bus.name, DistributionBranchBase)
+                if equipment:
+                    equipment_type = "Line"
+                    equipment_name = equipment[0].name
+                else:
+                    equipment_type = None
+                    equipment_name = None
 
         file_order = [file_type.value for file_type in OpenDSSFileTypes]
         master_file = output_folder / OpenDSSFileTypes.MASTER_FILE.value
@@ -267,10 +268,11 @@ class Writer(AbstractWriter):
                                 base_master.write("\n")
                                 break
                 self._write_switch_status(base_master)
-
-                base_master.write(
-                    f"New EnergyMeter.SourceMeter element={equipment_type}.{equipment_name}\n"
-                )
+                
+                if has_source and equipment_type:
+                    base_master.write(
+                        f"New EnergyMeter.SourceMeter element={equipment_type}.{equipment_name}\n"
+                    )
                 base_master.write(f"Set Voltagebases={self._get_voltage_bases()}\n")
                 base_master.write("calcv\n")
                 base_master.write("Solve\n")

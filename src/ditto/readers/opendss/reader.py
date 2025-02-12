@@ -108,7 +108,7 @@ class Reader(AbstractReader):
         logger.debug("parsing complete...")
         logger.debug(f"\n{self.system.info()}")
         logger.debug("Building graph...")
-        graph = build_graph_from_system(self.system)
+        graph = self.system.get_undirected_graph()
         logger.debug(graph)
         logger.debug("Graph build complete...")
         logger.debug("Updating graph to fix split phase representation...")

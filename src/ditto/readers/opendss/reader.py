@@ -23,7 +23,6 @@ from ditto.readers.opendss.components.branches import (
     get_matrix_branch_equipments,
     get_branches,
 )
-from gdm import build_graph_from_system
 
 from ditto.readers.reader import AbstractReader
 

@@ -30,7 +30,9 @@ MODULES = [
 
 @pytest.mark.parametrize("component", MODULES)
 def test_component(component, tmp_path):
-    system = DistributionSystem(name=f"test {component.__name__}", auto_add_composed_components=True)
+    system = DistributionSystem(
+        name=f"test {component.__name__}", auto_add_composed_components=True
+    )
     system.add_component(component.example())
     writer = Writer(system)
     writer.write(output_path=tmp_path, separate_substations=False, separate_feeders=False)

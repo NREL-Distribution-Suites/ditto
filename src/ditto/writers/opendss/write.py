@@ -237,16 +237,18 @@ class Writer(AbstractWriter):
         # Only use Masters that have a voltage source, and hence already written.
         sources = list(self.system.get_components(DistributionVoltageSource))
         has_source = True if sources else False
-        
+
         if has_source:
             bus = self.system.get_source_bus()
-            
+
             equipment = self.system.get_bus_connected_components(bus.name, DistributionTransformer)
             if equipment:
                 equipment_type = "Transformer"
                 equipment_name = equipment[0].name
             else:
-                equipment = self.system.get_bus_connected_components(bus.name, DistributionBranchBase)
+                equipment = self.system.get_bus_connected_components(
+                    bus.name, DistributionBranchBase
+                )
                 if equipment:
                     equipment_type = "Line"
                     equipment_name = equipment[0].name
@@ -268,7 +270,7 @@ class Writer(AbstractWriter):
                                 base_master.write("\n")
                                 break
                 self._write_switch_status(base_master)
-                
+
                 if has_source and equipment_type:
                     base_master.write(
                         f"New EnergyMeter.SourceMeter element={equipment_type}.{equipment_name}\n"

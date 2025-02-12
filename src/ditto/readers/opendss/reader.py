@@ -59,7 +59,7 @@ class Reader(AbstractReader):
             FileNotFoundError: Error raised if the file is not found
         """
 
-        logger.info("Loading OpenDSS model.")
+        logger.debug("Loading OpenDSS model.")
         if not self.Opendss_master_file.exists():
             msg = f"File not found: {self.Opendss_master_file}"
             raise FileNotFoundError(msg)
@@ -67,7 +67,7 @@ class Reader(AbstractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
-        logger.info(f"Model loaded from {self.Opendss_master_file}.")
+        logger.debug(f"Model loaded from {self.Opendss_master_file}.")
 
         odd.Solution.Solve()
 
@@ -105,15 +105,15 @@ class Reader(AbstractReader):
         )
         self._add_components(branches)
 
-        logger.info("parsing complete...")
-        logger.info(f"\n{self.system.info()}")
-        logger.info("Building graph...")
+        logger.debug("parsing complete...")
+        logger.debug(f"\n{self.system.info()}")
+        logger.debug("Building graph...")
         graph = build_graph_from_system(self.system)
-        logger.info(graph)
-        logger.info("Graph build complete...")
-        logger.info("Updating graph to fix split phase representation...")
+        logger.debug(graph)
+        logger.debug("Graph build complete...")
+        logger.debug("Updating graph to fix split phase representation...")
         update_split_phase_nodes(graph, self.system)
-        logger.info("System update complete...")
+        logger.debug("System update complete...")
 
     def get_system(self) -> DistributionSystem:
         """Returns an instance of DistributionSystem

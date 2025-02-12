@@ -19,7 +19,7 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
         list[ConcentricCableEquipment]: list of ConcentricCableEquipment
     """
 
-    logger.info("parsing cable components...")
+    logger.debug("parsing cable components...")
     concentric_cable_equipment_catalog = {}
     model_type = "CNData"
     cables = []

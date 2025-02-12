@@ -13,7 +13,7 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
         list[BareConductorEquipment]: list of BareConductorEquipment
     """
 
-    logger.info("parsing conductor components...")
+    logger.debug("parsing conductor components...")
     bare_conductor_equipment_catalog = {}
     model_type = "WireData"
     conductors = []

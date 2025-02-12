@@ -142,7 +142,7 @@ def get_transformer_equipments(system: System) -> list[DistributionTransformerEq
     Returns:
         list[DistributionTransformerEquipment]: List of DistributionTransformerEquipment objects
     """
-    logger.info("parsing transformer equipment...")
+    logger.debug("parsing transformer equipment...")
     distribution_transformer_equipment_catalog = {}
     winding_equipment_catalog = {}
     odd_model_types = [v.value for v in XfmrModelTypes]
@@ -175,7 +175,7 @@ def get_transformers(
         list[DistributionTransformer]: list of distribution transformers
     """
 
-    logger.info("parsing transformer components...")
+    logger.debug("parsing transformer components...")
 
     transformers = []
     flag = odd.Transformers.First()

@@ -64,7 +64,7 @@ def get_geometry_branch_equipments(
         dict[str, int]: mapping of line geometries names to GeometryBranchEquipment hash
     """
 
-    logger.info("parsing geometry branch equipment...")
+    logger.debug("parsing geometry branch equipment...")
 
     mapped_geometry = {}
     geometry_branch_equipment_catalog = {}
@@ -200,7 +200,7 @@ def get_matrix_branch_equipments() -> (
         dict[int, ThermalLimitSet]: mapping of model hash to ThermalLimitSet instance
     """
 
-    logger.info("parsing matrix branch equipment...")
+    logger.debug("parsing matrix branch equipment...")
     reclosers = get_reclosers()
     fuses = get_fuses()
     matrix_branch_equipments_catalog = {
@@ -268,7 +268,7 @@ def get_branches(
         tuple[list[MatrixImpedanceBranch | GeometryBranch]]: Returns a list of system branches
     """
 
-    logger.info("parsing branch components...")
+    logger.debug("parsing branch components...")
     reclosers = get_reclosers()
     fuses = get_fuses()
     branches = []

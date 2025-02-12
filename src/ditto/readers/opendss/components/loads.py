@@ -90,7 +90,7 @@ def get_loads(system: System) -> list[DistributionLoad]:
         List[DistributionLoad]: List of DistributionLoad objects
     """
 
-    logger.info("parsing load components...")
+    logger.debug("parsing load components...")
 
     profile_catalog = {}
     loads = []

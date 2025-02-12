@@ -41,7 +41,7 @@ class Writer(AbstractWriter):
         directory = Path(output_path)
         files_to_remove = directory.rglob("*.dss")
         for dss_file in files_to_remove:
-            logger.info(f"Deleting existing file {dss_file}")
+            logger.debug(f"Deleting existing file {dss_file}")
             # dss_file.unlink() #TODO: deletion causing tets to fail @tarek
 
     def _get_voltage_bases(self) -> list[float]:
@@ -76,7 +76,7 @@ class Writer(AbstractWriter):
                 logger.warning(f"Mapper {mapper_name} not found. Skipping")
                 continue
 
-            logger.info(f"Mapping components in {mapper_name}...")
+            logger.debug(f"Mapping components in {mapper_name}...")
             mapper = getattr(opendss_mapper, mapper_name)
 
             # Example mapper is class DistributionBusMapper
@@ -145,7 +145,7 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / equipment_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
-                            # logger.info(
+                            # logger.debug(
                             #     f"Writing equipment file to {output_folder / equipment_map.opendss_file}"
                             # )
                             fp.write(equipment_dss_string)
@@ -159,14 +159,14 @@ class Writer(AbstractWriter):
                         with open(
                             output_folder / controller_map.opendss_file, "a", encoding="utf-8"
                         ) as fp:
-                            # logger.info(
+                            # logger.debug(
                             #     f"Writing controller file to {output_folder / controller_map.opendss_file}"
                             # )
                             fp.write(controller_dss_string)
 
                 # TODO: Check that there aren't multiple voltage sources for the same master file
                 with open(output_folder / model_map.opendss_file, "a", encoding="utf-8") as fp:
-                    # logger.info(
+                    # logger.debug(
                     #     f"Writing component file to {output_folder / model_map.opendss_file}"
                     # )
                     fp.write(dss_string)

@@ -55,7 +55,7 @@ def get_metrics(dss_model_path: Path | str):
     dss_model_path = Path(dss_model_path)
     assert dss_model_path.exists(), f"DSS model {dss_model_path} does not exist"
     cmd = f'redirect "{dss_model_path}"'
-    logger.info(f"Running OpenDSS command -> {cmd}")
+    logger.debug(f"Running OpenDSS command -> {cmd}")
     odd.Text.Command("clear")
     odd.Text.Command(cmd)
     odd.Solution.Solve()
@@ -87,7 +87,7 @@ def test_opendss_roundtrip_converion(DSS_MODEL):
     csv_files = glob.glob(os.path.join(export_path, "*.dss"))
     for file in csv_files:
         os.remove(file)
-        logger.info(f"Deleted: {file}")
+        logger.debug(f"Deleted: {file}")
 
     assert export_path.exists(), f"Export path: {export_path}"
     writer.write(export_path, separate_substations=False, separate_feeders=False)

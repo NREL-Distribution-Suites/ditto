@@ -39,7 +39,7 @@ def get_metrics(dss_model_path: Path | str):
     dss_model_path = Path(dss_model_path)
     assert dss_model_path.exists(), f"DSS model {dss_model_path} does not exist"
     cmd = f'redirect "{dss_model_path}"'
-    logger.info(f"Running OpenDSS command -> {cmd}")
+    logger.debug(f"Running OpenDSS command -> {cmd}")
     odd.Text.Command("clear")
     odd.Text.Command(cmd)
     odd.Solution.Solve()

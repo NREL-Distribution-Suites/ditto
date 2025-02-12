@@ -87,7 +87,7 @@ def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
         list[DistributionVoltageSource]: List of DistributionVoltageSource objects
     """
 
-    logger.info("parsing voltage sources components...")
+    logger.debug("parsing voltage sources components...")
     phase_voltage_source_equipment_catalog = {}
     voltage_source_equipment_catalog = {}
     profile_catalog = {}

@@ -25,4 +25,4 @@ class AbstractReader(ABC):
         json_file = Path(json_file)
         assert hasattr(self, "system"), "Use the read method to build the system first"
         self.system.to_json(json_file, overwrite=True)
-        logger.info(f"GDM model exported to {json_file}")
+        logger.debug(f"GDM model exported to {json_file}")

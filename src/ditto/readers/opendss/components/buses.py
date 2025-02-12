@@ -17,7 +17,7 @@ def get_buses(crs: str = None) -> list[DistributionBus]:
         list[DistributionBus]: list of DistributionBus objects
     """
 
-    logger.info("parsing bus components...")
+    logger.debug("parsing bus components...")
     voltage_limit_set_catalog = {}
     location_catalog = {}
     buses = []

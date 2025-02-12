@@ -23,7 +23,6 @@ from ditto.readers.opendss.components.branches import (
     get_matrix_branch_equipments,
     get_branches,
 )
-from gdm import build_graph_from_system
 
 from ditto.readers.reader import AbstractReader
 
@@ -43,23 +42,23 @@ class Reader(AbstractReader):
         """
 
         self.system = DistributionSystem(auto_add_composed_components=True)
-        self.Opendss_master_file = Opendss_master_file
+        self.Opendss_master_file = Path(Opendss_master_file)
         self.crs = crs
-        self.read()
+        self._read()
 
     def _add_components(self, components: list[Component]):
         """Internal method to add components to the system."""
         if components:
             self.system.add_components(*components)
 
-    def read(self):
+    def _read(self):
         """Takes the master file path and returns instance of OpendssParser
 
         Raises:
             FileNotFoundError: Error raised if the file is not found
         """
 
-        logger.info("Loading OpenDSS model.")
+        logger.debug("Loading OpenDSS model.")
         if not self.Opendss_master_file.exists():
             msg = f"File not found: {self.Opendss_master_file}"
             raise FileNotFoundError(msg)
@@ -67,7 +66,7 @@ class Reader(AbstractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
-        logger.info(f"Model loaded from {self.Opendss_master_file}.")
+        logger.debug(f"Model loaded from {self.Opendss_master_file}.")
 
         odd.Solution.Solve()
 
@@ -105,15 +104,15 @@ class Reader(AbstractReader):
         )
         self._add_components(branches)
 
-        logger.info("parsing complete...")
-        logger.info(f"\n{self.system.info()}")
-        logger.info("Building graph...")
-        graph = build_graph_from_system(self.system)
-        logger.info(graph)
-        logger.info("Graph build complete...")
-        logger.info("Updating graph to fix split phase representation...")
+        logger.debug("parsing complete...")
+        logger.debug(f"\n{self.system.info()}")
+        logger.debug("Building graph...")
+        graph = self.system.get_undirected_graph()
+        logger.debug(graph)
+        logger.debug("Graph build complete...")
+        logger.debug("Updating graph to fix split phase representation...")
         update_split_phase_nodes(graph, self.system)
-        logger.info("System update complete...")
+        logger.debug("System update complete...")
 
     def get_system(self) -> DistributionSystem:
         """Returns an instance of DistributionSystem

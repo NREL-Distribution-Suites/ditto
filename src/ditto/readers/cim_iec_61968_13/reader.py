@@ -59,38 +59,38 @@ class Reader(AbstractReader):
 
     def read(self):
         datasets: dict[DistributionComponentBase, pd.DataFrame] = {}
-        logger.info("Querying for distribution buses...")
+        logger.debug("Querying for distribution buses...")
         datasets[DistributionBus] = query_distribution_buses(self.graph)
 
-        logger.info("Querying for AC line segments...")
+        logger.debug("Querying for AC line segments...")
         datasets[MatrixImpedanceBranch] = query_line_segments(self.graph)
 
-        logger.info("Querying for line codes...")
+        logger.debug("Querying for line codes...")
         datasets[MatrixImpedanceBranchEquipment] = query_line_codes(self.graph)
 
-        logger.info("Querying for loads...")
+        logger.debug("Querying for loads...")
         datasets[DistributionLoad] = query_loads(self.graph)
 
-        logger.info("Querying for capacitors...")
+        logger.debug("Querying for capacitors...")
         datasets[DistributionCapacitor] = query_capacitors(self.graph)
 
-        logger.info("Querying for transformers...")
+        logger.debug("Querying for transformers...")
         xfmr_data = query_power_transformers(self.graph)
-        logger.info("Querying for transformer windings...")
+        logger.debug("Querying for transformer windings...")
         winding_data = query_transformer_windings(self.graph)
         datasets[DistributionTransformer] = self._build_xfmr_dataset(xfmr_data, winding_data)
 
-        logger.info("Querying for regulators...")
+        logger.debug("Querying for regulators...")
         regulator_data = query_distribution_regulators(self.graph)
         datasets[DistributionRegulator] = self._build_xfmr_dataset(regulator_data)
 
-        logger.info("Querying for sources...")
+        logger.debug("Querying for sources...")
         datasets[DistributionVoltageSource] = query_source(self.graph)
 
-        logger.info("Querying for regulator controllers...")
+        logger.debug("Querying for regulator controllers...")
         datasets[RegulatorController] = query_regulator_controllers(self.graph)
 
-        logger.info("Querying for load break switches...")
+        logger.debug("Querying for load break switches...")
         datasets[MatrixImpedanceSwitch] = query_load_break_switches(self.graph)
 
         datasets[DistributionBus] = self._set_bus_phases(datasets)
@@ -101,7 +101,7 @@ class Reader(AbstractReader):
             if component_type in datasets:
                 try:
                     mapper = getattr(cim_mapper, mapper_name)(self.system)
-                    logger.info(f"Buliding components for {component_type.__name__}")
+                    logger.debug(f"Buliding components for {component_type.__name__}")
                 except AttributeError as _:
                     logger.warning(f"Mapper for {mapper_name} not found. Skipping")
                 if datasets[component_type].empty:
@@ -114,7 +114,7 @@ class Reader(AbstractReader):
             else:
                 logger.warning(f"Dataframe for { component_type.__name__} not found. Skipping")
             self.system.add_components(*components)
-        self.system.info()
+        logger.info("System summary: ", self.system.info())
 
     def _build_xfmr_dataset(
         self, xfmr_data: pd.DataFrame, winding_df: pd.DataFrame = pd.DataFrame()

@@ -91,7 +91,7 @@ def get_capacitors(system: System) -> list[DistributionCapacitor]:
         List[DistributionCapacitor]: List of DistributionCapacitor objects
     """
 
-    logger.info("parsing capacitor components...")
+    logger.debug("parsing capacitor components...")
     phase_capacitor_equipment_catalog = {}
     capacitor_equipment_catalog = {}
     capacitors = []

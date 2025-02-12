@@ -31,7 +31,7 @@ def _build_pv_equipment(
         list[str]: List of phases
     """
 
-    logger.info("parsing pvsystem equipment...")
+    logger.debug("parsing pvsystem equipment...")
     pv_name = odd.PVsystems.Name()
 
     def query(ppty):
@@ -66,13 +66,13 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
         List[DistributionSolar]: List of DistributionSolar objects
     """
 
-    logger.info("parsing pvsystem components...")
+    logger.debug("parsing pvsystem components...")
     solar_equipment_catalog = {}
     profile_catalog = {}
     pv_systems = []
     flag = odd.PVsystems.First()
     while flag > 0:
-        logger.info(f"building pvsystem {odd.PVsystems.Name()}...")
+        logger.debug(f"building pvsystem {odd.PVsystems.Name()}...")
         solar_name = odd.PVsystems.Name().lower()
 
         def query(ppty):

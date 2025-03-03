@@ -1,28 +1,28 @@
 from infrasys.location import Location
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm import VoltageTypes, Phase, PositiveVoltage
-from ditto.readers.cyme.cyme_mapping import CymeMapper
+from ditto.readers.cyme.cyme_mapper import CymeMapper
 
 
 class DistributionBusMapper(CymeMapper):
     def __init__(self, cyme_model):
         super().__init__(cyme_model)
 
-   cyme_file = 'Network'
-   cyme_section = 'NODE'
+    cyme_file = 'Network'
+    cyme_section = 'NODE'
 
-   def parse(self, row, from_node_sections, to_node_sections):
-       name = self.map_name(row)
-       coordinate = self.map_coordinate(row)
-       nominal_voltage = self.map_nominal_voltage(row)
-       phases = self.map_phases(row, from_node_sections, to_node_sections)
-       voltage_limits = self.map_voltagelimits(row)
-       voltage_type = self.map_voltage_type(row)
-       return DistributionBus(name=name, 
+    def parse(self, row, from_node_sections, to_node_sections):
+        name = self.map_name(row)
+        coordinate = self.map_coordinate(row)
+        nominal_voltage = self.map_nominal_voltage(row)
+        phases = self.map_phases(row, from_node_sections, to_node_sections)
+        voltage_limits = self.map_voltagelimits(row)
+        voltage_type = self.map_voltage_type(row)
+        return DistributionBus(name=name, 
                               coordinate=coordinate, 
                               nominal_voltage=nominal_voltage, 
                               phases=phases, 
-                              voltage_limits=voltage_limits, 
+                              voltagelimits=voltage_limits, 
                               voltage_type=voltage_type)
 
     def map_name(self, row):
@@ -30,13 +30,16 @@ class DistributionBusMapper(CymeMapper):
         return name
 
     def map_coordinate(self, row):
-        return Location(row['X'], row['Y'])
+        X, Y = float(row["CoordX"]), float(row["CoordY"])
+        crs = None
+        return Location(x=X, y=Y, crs=crs)
 
     def map_nominal_voltage(self, row):
-        return PositiveVoltage(row['UserDefinedBaseVoltage'], "kilovolts")
+        #return PositiveVoltage(float(row['UserDefinedBaseVoltage']), "kilovolts")
+        return PositiveVoltage(12.47, "kilovolts")
 
-   def map_phases(self, row, from_node_sections, to_node_sections):
-        node_id = row["NodeId"]
+    def map_phases(self, row, from_node_sections, to_node_sections):
+        node_id = row["NodeID"]
         section = None
         all_phases = set()
         if node_id in from_node_sections:
@@ -60,12 +63,20 @@ class DistributionBusMapper(CymeMapper):
             phases.append(Phase.C)
         if "N" in all_phases:
             phases.append(Phase.N)
+        return phases    
 
 
     def map_voltagelimits(self, row):
-        low_voltage = PositiveVoltage(row['LowVoltageLimit'], "kilovolts")
-        high_voltage = PositiveVoltage(row['HighVoltageLimit'], "kilovolts")
-        return [low_voltage, high_voltage]
+        low_voltage = None
+        high_voltage = None
+        if row['LowVoltageLimit'] != '':
+            low_voltage = PositiveVoltage(row['LowVoltageLimit'], "kilovolts")
+        if row['HighVoltageLimit'] != '':
+            high_voltage = PositiveVoltage(row['HighVoltageLimit'], "kilovolts")
+        if low_voltage is not None and high_voltage is not None:
+            return [low_voltage, high_voltage]
+        else:
+            return []
 
     def map_voltage_type(self, row):
-        return row['VoltageType']
+        return VoltageTypes.LINE_TO_LINE

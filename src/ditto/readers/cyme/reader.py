@@ -64,7 +64,7 @@ class Reader(AbstractReader):
                 model_entry = mapper.parse(row, from_node_sections, to_node_sections)
                 if model_entry is not None:
                     components.append(model_entry)
-            self.system.add_component(model_entry)
+                self.system.add_component(model_entry)
 
     def get_system(self) -> DistributionSystem:
         return self.system

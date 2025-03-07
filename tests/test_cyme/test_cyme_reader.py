@@ -39,5 +39,5 @@ def test_cyme_reader(cyme_folder: Path, tmp_path):
     system = reader.get_system()
     json_path = (export_path / cyme_folder.stem.lower()).with_suffix(".json")
     system.to_json(json_path, overwrite=True, indent=4)
-
+  
     assert json_path.exists(), "Failed to export the json file"

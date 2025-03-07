@@ -1,5 +1,4 @@
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
-
 from gdm import DistributionSystem
 from ditto.readers.reader import AbstractReader
 from ditto.readers.cyme.utils import read_cyme_data
@@ -7,12 +6,11 @@ import ditto.readers.cyme as cyme_mapper
 from loguru import logger
 
 
-
 class Reader(AbstractReader):
-
     # Order of components is important
     component_types = [
             "DistributionBus",
+            "DistributionCapacitor"
     ]
 
     def __init__(self, network_file, equipment_file):
@@ -61,7 +59,10 @@ class Reader(AbstractReader):
             components = []
             for idx, row in data.iterrows():
                 mapper_name = component_type + "Mapper"
-                model_entry = mapper.parse(row, from_node_sections, to_node_sections)
+                if mapper_name == "DistributionCapacitorMapper":
+                    model_entry = mapper.parse(row, section_id_sections, equipment_file)
+                if mapper_name == "DistributionBusMapper":
+                    model_entry = mapper.parse(row, from_node_sections, to_node_sections)
                 if model_entry is not None:
                     components.append(model_entry)
                 self.system.add_component(model_entry)

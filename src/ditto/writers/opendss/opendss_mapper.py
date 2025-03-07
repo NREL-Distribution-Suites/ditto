@@ -45,7 +45,7 @@ class OpenDSSMapper(ABC):
 
     def map_system_uuid(self):
         return
-
+    
     def map_substation(self):
         if hasattr(self.model, "substation") and self.model.substation is not None:
             self.substation = self.model.substation.name
@@ -53,11 +53,14 @@ class OpenDSSMapper(ABC):
     def map_feeder(self):
         if hasattr(self.model, "feeder") and self.model.feeder is not None:
             self.feeder = self.model.feeder.name
-
+            
     def populate_opendss_dictionary(self):
         # Should not be populating an existing dictionary. Assert error if not empty
         assert len(self.opendss_dict) == 0
         self.map_common()
         for field in self.model.model_fields:
-            mapping_function = getattr(self, "map_" + field)
-            mapping_function()
+            try:
+                mapping_function = getattr(self, "map_" + field)
+                mapping_function()
+            except Exception as e: 
+                print(f"{self.model.label} - {field}")

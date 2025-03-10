@@ -9,8 +9,9 @@ from loguru import logger
 class Reader(AbstractReader):
     # Order of components is important
     component_types = [
-            "DistributionBus",
-            "DistributionCapacitor"
+        "DistributionBus",
+        "DistributionCapacitor",
+        "DistributionLoad"
     ]
 
     def __init__(self, network_file, equipment_file):
@@ -63,6 +64,8 @@ class Reader(AbstractReader):
                     model_entry = mapper.parse(row, section_id_sections, equipment_file)
                 if mapper_name == "DistributionBusMapper":
                     model_entry = mapper.parse(row, from_node_sections, to_node_sections)
+                if mapper_name == "DistributionLoadMapper":
+                    model_entry = mapper.parse(row)
                 if model_entry is not None:
                     components.append(model_entry)
                 self.system.add_component(model_entry)

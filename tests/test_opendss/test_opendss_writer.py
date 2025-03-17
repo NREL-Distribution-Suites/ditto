@@ -1,4 +1,4 @@
-""" Module for testing writers."""
+"""Module for testing writers."""
 
 from gdm import (
     DistributionBus,

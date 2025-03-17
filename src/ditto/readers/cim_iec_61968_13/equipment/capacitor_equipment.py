@@ -66,7 +66,7 @@ class PhaseCapacitorEquipmentMapper(CimMapper):
             name=self.map_name(row, phase),
             resistance=self.map_resistance(),
             reactance=self.map_reactance(),
-            rated_capacity=self.map_rated_capacity(var_per_phase),
+            rated_reactive_power=self.map_rated_reactive_power(var_per_phase),
             num_banks_on=self.map_num_banks_on(row),
             num_banks=self.map_num_banks(row),
         )
@@ -83,7 +83,7 @@ class PhaseCapacitorEquipmentMapper(CimMapper):
         return PositiveReactance(0, "ohm")
 
     # TODO: This doesn't make sense. We should have fixed and switched values
-    def map_rated_capacity(self, var_per_phase):
+    def map_rated_reactive_power(self, var_per_phase):
         return PositiveReactivePower(var_per_phase, "var")
 
     # TODO: This doesn't make sense. This should indicate if the bank is switched

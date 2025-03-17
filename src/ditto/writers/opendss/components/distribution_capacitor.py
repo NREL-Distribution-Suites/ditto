@@ -56,7 +56,7 @@ class DistributionCapacitorMapper(OpenDSSMapper):
             total_resistance.append(phase_capacitor.resistance.to("ohm").magnitude)
             total_reactance.append(phase_capacitor.reactance.to("ohm").magnitude)
             total_rated_capacity.append(
-                phase_capacitor.rated_capacity.to("kvar").magnitude
+                phase_capacitor.rated_reactive_power.to("kvar").magnitude
             )  # from general capacitor equipment
             self.opendss_dict["States"] = [1] * num_banks
         self.opendss_dict["R"] = [sum(total_resistance) / num_banks] * num_banks

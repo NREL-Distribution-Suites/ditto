@@ -1,0 +1,3 @@
+new RegControl.reg1 Transformer=reg1 VReg=122.0 Band=2.0 PTRatio=20.0 CTPrim=700.0 R=3.0 X=9.0 Bus=rg60.1 Reversible=False TapDelay=15.0 MaxTapChange=5
+new RegControl.reg2 Transformer=reg2 VReg=122.0 Band=2.0 PTRatio=20.0 CTPrim=700.0 R=3.0 X=9.0 Bus=rg60.2 Reversible=False TapDelay=15.0 MaxTapChange=5
+new RegControl.reg3 Transformer=reg3 VReg=122.0 Band=2.0 PTRatio=20.0 CTPrim=700.0 R=3.0 X=9.0 Bus=rg60.3 Reversible=False TapDelay=15.0 MaxTapChange=5

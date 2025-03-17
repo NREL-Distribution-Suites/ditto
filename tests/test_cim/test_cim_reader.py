@@ -1,4 +1,6 @@
 from pathlib import Path
+import shutil
+import os
 
 import opendssdirect as odd
 from loguru import logger
@@ -6,6 +8,26 @@ import numpy as np
 
 from ditto.readers.cim_iec_61968_13.reader import Reader
 from ditto.writers.opendss.write import Writer
+
+BASE_PATH = Path(__file__).parent
+MODEL_PATH = BASE_PATH / "model"
+
+
+def delete_all_files_in_folder(folder_path: str):
+    # Check if the folder exists
+    if os.path.exists(folder_path):
+        # Loop through all files in the folder
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            # Check if it's a file before deleting
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            # If it's a directory, you can also remove it if needed
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        print(f"All files and subfolders in '{folder_path}' have been deleted.")
+    else:
+        print(f"The folder '{folder_path}' does not exist.")
 
 
 def get_model_voltage_drop(model_name: str):
@@ -62,6 +84,7 @@ def get_metrics(dss_model_path: Path | str):
 
 
 def test_query_aclinesegment(ieee13_node_xml_file):
+    delete_all_files_in_folder(MODEL_PATH)
     ieee13_node_dss_file = (
         Path(__file__).parent.parent / "data" / "opendss_circuit_models" / "ieee13" / "Master.dss"
     )

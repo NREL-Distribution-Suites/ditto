@@ -1,3 +1,4 @@
+from ditto.readers.cyme.utils import read_cyme_data
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 from ditto.readers.cyme.equipment.capacitor_equipment import CapacitorEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
@@ -10,19 +11,21 @@ class DistributionCapacitorMapper(CymeMapper):
         super().__init__(system)
 
     cyme_file = 'Network'
-    cyme_section = 'SHUNT CAPACITOR'
+    cyme_section = 'SHUNT CAPACITOR SETTING'
 
-    def parse(self, row, section_id_sections):
+    def parse(self, row, section_id_sections, equipment_file):
         name = self.map_name(row)
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
         controllers = self.map_controllers(row)
-        equipment = self.map_equipment(row)
+        equipment = self.map_equipment(row, equipment_file)
+        in_service = self.map_in_service(row)
         return DistributionCapacitor(name=name,
                                       bus=bus,
                                       phases=phases,
                                       controllers=controllers,
-                                      equipment=equipment)
+                                      equipment=equipment,
+                                      in_service=in_service)
 
     def map_name(self, row):
         return row["DeviceNumber"]
@@ -40,8 +43,8 @@ class DistributionCapacitorMapper(CymeMapper):
     def map_bus(self, row, section_id_sections):
         section_id = row["SectionID"]
         section = section_id_sections[section_id]
-        from_bus_name = section["FromNodeId"]
-        to_bus_name = section["ToNodeId"]
+        from_bus_name = section["FromNodeID"]
+        to_bus_name = section["ToNodeID"]
         to_bus = None
         from_bus = None
         try:
@@ -51,7 +54,7 @@ class DistributionCapacitorMapper(CymeMapper):
 
         try:
             to_bus = self.system.get_component(component_type=DistributionBus,name=to_bus_name)
-        except:
+        except Exception as e:
             pass
 
         if from_bus is None:
@@ -64,7 +67,14 @@ class DistributionCapacitorMapper(CymeMapper):
     def map_controllers(self, row):
         return []
 
-    def map_equipment(self, row):
+    def map_equipment(self, row, equipment_file):
         mapper = CapacitorEquipmentMapper(self.system)
-        equipment = mapper.parse(row)
-        return equipment
+        equipment_data = read_cyme_data(equipment_file, mapper.cyme_section)
+        for idx, equipment_row in equipment_data.iterrows():
+            if equipment_row['ID'] == row['ShuntCapacitorID']:
+                equipment = mapper.parse(equipment_row, connection=row['Connection'])
+                return equipment
+        return None
+    
+    def map_in_service(self, row):
+        return True if int(row['ConnectionStatus']) == 0 else False

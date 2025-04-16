@@ -1,6 +1,4 @@
 from gdm.distribution.equipment import MatrixImpedanceBranchEquipment
-from gdm.distribution.common import ThermalLimitSet
-from gdm.distribution.enums import LimitType
 from gdm.quantities import (
     CapacitancePULength,
     ResistancePULength,

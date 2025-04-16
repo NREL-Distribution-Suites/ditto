@@ -1,10 +1,9 @@
-from gdm import (
-    PositiveDistance,
-    MatrixImpedanceSwitch,
+from gdm.distribution.components import MatrixImpedanceSwitch, DistributionBus
+from gdm.quantities import PositiveDistance
+from gdm.distribution.equipment import (
     MatrixImpedanceSwitchEquipment,
     MatrixImpedanceBranchEquipment,
 )
-from gdm.distribution.components.distribution_bus import DistributionBus
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 

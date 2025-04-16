@@ -9,9 +9,9 @@ To get started, you can clone and pip install this library from [here](https://g
 
 ## Contributors
 
-- **Kapil Duwadi**
 - **Tarek Elgindy**
 - **Aadil Latif**
+- **Kapil Duwadi**
 - **Daniel Thompson**
 - **Jeremy Keen**
 

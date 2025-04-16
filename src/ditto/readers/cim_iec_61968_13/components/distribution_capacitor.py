@@ -1,4 +1,4 @@
-from gdm import DistributionBus, DistributionCapacitor
+from gdm.distribution.components import DistributionBus, DistributionCapacitor
 
 from ditto.readers.cim_iec_61968_13.equipment.capacitor_equipment import CapacitorEquipmentMapper
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper

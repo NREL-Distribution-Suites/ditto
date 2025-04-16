@@ -1,5 +1,6 @@
-from gdm import VoltageTypes, ConnectionType, PositiveVoltage, PositiveApparentPower, Phase
-from gdm.distribution.equipment.distribution_transformer_equipment import WindingEquipment
+from gdm.distribution.enums import VoltageTypes, ConnectionType, Phase
+from gdm.quantities import PositiveVoltage, PositiveApparentPower
+from gdm.distribution.equipment import WindingEquipment
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 from ditto.readers.cim_iec_61968_13.common import phase_mapper
@@ -51,7 +52,7 @@ class WindingEquipmentMapper(CimMapper):
             name=self.map_name(index, xfmr_name),
             resistance=self.map_resistance(row, index),
             is_grounded=self.map_is_grounded(row, index),
-            nominal_voltage=self.map_nominal_voltage(row, index),
+            rated_voltage=self.map_rated_voltage(row, index),
             voltage_type=self.map_voltage_type(row, index),
             rated_power=self.map_rated_power(row, index),
             num_phases=self.map_num_phases(row, index),
@@ -75,7 +76,7 @@ class WindingEquipmentMapper(CimMapper):
     def map_is_grounded(self, row, winding_number):
         return False
 
-    def map_nominal_voltage(self, row, winding_number):
+    def map_rated_voltage(self, row, winding_number):
         voltage = float(row[f"wdg_{winding_number}_rated_voltage"])
         if self.n_phases > 1:
             return PositiveVoltage(voltage / 1.732, "volt")

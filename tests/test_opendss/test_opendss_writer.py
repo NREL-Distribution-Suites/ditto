@@ -1,30 +1,30 @@
 """ Module for testing writers."""
 
-from gdm import (
-    DistributionBus,
-    SequenceImpedanceBranch,
-    MatrixImpedanceBranch,
-    GeometryBranch,
-    DistributionCapacitor,
-    DistributionTransformer,
-    DistributionLoad,
+from gdm.distribution import DistributionSystem
+from gdm.distribution.components import  (
     DistributionVoltageSource,
-    DistributionSystem,
+    DistributionTransformer,
+    SequenceImpedanceBranch,
+    DistributionCapacitor,
+    MatrixImpedanceBranch,
+    DistributionLoad,
+    DistributionBus,
+    GeometryBranch,
 )
 import pytest
 
 from ditto.writers.opendss.write import Writer
 
 MODULES = [
-    DistributionBus,
-    SequenceImpedanceBranch,
-    MatrixImpedanceBranch,
-    GeometryBranch,
-    DistributionCapacitor,
-    DistributionTransformer,
-    DistributionLoad,
     DistributionVoltageSource,
+    DistributionTransformer,
+    SequenceImpedanceBranch,
     DistributionCapacitor,
+    MatrixImpedanceBranch,
+    # DistributionSystem,
+    DistributionLoad,
+    DistributionBus,
+    GeometryBranch,
 ]
 
 

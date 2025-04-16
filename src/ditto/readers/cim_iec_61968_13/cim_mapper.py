@@ -1,6 +1,6 @@
 from abc import ABC
 
-from gdm import DistributionSystem
+from gdm.distribution import DistributionSystem
 
 
 class CimMapper(ABC):

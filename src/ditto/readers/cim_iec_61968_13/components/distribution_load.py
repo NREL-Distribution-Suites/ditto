@@ -1,5 +1,4 @@
-from gdm.distribution.components.distribution_load import DistributionLoad
-from gdm.distribution.components.distribution_bus import DistributionBus
+from gdm.distribution.components import DistributionLoad, DistributionBus
 
 from ditto.readers.cim_iec_61968_13.equipment.load_equipment import LoadEquipmentMapper
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper

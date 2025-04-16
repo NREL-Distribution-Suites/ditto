@@ -5,13 +5,17 @@ from uuid import uuid4
 from enum import Enum
 
 from gdm.quantities import PositiveApparentPower, PositiveVoltage
-from gdm import (
-    DistributionTransformerEquipment,
+from gdm.distribution.common import SequencePair
+from gdm.distribution.components import (
     DistributionTransformer,
-    WindingEquipment,
     DistributionBus,
+)
+from gdm.distribution.equipment import (
+    DistributionTransformerEquipment,
+    WindingEquipment,
+)
+from gdm.distribution.enums import (
     ConnectionType,
-    SequencePair,
     VoltageTypes,
     Phase,
 )
@@ -88,10 +92,10 @@ def _build_xfmr_equipment(
         set_ppty("Wdg", wdg_index + 1)
         num_phase = query("phases", int)
         if query("conn", str).lower() == "delta":
-            nominal_voltage = query("kv", float) / 1.732
+            rated_voltage = query("kv", float) / 1.732
         else:
-            nominal_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
-        wdg_nom_voltages.append(nominal_voltage)
+            rated_voltage = query("kv", float) / 1.732 if num_phase == 3 else query("kv", float)
+        wdg_nom_voltages.append(rated_voltage)
         min_tap_pu = query("mintap", float)
         max_tap_pu = query("maxtap", float)
         num_taps = query("numtaps", int)
@@ -103,7 +107,7 @@ def _build_xfmr_equipment(
             connection_type=ConnectionType.DELTA
             if query("conn", str).lower() == "delta"
             else ConnectionType.STAR,
-            nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
+            rated_voltage=PositiveVoltage(rated_voltage, "kilovolt"),
             resistance=query("%r", float),
             is_grounded=False,  # TODO: Should be moved to the transformer model. Only known once the transformer is installed
             voltage_type=VoltageTypes.LINE_TO_GROUND,

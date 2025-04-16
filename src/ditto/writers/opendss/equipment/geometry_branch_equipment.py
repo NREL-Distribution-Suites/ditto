@@ -1,5 +1,4 @@
-from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
+from gdm.distribution.equipment import BareConductorEquipment, ConcentricCableEquipment
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes

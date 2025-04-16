@@ -37,6 +37,3 @@ class MatrixImpedanceBranchEquipmentMapper(OpenDSSMapper):
         ampacity_amps = self.model.ampacity.to("ampere")
         self.opendss_dict["NormAmps"] = ampacity_amps.magnitude
 
-    def map_loading_limit(self):
-        # Not mapped in OpenDSS
-        pass

@@ -1,16 +1,15 @@
 from gdm.quantities import (
-    PositiveCurrent,
+    PositiveResistancePULength, 
     PositiveDistance,
-    PositiveResistancePULength,
+    PositiveCurrent,
     PositiveVoltage,
 )
-from gdm import ConcentricCableEquipment
+from gdm.distribution.equipment import ConcentricCableEquipment
 from pydantic import PositiveInt
 import opendssdirect as odd
 from loguru import logger
 
 from ditto.readers.opendss.common import query_model_data, get_equipment_from_catalog
-
 
 def get_cables_equipment() -> list[ConcentricCableEquipment]:
     """Method returns a list of ConcentricCableEquipment objects
@@ -73,7 +72,6 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
             conductor_diameter=PositiveDistance(diam if diam else gmr / 0.7788, f"{radius_units}"),
             conductor_gmr=PositiveDistance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
             rated_voltage=PositiveVoltage(12.47, "volts"),
-            loading_limit=None,
             name=model_type,
         )
 

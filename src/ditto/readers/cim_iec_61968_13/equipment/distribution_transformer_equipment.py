@@ -1,7 +1,7 @@
 from gdm.distribution.equipment.distribution_transformer_equipment import (
     DistributionTransformerEquipment,
 )
-from gdm import SequencePair
+from gdm.distribution.common import SequencePair
 
 from ditto.readers.cim_iec_61968_13.equipment.winding_equipment import WindingEquipmentMapper
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper

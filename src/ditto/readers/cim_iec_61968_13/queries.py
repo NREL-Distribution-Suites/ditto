@@ -326,10 +326,10 @@ def _get_bus_base_voltages(data: pd.DataFrame) -> pd.DataFrame:
     filt_data = pd.DataFrame(filt_data_arr, columns=filt_data.columns)
     dtype_mapping = {"node": str, "xfmr_voltage": float, "line_voltage": float}
     filt_data = filt_data.astype(dtype_mapping)
-    filt_data["nominal_voltage"] = filt_data[["xfmr_voltage", "line_voltage"]].max(axis=1)
-    filt_data = filt_data[["node", "nominal_voltage"]]
+    filt_data["rated_voltage"] = filt_data[["xfmr_voltage", "line_voltage"]].max(axis=1)
+    filt_data = filt_data[["node", "rated_voltage"]]
     filt_data.drop_duplicates(inplace=True)
-    filt_data_final = filt_data.groupby("node", as_index=False)["nominal_voltage"].max()
+    filt_data_final = filt_data.groupby("node", as_index=False)["rated_voltage"].max()
     filt_data_final.index = filt_data_final["node"]
     filt_data_final.drop("node", axis=1, inplace=True)
     return filt_data_final
@@ -481,7 +481,7 @@ def query_transformer_windings(graph: Graph) -> pd.DataFrame:
 def query_capacitors(graph: Graph) -> pd.DataFrame:
     columns = [
         "capacitor",
-        "nominal_voltage",
+        "rated_voltage",
         "conn",
         "bus",
         "b1",
@@ -493,13 +493,13 @@ def query_capacitors(graph: Graph) -> pd.DataFrame:
     ]
 
     query = """
-    SELECT  ?cap_name ?nominal_voltage ?conn ?node_name ?b1 ?g1 ?b0 ?g0 ?phase ?steps
+    SELECT  ?cap_name ?rated_voltage ?conn ?node_name ?b1 ?g1 ?b0 ?g0 ?phase ?steps
     WHERE {
         ?cap rdf:type cim:LinearShuntCompensator  .
         ?cap cim:IdentifiedObject.name ?cap_name .
         ?cap cim:ShuntCompensator.phaseConnection ?conn .
         ?cap cim:ConductingEquipment.BaseVoltage ?base_voltage .
-        ?base_voltage cim:BaseVoltage.nominalVoltage ?nominal_voltage .
+        ?base_voltage cim:BaseVoltage.nominalVoltage ?rated_voltage .
         ?term rdf:type cim:Terminal .
         ?term cim:Terminal.ConductingEquipment ?cap .
         ?term cim:Terminal.ConnectivityNode ?node .
@@ -525,7 +525,7 @@ def query_capacitors(graph: Graph) -> pd.DataFrame:
 def query_source(graph: Graph) -> pd.DataFrame:
     columns = [
         "source",
-        "nominal_voltage",
+        "rated_voltage",
         "src_voltage",
         "src_angle",
         "r1",
@@ -536,12 +536,12 @@ def query_source(graph: Graph) -> pd.DataFrame:
     ]
 
     query = """
-    SELECT  ?src_name ?nominal_voltage ?src_voltage ?src_angle ?r1 ?x1 ?r0 ?x0 ?node_name
+    SELECT  ?src_name ?rated_voltage ?src_voltage ?src_angle ?r1 ?x1 ?r0 ?x0 ?node_name
     WHERE {
         ?src rdf:type cim:EnergySource .
         ?src cim:IdentifiedObject.name ?src_name .
 
-        ?src cim:EnergySource.nominalVoltage ?nominal_voltage .
+        ?src cim:EnergySource.nominalVoltage ?rated_voltage .
         ?src cim:EnergySource.voltageMagnitude ?src_voltage .
         ?src cim:EnergySource.voltageAngle ?src_angle .
 
@@ -565,7 +565,7 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         "load",
         "active power",
         "reactive power",
-        "nominal_voltage",
+        "rated_voltage",
         "grounded",
         "phase",
         "conn",
@@ -581,7 +581,7 @@ def query_loads(graph: Graph) -> pd.DataFrame:
     ]
 
     query = """
-    SELECT  ?load_name ?p ?q ?nominal_voltage ?is_grounded ?phase ?conn ?node_name ?z_p ?i_p ?p_p ?z_q ?i_q ?p_q ?p_exp ?q_exp
+    SELECT  ?load_name ?p ?q ?rated_voltage ?is_grounded ?phase ?conn ?node_name ?z_p ?i_p ?p_p ?z_q ?i_q ?p_q ?p_exp ?q_exp
     WHERE {
         ?load rdf:type cim:EnergyConsumer .
         ?load cim:IdentifiedObject.name ?load_name .
@@ -589,7 +589,7 @@ def query_loads(graph: Graph) -> pd.DataFrame:
         ?load cim:EnergyConsumer.q ?q .
         ?load cim:EnergyConsumer.phaseConnection ?conn .
         ?load cim:ConductingEquipment.BaseVoltage ?base_voltage .
-        ?base_voltage cim:BaseVoltage.nominalVoltage ?nominal_voltage .
+        ?base_voltage cim:BaseVoltage.nominalVoltage ?rated_voltage .
         ?load cim:EnergyConsumer.grounded ?is_grounded .
         OPTIONAL {
             ?phs_load rdf:type cim:EnergyConsumerPhase .

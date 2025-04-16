@@ -5,15 +5,17 @@ from typing import Any
 
 
 from altdss_schema import altdss_models
-from gdm import (
+from gdm.distribution.components import (
     DistributionVoltageSource,
     DistributionComponentBase,
-    ConcentricCableEquipment,
     DistributionTransformer,
     DistributionBranchBase,
-    BareConductorEquipment,
     MatrixImpedanceSwitch,
     DistributionBus,
+)
+from gdm.distribution.equipment import (
+    ConcentricCableEquipment,
+    BareConductorEquipment,
 )
 from loguru import logger
 
@@ -50,7 +52,7 @@ class Writer(AbstractWriter):
         voltage_bases = []
         buses: list[DistributionBus] = list(self.system.get_components(DistributionBus))
         for bus in buses:
-            voltage_bases.append(bus.nominal_voltage.to("kilovolt").magnitude * 1.732)
+            voltage_bases.append(bus.rated_voltage.to("kilovolt").magnitude * 1.732)
         return list(set(voltage_bases))
 
     def write(  # noqa

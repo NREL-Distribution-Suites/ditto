@@ -1,9 +1,7 @@
-from gdm import (
-    RegulatorController,
-    PositiveVoltage,
-    DistributionBus,
-    Time,
-)
+from gdm.distribution.controllers import RegulatorController
+from gdm.distribution.components import DistributionBus
+from gdm.quantities import PositiveVoltage
+from infrasys.quantities import Time
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 from ditto.readers.cim_iec_61968_13.common import phase_mapper

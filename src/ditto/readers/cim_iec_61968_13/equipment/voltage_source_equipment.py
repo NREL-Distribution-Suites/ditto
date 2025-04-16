@@ -1,4 +1,4 @@
-from gdm import VoltageSourceEquipment, PhaseVoltageSourceEquipment
+from gdm.distribution.equipment import VoltageSourceEquipment, PhaseVoltageSourceEquipment
 from gdm.quantities import Resistance, Reactance, Angle, Voltage
 from math import pi
 

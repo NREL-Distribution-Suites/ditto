@@ -1,13 +1,15 @@
 from uuid import uuid4
 
-from gdm import (
+from gdm.quantities import ActivePower, ReactivePower
+from gdm.distribution.enums import ConnectionType
+from gdm.distribution.components import (
     DistributionBus,
     DistributionLoad,
-    PhaseLoadEquipment,
-    LoadEquipment,
-    ConnectionType,
 )
-from gdm.quantities import ActivePower, ReactivePower
+from gdm.distribution.equipment import (
+    PhaseLoadEquipment,
+    LoadEquipment,  
+)
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger

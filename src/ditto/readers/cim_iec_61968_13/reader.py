@@ -1,18 +1,18 @@
 from pathlib import Path
 
-from gdm import (
-    MatrixImpedanceBranchEquipment,
+from gdm.distribution.equipment import MatrixImpedanceBranchEquipment
+from gdm.distribution.controllers import RegulatorController
+from gdm.distribution import DistributionSystem
+from gdm.distribution.components import (
     DistributionComponentBase,
     DistributionVoltageSource,
     DistributionTransformer,
     MatrixImpedanceBranch,
     DistributionCapacitor,
-    RegulatorController,
-    DistributionSystem,
-    DistributionLoad,
-    DistributionBus,
     DistributionRegulator,
     MatrixImpedanceSwitch,
+    DistributionLoad,
+    DistributionBus,
 )
 from loguru import logger
 from rdflib import Graph
@@ -37,6 +37,8 @@ from ditto.readers.reader import AbstractReader
 
 
 class Reader(AbstractReader):
+
+    #NOTE:  Do not change sequnce of the component types below.
     component_types: DistributionComponentBase = [
         DistributionBus,
         DistributionLoad,

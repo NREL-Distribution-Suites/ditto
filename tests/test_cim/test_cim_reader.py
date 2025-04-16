@@ -61,7 +61,7 @@ def get_metrics(dss_model_path: Path | str):
     return base_metrics
 
 
-def test_query_aclinesegment(ieee13_node_xml_file):
+def test_query_aclinesegment(ieee13_node_xml_file, fixed_tmp_path):
     ieee13_node_dss_file = (
         Path(__file__).parent.parent / "data" / "opendss_circuit_models" / "ieee13" / "Master.dss"
     )
@@ -70,9 +70,8 @@ def test_query_aclinesegment(ieee13_node_xml_file):
     cim_reader.read()
     system = cim_reader.get_system()
     writer = Writer(system)
-    new_dss_file = Path(__file__).parent / "model"
-    writer.write(output_path=new_dss_file, separate_substations=False, separate_feeders=False)
-    post_converion_metrics = get_metrics(new_dss_file / "Master.dss")
+    writer.write(output_path=fixed_tmp_path, separate_substations=False, separate_feeders=False)
+    post_converion_metrics = get_metrics(fixed_tmp_path / "Master.dss")
     assert np.allclose(
         pre_converion_metrics, post_converion_metrics, rtol=0.1, atol=0.1
     ), "Round trip coversion exceeds error tolerance"

@@ -12,7 +12,6 @@ class DistributionVoltageSourceMapper(CimMapper):
         super().__init__(system)
 
     def parse(self, row):
-        print(row)
         return DistributionVoltageSource(
             name=self.map_name(row),
             bus=self.map_bus(row),

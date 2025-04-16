@@ -1,4 +1,6 @@
-from gdm import DistributionBus, DistributionRegulator, Phase, RegulatorController
+from gdm.distribution.components import DistributionBus, DistributionRegulator
+from gdm.distribution.controllers import RegulatorController
+from gdm.distribution.enums import Phase
 
 from ditto.readers.cim_iec_61968_13.equipment.distribution_transformer_equipment import (
     DistributionTransformerEquipmentMapper,

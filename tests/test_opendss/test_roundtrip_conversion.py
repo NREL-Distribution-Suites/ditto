@@ -78,20 +78,18 @@ def get_metrics(dss_model_path: Path | str):
 
 
 @pytest.mark.parametrize("DSS_MODEL", TEST_MODELS)
-def test_opendss_roundtrip_converion(DSS_MODEL):
+def test_opendss_roundtrip_converion(DSS_MODEL, fixed_tmp_path):
     pre_converion_metrics = get_metrics(DSS_MODEL)
     reader = Reader(DSS_MODEL)
     writer = Writer(reader.get_system())
-    export_path = test_folder / "dump_from_tests"
-
-    csv_files = glob.glob(os.path.join(export_path, "*.dss"))
+    csv_files = glob.glob(os.path.join(fixed_tmp_path, "*.dss"))
     for file in csv_files:
         os.remove(file)
         logger.debug(f"Deleted: {file}")
 
-    assert export_path.exists(), f"Export path: {export_path}"
-    writer.write(export_path, separate_substations=False, separate_feeders=False)
-    dss_master_file = export_path / OpenDSSFileTypes.MASTER_FILE.value
+    assert fixed_tmp_path.exists(), f"Export path: {fixed_tmp_path}"
+    writer.write(fixed_tmp_path, separate_substations=False, separate_feeders=False)
+    dss_master_file = fixed_tmp_path / OpenDSSFileTypes.MASTER_FILE.value
     assert dss_master_file.exists()
     post_converion_metrics = get_metrics(dss_master_file)
     assert np.allclose(

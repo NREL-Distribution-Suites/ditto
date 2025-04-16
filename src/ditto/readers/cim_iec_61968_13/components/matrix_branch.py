@@ -1,5 +1,6 @@
-from gdm import PositiveDistance, MatrixImpedanceBranch, MatrixImpedanceBranchEquipment
-from gdm.distribution.components.distribution_bus import DistributionBus
+from gdm.distribution.components import MatrixImpedanceBranch, DistributionBus
+from gdm.distribution.equipment import MatrixImpedanceBranchEquipment
+from gdm.quantities import PositiveDistance
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 from ditto.readers.cim_iec_61968_13.common import phase_mapper

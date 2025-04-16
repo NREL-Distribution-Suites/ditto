@@ -1,5 +1,5 @@
 from gdm.quantities import PositiveCurrent, PositiveDistance, PositiveResistancePULength
-from gdm import BareConductorEquipment
+from gdm.distribution.equipment import BareConductorEquipment
 import opendssdirect as odd
 from loguru import logger
 
@@ -41,7 +41,6 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
             ampacity=PositiveCurrent(
                 query_model_data(model_type, model_name, "normamps", float), "ampere"
             ),
-            loading_limit=None,
             name=model_name,
         )
 

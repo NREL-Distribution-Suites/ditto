@@ -1,4 +1,4 @@
-from gdm import DistributionBus, DistributionVoltageSource
+from gdm.distribution.components import DistributionBus, DistributionVoltageSource
 
 from ditto.readers.cim_iec_61968_13.equipment.voltage_source_equipment import (
     VoltageSourceEquipmentMapper,

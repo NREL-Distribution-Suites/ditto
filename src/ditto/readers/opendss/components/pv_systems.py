@@ -1,14 +1,20 @@
 from uuid import uuid4
 
-from gdm import (
-    PowerfactorInverterController,
-    DistributionInverter,
+from gdm.distribution.enums import VoltageTypes
+from gdm.quantities import PositiveVoltage
+from gdm.distribution.components import DistributionSolar, DistributionBus
+from gdm.distribution.equipment import (
     InverterEquipment,
-    DistributionSolar,
-    DistributionBus,
     SolarEquipment,
 )
-from gdm.quantities import PositiveActivePower, PositiveApparentPower
+from gdm.quantities import (
+    PositiveApparentPower,
+    PositiveActivePower,
+    ReactivePower,
+    Irradiance,
+)
+
+
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
@@ -41,16 +47,24 @@ def _build_pv_equipment(
     equipment_uuid = uuid4()
     buses = odd.CktElement.BusNames()
     num_phase = odd.CktElement.NumPhases()
-    kva_ac = odd.PVsystems.kVARated()
+    # kva_ac = odd.PVsystems.kVARated()
     kw_dc = odd.PVsystems.Pmpp()
     nodes = buses[0].split(".")[1:] if num_phase != 3 else ["1", "2", "3"]
+    live_nodes = [node for node in nodes if node != "0"]
+
+    voltage_type = (
+        VoltageTypes.LINE_TO_GROUND
+        if num_phase == 1 and len(live_nodes)
+        else VoltageTypes.LINE_TO_LINE
+    )
 
     solar_equipment = SolarEquipment(
         name=str(equipment_uuid),
-        rated_capacity=PositiveActivePower(kva_ac, "kilova"),
-        solar_power=PositiveActivePower(kw_dc, "kilova"),
+        rated_power=PositiveActivePower(kw_dc, "kilova"),
         resistance=float(query(r"%r")),
         reactance=float(query(r"%x")),
+        rated_voltage=PositiveVoltage(float(query(r"kv")), "kilovolt"),
+        voltage_type=voltage_type,
     )
     solar_equipment = get_equipment_from_catalog(solar_equipment, solar_equipment_catalog)
     return solar_equipment, buses, nodes
@@ -85,22 +99,20 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
             name=solar_name,
             bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],
-            inverter=DistributionInverter(
-                name=solar_name + "_inverter",
-                controller=PowerfactorInverterController(
-                    name=str(uuid4()),
-                    power_factor=1.0,
-                ),
-                equipment=InverterEquipment(
-                    name=str(uuid4()),
-                    capacity=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
-                    rise_limit=None,
-                    fall_limit=None,
-                    eff_curve=None,
-                    cutout_percent=float(query(r"%cutout")),
-                    cutin_percent=float(query(r"%cutin")),
-                ),
+            irradiance=Irradiance(odd.PVsystems.Irradiance(), "kilowatt/meter**2"),
+            active_power=PositiveActivePower(odd.PVsystems.kW(), "kilowatt"),
+            reactive_power=ReactivePower(odd.PVsystems.kvar(), "kilovar"),
+            inverter=InverterEquipment(
+                name=str(uuid4()),
+                rated_apparent_power=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
+                rise_limit=None,
+                fall_limit=None,
+                eff_curve=None,
+                cutout_percent=float(query(r"%cutout")),
+                cutin_percent=float(query(r"%cutin")),
+                dc_to_ac_efficiency=float(query(r"%pmpp")),
             ),
+            controller=None,
             equipment=solar_equipment,
         )
         profile_names = [odd.PVsystems.daily(), odd.PVsystems.yearly(), odd.PVsystems.duty()]

@@ -1,7 +1,7 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
-from gdm import RegulatorController
+from gdm.distribution.controllers import RegulatorController
 
 
 class RegulatorControllerMapper(OpenDSSMapper):

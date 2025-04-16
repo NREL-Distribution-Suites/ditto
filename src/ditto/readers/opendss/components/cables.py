@@ -1,10 +1,10 @@
 from gdm.quantities import (
-    PositiveCurrent,
-    PositiveDistance,
     PositiveResistancePULength,
+    PositiveDistance,
+    PositiveCurrent,
     PositiveVoltage,
 )
-from gdm import ConcentricCableEquipment
+from gdm.distribution.equipment import ConcentricCableEquipment
 from pydantic import PositiveInt
 import opendssdirect as odd
 from loguru import logger
@@ -73,7 +73,6 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
             conductor_diameter=PositiveDistance(diam if diam else gmr / 0.7788, f"{radius_units}"),
             conductor_gmr=PositiveDistance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
             rated_voltage=PositiveVoltage(12.47, "volts"),
-            loading_limit=None,
             name=model_type,
         )
 

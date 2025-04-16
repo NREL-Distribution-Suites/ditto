@@ -1,10 +1,8 @@
-from gdm import (
-    MatrixImpedanceBranchEquipment,
+from gdm.distribution.equipment import MatrixImpedanceBranchEquipment
+from gdm.quantities import (
     CapacitancePULength,
     ResistancePULength,
     PositiveCurrent,
-    ThermalLimitSet,
-    LimitType,
 )
 import numpy as np
 
@@ -22,7 +20,6 @@ class MatrixImpedanceBranchEquipmentMapper(CimMapper):
             x_matrix=self.map_x_matrix(row),
             c_matrix=self.map_c_matrix(row),
             ampacity=self.map_ampacity(row),
-            loading_limit=self.map_loading_limit(row),
         )
 
     def _array_to_matrix(self, array, n):
@@ -57,8 +54,3 @@ class MatrixImpedanceBranchEquipmentMapper(CimMapper):
 
     def map_ampacity(self, row):
         return PositiveCurrent(row["ampacity_normal"], "ampere")
-
-    def map_loading_limit(self, row):
-        return ThermalLimitSet(
-            value=PositiveCurrent(row["ampacity_emergency"], "ampere"), limit_type=LimitType.MAX
-        )

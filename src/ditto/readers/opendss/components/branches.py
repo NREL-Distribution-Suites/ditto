@@ -13,9 +13,8 @@ from gdm.quantities import (
     Current,
 )
 
-from gdm.distribution.curve import TimeCurrentCurve
-
-from gdm import (
+from gdm.distribution.common import TimeCurrentCurve, ThermalLimitSet
+from gdm.distribution.equipment import (
     MatrixImpedanceRecloserEquipment,
     MatrixImpedanceSwitchEquipment,
     MatrixImpedanceBranchEquipment,
@@ -23,14 +22,15 @@ from gdm import (
     ConcentricCableEquipment,
     GeometryBranchEquipment,
     BareConductorEquipment,
+)
+from gdm.distribution.components import (
     MatrixImpedanceSwitch,
     MatrixImpedanceBranch,
     MatrixImpedanceFuse,
     DistributionBus,
-    ThermalLimitSet,
     GeometryBranch,
-    Phase,
 )
+from gdm.distribution.enums import Phase
 
 from infrasys.quantities import Distance
 import opendssdirect as odd
@@ -81,7 +81,7 @@ def get_geometry_branch_equipments(
         conductor_elements = []
 
         for i, wire in enumerate(wires):
-            odd.Text.Command(f"LineGeometry.{geometry_name}.cond={i+1}")
+            odd.Text.Command(f"LineGeometry.{geometry_name}.cond={i + 1}")
             odd.Text.Command(f"? LineGeometry.{geometry_name}.h")
             y_coordinates.append(float(odd.Text.Result()))
             odd.Text.Command(f"? LineGeometry.{geometry_name}.x")
@@ -142,13 +142,6 @@ def _build_matrix_branch(
     module: odd.LineCodes | odd.Lines = getattr(odd, model_type)
 
     num_phase = module.Phases()
-    thermal_limits = ThermalLimitSet(
-        limit_type="max",
-        value=PositiveCurrent(module.EmergAmps(), "ampere"),
-    )
-
-    thermal_limits = get_equipment_from_catalog(thermal_limits, thermal_limit_catalog)
-
     length_units = UNIT_MAPPER[module.Units().value]
 
     r_matrix = module.RMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Rmatrix()
@@ -169,7 +162,6 @@ def _build_matrix_branch(
             f"nanofarad/{length_units}",
         ),
         "ampacity": PositiveCurrent(module.NormAmps(), "ampere"),
-        "loading_limit": thermal_limits,
     }
     if model_class == MatrixImpedanceSwitchEquipment:
         # TODO: implement switch controller logic here

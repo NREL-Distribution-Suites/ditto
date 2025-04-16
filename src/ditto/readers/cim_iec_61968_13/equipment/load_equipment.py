@@ -1,7 +1,7 @@
-from gdm.distribution.equipment.phase_load_equipment import PhaseLoadEquipment
-from gdm.distribution.equipment.load_equipment import LoadEquipment
+from gdm.distribution.equipment import PhaseLoadEquipment, LoadEquipment
+from gdm.distribution.components import DistributionBus
 from gdm.quantities import ActivePower, ReactivePower
-from gdm import ConnectionType, DistributionBus
+from gdm.distribution.enums import ConnectionType
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 from ditto.readers.cim_iec_61968_13.common import phase_mapper

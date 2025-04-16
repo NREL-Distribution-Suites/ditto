@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from gdm import DistributionSystem
-from gdm import SequencePair
+from gdm.distribution.common import SequencePair
+from gdm.distribution import DistributionSystem
 import opendssdirect as odd
 from loguru import logger
 from infrasys import Component

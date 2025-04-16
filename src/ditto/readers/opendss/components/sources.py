@@ -1,13 +1,11 @@
 from uuid import uuid4
 
-from gdm.distribution.equipment.phase_voltagesource_equipment import PhaseVoltageSourceEquipment
-
-from gdm import (
-    DistributionBus,
-    # PhaseVoltageSourceEquipment,
-    VoltageSourceEquipment,
+from gdm.distribution.equipment import PhaseVoltageSourceEquipment, VoltageSourceEquipment
+from gdm.distribution.components import (
     DistributionVoltageSource,
+    DistributionBus,
 )
+
 from infrasys.quantities import Angle, Resistance, Voltage
 from gdm.quantities import Reactance
 import opendssdirect as odd

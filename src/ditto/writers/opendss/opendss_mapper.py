@@ -1,4 +1,4 @@
-from abc import ABC, abstractproperty
+from abc import ABC, abstractmethod
 from infrasys import Component
 
 
@@ -23,17 +23,20 @@ class OpenDSSMapper(ABC):
         self.substation = ""
         self.feeder = ""
 
-        @abstractproperty
+        @property
+        @abstractmethod
         def opendss_file():
             """Return the OpenDSS file."""
             pass
 
-        @abstractproperty
+        @property
+        @abstractmethod
         def altdss_name():
             """Return the name of the AltDSS class which defines the object."""
             pass
 
-        @abstractproperty
+        @property
+        @abstractmethod
         def altdss_composition_name():
             """Return the name of the AltDSS class which constructs the object through composition"""
             pass

@@ -1,4 +1,5 @@
-""" Module for testing parsers."""
+"""Module for testing parsers."""
+
 from pathlib import Path
 
 import pytest
@@ -13,10 +14,9 @@ OPENDSS_CASEFILES = list(opendss_circuit_models.rglob("Master.dss"))
 
 
 @pytest.mark.parametrize("opendss_file", OPENDSS_CASEFILES)
-def test_serialize_opendss_model(opendss_file: Path, tmp_path):
+def test_serialize_opendss_model(opendss_file: Path, fixed_tmp_path):
     example_name = opendss_file.parent.name
-    # export_path = Path(tmp_path) / example_name
-    export_path = base_path / "dump_from_tests" / example_name
+    export_path = Path(fixed_tmp_path) / example_name
     if not export_path.exists():
         export_path.mkdir(parents=True, exist_ok=True)
     parser = Reader(opendss_file)

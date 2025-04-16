@@ -1,19 +1,14 @@
 from uuid import uuid4
 
-from gdm import (
-    DistributionBus,
-    DistributionCapacitor,
-    CapacitorEquipment,
-    PhaseCapacitorEquipment,
-    ConnectionType,
-)
+from gdm.distribution.enums import VoltageTypes, ConnectionType
+from gdm.distribution.components import DistributionCapacitor, DistributionBus
+from gdm.distribution.equipment import PhaseCapacitorEquipment, CapacitorEquipment
 from gdm.quantities import (
     PositiveReactivePower,
     PositiveResistance,
     PositiveReactance,
     PositiveVoltage,
 )
-from gdm.distribution.distribution_enum import VoltageTypes
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
@@ -55,7 +50,7 @@ def _build_capacitor_source_equipment(
     for el in nodes:
         phase_capacitor = PhaseCapacitorEquipment(
             name=f"{equipment_uuid}_{el}",
-            rated_capacity=PositiveReactivePower(kvar_ / len(nodes), "kilovar"),
+            rated_reactive_power=PositiveReactivePower(kvar_ / len(nodes), "kilovar"),
             num_banks=odd.Capacitors.NumSteps(),
             num_banks_on=sum(odd.Capacitors.States()),
             resistance=PositiveResistance(0, "ohm"),
@@ -70,7 +65,7 @@ def _build_capacitor_source_equipment(
         name=str(equipment_uuid),
         phase_capacitors=ph_caps,
         connection_type=ConnectionType.DELTA if odd.Capacitors.IsDelta() else ConnectionType.STAR,
-        nominal_voltage=PositiveVoltage(odd.Capacitors.kV(), "kilovolt"),
+        rated_voltage=PositiveVoltage(odd.Capacitors.kV(), "kilovolt"),
         voltage_type=voltage_type,
     )
 

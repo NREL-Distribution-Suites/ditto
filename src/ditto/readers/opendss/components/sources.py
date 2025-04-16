@@ -1,9 +1,6 @@
 from uuid import uuid4
 
-from gdm.distribution.equipment import (
-    PhaseVoltageSourceEquipment,
-    VoltageSourceEquipment
-)
+from gdm.distribution.equipment import PhaseVoltageSourceEquipment, VoltageSourceEquipment
 from gdm.distribution.components import (
     DistributionVoltageSource,
     DistributionBus,

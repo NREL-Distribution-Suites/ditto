@@ -1,7 +1,7 @@
-""" Module for testing writers."""
+"""Module for testing writers."""
 
 from gdm.distribution import DistributionSystem
-from gdm.distribution.components import  (
+from gdm.distribution.components import (
     DistributionVoltageSource,
     DistributionTransformer,
     SequenceImpedanceBranch,

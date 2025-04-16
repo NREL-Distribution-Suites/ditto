@@ -45,5 +45,3 @@ class SequenceImpedanceBranchEquipmentMapper(OpenDSSMapper):
     def map_ampacity(self):
         ampacity_amps = self.model.ampacity.to("ampere")
         self.opendss_dict["NormAmps"] = ampacity_amps.magnitude
-
-

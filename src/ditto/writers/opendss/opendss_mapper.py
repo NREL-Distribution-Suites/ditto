@@ -23,19 +23,19 @@ class OpenDSSMapper(ABC):
         self.substation = ""
         self.feeder = ""
 
-        @property  
+        @property
         @abstractmethod
         def opendss_file():
             """Return the OpenDSS file."""
             pass
 
-        @property  
+        @property
         @abstractmethod
         def altdss_name():
             """Return the name of the AltDSS class which defines the object."""
             pass
 
-        @property  
+        @property
         @abstractmethod
         def altdss_composition_name():
             """Return the name of the AltDSS class which constructs the object through composition"""

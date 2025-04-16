@@ -1,9 +1,9 @@
-from gdm.distribution import  DistributionSystem
+from gdm.distribution import DistributionSystem
 from gdm.distribution.enums import Phase
 from gdm.distribution.components import (
     DistributionTransformer,
     DistributionBranchBase,
-    DistributionCapacitor, 
+    DistributionCapacitor,
     DistributionSolar,
     DistributionLoad,
 )
@@ -118,10 +118,7 @@ def _get_components_in_subgraph(
     xfmr_phases_filtered = []
     split_phases = [Phase.S1, Phase.S2]
     xfmr_phases_filtered = [
-        phase
-        for phase_lists in secondary_wdg_phases
-        for phase in phase_lists
-        if phase != Phase.N
+        phase for phase_lists in secondary_wdg_phases for phase in phase_lists if phase != Phase.N
     ]
     mapped_split_phases = {k: v for k, v in zip(xfmr_phases_filtered, split_phases)}
     _fix_bus_phases(hv_xfmr_bus, mapped_split_phases, subgraph, system)

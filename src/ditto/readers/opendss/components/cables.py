@@ -1,5 +1,5 @@
 from gdm.quantities import (
-    PositiveResistancePULength, 
+    PositiveResistancePULength,
     PositiveDistance,
     PositiveCurrent,
     PositiveVoltage,
@@ -10,6 +10,7 @@ import opendssdirect as odd
 from loguru import logger
 
 from ditto.readers.opendss.common import query_model_data, get_equipment_from_catalog
+
 
 def get_cables_equipment() -> list[ConcentricCableEquipment]:
     """Method returns a list of ConcentricCableEquipment objects

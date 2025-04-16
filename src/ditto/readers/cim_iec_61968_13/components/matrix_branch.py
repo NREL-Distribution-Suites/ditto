@@ -5,6 +5,7 @@ from gdm.quantities import PositiveDistance
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 from ditto.readers.cim_iec_61968_13.common import phase_mapper
 
+
 class MatrixImpedanceBranchMapper(CimMapper):
     def __init__(self, system):
         super().__init__(system)

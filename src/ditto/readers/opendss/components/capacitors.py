@@ -1,19 +1,13 @@
 from uuid import uuid4
 
 from gdm.distribution.enums import VoltageTypes, ConnectionType
-from gdm.distribution.components import (
-    DistributionCapacitor,
-    DistributionBus
-)
-from gdm.distribution.equipment import (
-    PhaseCapacitorEquipment,
-    CapacitorEquipment
-)
+from gdm.distribution.components import DistributionCapacitor, DistributionBus
+from gdm.distribution.equipment import PhaseCapacitorEquipment, CapacitorEquipment
 from gdm.quantities import (
     PositiveReactivePower,
     PositiveResistance,
     PositiveReactance,
-    PositiveVoltage
+    PositiveVoltage,
 )
 from infrasys.system import System
 import opendssdirect as odd

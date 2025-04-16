@@ -23,7 +23,7 @@ from gdm.distribution.equipment import (
     GeometryBranchEquipment,
     BareConductorEquipment,
 )
-from gdm.distribution.components import(
+from gdm.distribution.components import (
     MatrixImpedanceSwitch,
     MatrixImpedanceBranch,
     MatrixImpedanceFuse,
@@ -81,7 +81,7 @@ def get_geometry_branch_equipments(
         conductor_elements = []
 
         for i, wire in enumerate(wires):
-            odd.Text.Command(f"LineGeometry.{geometry_name}.cond={i+1}")
+            odd.Text.Command(f"LineGeometry.{geometry_name}.cond={i + 1}")
             odd.Text.Command(f"? LineGeometry.{geometry_name}.h")
             y_coordinates.append(float(odd.Text.Result()))
             odd.Text.Command(f"? LineGeometry.{geometry_name}.x")
@@ -142,11 +142,6 @@ def _build_matrix_branch(
     module: odd.LineCodes | odd.Lines = getattr(odd, model_type)
 
     num_phase = module.Phases()
-    thermal_limits = ThermalLimitSet(
-        limit_type="max",
-        value=PositiveCurrent(module.EmergAmps(), "ampere"),
-    )
-
     length_units = UNIT_MAPPER[module.Units().value]
 
     r_matrix = module.RMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Rmatrix()

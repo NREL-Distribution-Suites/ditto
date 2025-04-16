@@ -8,7 +8,7 @@ from gdm.distribution.components import (
 )
 from gdm.distribution.equipment import (
     PhaseLoadEquipment,
-    LoadEquipment,  
+    LoadEquipment,
 )
 from infrasys.system import System
 import opendssdirect as odd

@@ -44,4 +44,3 @@ class BareConductorEquipmentMapper(OpenDSSMapper):
     def map_emergency_ampacity(self):
         ampacity_amps = self.model.ampacity.to("ampere")
         self.opendss_dict["EmergAmps"] = ampacity_amps.magnitude
-

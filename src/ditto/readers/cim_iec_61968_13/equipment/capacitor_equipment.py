@@ -40,9 +40,7 @@ class CapacitorEquipmentMapper(CimMapper):
         phase_loads = []
         n_phases = len(self.phases)
         voltage = (
-            float(row["rated_voltage"])
-            if n_phases == 3
-            else float(row["rated_voltage"]) / 1.732
+            float(row["rated_voltage"]) if n_phases == 3 else float(row["rated_voltage"]) / 1.732
         )
         b1 = float(row["b1"])
         var = voltage**2 * b1

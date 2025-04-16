@@ -37,8 +37,7 @@ from ditto.readers.reader import AbstractReader
 
 
 class Reader(AbstractReader):
-
-    #NOTE:  Do not change sequnce of the component types below.
+    # NOTE:  Do not change sequnce of the component types below.
     component_types: DistributionComponentBase = [
         DistributionBus,
         DistributionLoad,
@@ -108,13 +107,13 @@ class Reader(AbstractReader):
                     logger.warning(f"Mapper for {mapper_name} not found. Skipping")
                 if datasets[component_type].empty:
                     logger.warning(
-                        f"Dataframe for { component_type.__name__} is empty. Check query."
+                        f"Dataframe for {component_type.__name__} is empty. Check query."
                     )
                 for _, row in datasets[component_type].iterrows():
                     model_entry = mapper.parse(row)
                     components.append(model_entry)
             else:
-                logger.warning(f"Dataframe for { component_type.__name__} not found. Skipping")
+                logger.warning(f"Dataframe for {component_type.__name__} not found. Skipping")
             self.system.add_components(*components)
         logger.info("System summary: ", self.system.info())
 

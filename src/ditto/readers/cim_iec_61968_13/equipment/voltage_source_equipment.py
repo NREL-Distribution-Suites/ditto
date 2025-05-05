@@ -1,6 +1,8 @@
+from math import pi
+
 from gdm.distribution.equipment import VoltageSourceEquipment, PhaseVoltageSourceEquipment
 from gdm.quantities import Resistance, Reactance, Angle, Voltage
-from math import pi
+from gdm.distribution.enums import VoltageTypes
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 
@@ -37,6 +39,7 @@ class PhaseVoltageSourceEquipmentMapper(CimMapper):
             x0=self.map_x0(row),
             x1=self.map_x1(row),
             voltage=self.map_voltage(row),
+            voltage_type=VoltageTypes.LINE_TO_GROUND,
             angle=self.map_angle(row),
         )
 

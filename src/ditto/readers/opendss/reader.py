@@ -66,6 +66,7 @@ class Reader(AbstractReader):
         odd.Text.Command("Clear")
         odd.Basic.ClearAll()
         odd.Text.Command(f'Redirect "{self.Opendss_master_file}"')
+        odd.Text.Command("Solve")
         logger.debug(f"Model loaded from {self.Opendss_master_file}.")
 
         odd.Solution.Solve()

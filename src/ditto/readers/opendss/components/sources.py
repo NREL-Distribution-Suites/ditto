@@ -5,6 +5,7 @@ from gdm.distribution.components import (
     DistributionVoltageSource,
     DistributionBus,
 )
+from gdm.distribution.enums import VoltageTypes
 
 from infrasys.quantities import Angle, Resistance, Voltage
 from gdm.quantities import Reactance
@@ -38,7 +39,7 @@ def _build_voltage_source_equipment(
     soure_name = odd.Vsources.Name().lower()
     buses = odd.CktElement.BusNames()
     num_phase = odd.CktElement.NumPhases()
-    nodes = buses[0].split(".")[1:] if num_phase != 3 else ["1", "2", "3"]
+    nodes = buses[0].split(".")[1:] if "." in buses[0] else ["1", "2", "3"]
     angle = odd.Vsources.AngleDeg()
     angles = [Angle(angle + i * (360.0 / num_phase), "degree") for i in range(num_phase)]
     phase_slacks = []
@@ -59,6 +60,7 @@ def _build_voltage_source_equipment(
             x1=Reactance(phase_src_properties["x1"], "ohm"),
             angle=angle,
             voltage=voltage / 1.732 if num_phase == 3 else voltage,
+            voltage_type=VoltageTypes.LINE_TO_GROUND,
         )
         phase_slack = get_equipment_from_catalog(
             phase_slack, phase_voltage_source_equipment_catalog

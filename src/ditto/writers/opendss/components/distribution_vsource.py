@@ -1,3 +1,5 @@
+from gdm.distribution.enums import VoltageTypes
+
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
@@ -51,7 +53,17 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         rated_voltage = rated_voltage.to("kilovolt")
         angle = angle.to("degree")
 
-        v_mag = voltage.magnitude if num_phases == 1 else voltage.magnitude * 1.732
+        if self.model.equipment.sources[0].voltage_type == VoltageTypes.LINE_TO_GROUND:
+            if num_phases == 1:
+                v_mag = voltage.magnitude
+            else:
+                v_mag = voltage.magnitude * 1.732
+        else:
+            if num_phases == 1:
+                v_mag = voltage.magnitude / 1.732
+            else:
+                v_mag = voltage.magnitude
+
         v_nom = rated_voltage.magnitude if num_phases == 1 else rated_voltage.magnitude * 1.732
         self.opendss_dict["Angle"] = angle.magnitude
         self.opendss_dict["pu"] = v_mag / v_nom

@@ -1,6 +1,7 @@
 from infrasys.location import Location
 from gdm.distribution.components.distribution_bus import DistributionBus
-from gdm import VoltageTypes, Phase, PositiveVoltage
+from gdm.distribution.enums import VoltageTypes, Phase
+from gdm.quantities import PositiveVoltage
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 
 

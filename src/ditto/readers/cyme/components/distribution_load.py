@@ -2,15 +2,15 @@ from ditto.readers.cyme.cyme_mapper import CymeMapper
 from ditto.readers.cyme.equipment.load_equipment import LoadEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_load import DistributionLoad
-from gdm import Phase
+from gdm.distribution.enums import Phase
 from loguru import logger
 
 class DistributionLoadMapper(CymeMapper):
     def __init__(self, system):
         super().__init__(system)
 
-    cyme_file = 'Network'  
-    cyme_section = "LOAD EQUIVALENT"
+    cyme_file = 'Load'  
+    cyme_section = 'LOADS'
 
 
     def parse(self, row):

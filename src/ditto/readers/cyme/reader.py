@@ -1,5 +1,5 @@
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
-from gdm import DistributionSystem
+from gdm.distribution.distribution_system import DistributionSystem
 from ditto.readers.reader import AbstractReader
 from ditto.readers.cyme.utils import read_cyme_data
 import ditto.readers.cyme as cyme_mapper

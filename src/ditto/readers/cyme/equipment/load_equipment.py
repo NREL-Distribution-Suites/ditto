@@ -3,7 +3,7 @@ from ditto.readers.cyme.cyme_mapper import CymeMapper
 from gdm.distribution.equipment.load_equipment import LoadEquipment
 from gdm.distribution.equipment.phase_load_equipment import PhaseLoadEquipment
 from gdm.quantities import ActivePower, ReactivePower
-from gdm.distribution.distribution_enum import ConnectionType
+from gdm.distribution.enums import ConnectionType
 
 class LoadEquipmentMapper(CymeMapper):
     def __init__(self, system):

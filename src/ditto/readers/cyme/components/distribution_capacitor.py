@@ -3,7 +3,7 @@ from ditto.readers.cyme.cyme_mapper import CymeMapper
 from ditto.readers.cyme.equipment.capacitor_equipment import CapacitorEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_capacitor import DistributionCapacitor
-from gdm import Phase
+from gdm.distribution.enums import Phase
 from loguru import logger
 
 class DistributionCapacitorMapper(CymeMapper):

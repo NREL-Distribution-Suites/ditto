@@ -2,8 +2,7 @@ from ditto.readers.cyme.cyme_mapper import CymeMapper
 from gdm.quantities import PositiveReactivePower, PositiveResistance, PositiveReactance
 from gdm.distribution.equipment.phase_capacitor_equipment import PhaseCapacitorEquipment
 from gdm.distribution.equipment.capacitor_equipment import CapacitorEquipment
-from gdm.distribution.distribution_enum import VoltageTypes
-from gdm import ConnectionType
+from gdm.distribution.enums import VoltageTypes, ConnectionType
 from gdm.quantities import PositiveVoltage
 
 class CapacitorEquipmentMapper(CymeMapper):

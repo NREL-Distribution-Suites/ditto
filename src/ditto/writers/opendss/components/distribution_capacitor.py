@@ -1,4 +1,4 @@
-from gdm import ConnectionType
+from gdm.distribution.enums import ConnectionType
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes

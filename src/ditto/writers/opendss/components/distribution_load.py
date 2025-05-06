@@ -1,4 +1,4 @@
-from gdm import ConnectionType
+from gdm.distribution.enums import ConnectionType
 
 from gdm.quantities import ActivePower, ReactivePower
 

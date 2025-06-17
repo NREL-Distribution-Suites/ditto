@@ -1,7 +1,7 @@
 from gdm.distribution.components import DistributionBus
 from gdm.distribution.common import VoltageLimitSet
 from gdm.distribution.enums import VoltageTypes
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 from infrasys.location import Location
 import opendssdirect as odd
 from loguru import logger
@@ -33,14 +33,14 @@ def get_buses(crs: str = None) -> list[DistributionBus]:
 
         voltage_lower_bound = VoltageLimitSet(
             limit_type="min",
-            value=PositiveVoltage(rated_voltage * 0.95, "kilovolt"),
+            value=Voltage(rated_voltage * 0.95, "kilovolt"),
         )
         voltage_lower_bound = get_equipment_from_catalog(
             voltage_lower_bound, voltage_limit_set_catalog
         )
         voltage_upper_bound = VoltageLimitSet(
             limit_type="max",
-            value=PositiveVoltage(rated_voltage * 1.05, "kilovolt"),
+            value=Voltage(rated_voltage * 1.05, "kilovolt"),
         )
         voltage_upper_bound = get_equipment_from_catalog(
             voltage_upper_bound, voltage_limit_set_catalog
@@ -48,10 +48,10 @@ def get_buses(crs: str = None) -> list[DistributionBus]:
 
         limitsets = [voltage_lower_bound, voltage_upper_bound]
         buses.append(
-            DistributionBus(
+            DistributionBus.model_construct(
                 voltage_type=VoltageTypes.LINE_TO_GROUND.value,
                 name=bus,
-                rated_voltage=PositiveVoltage(rated_voltage, "kilovolt"),
+                rated_voltage=Voltage(rated_voltage, "kilovolt"),
                 phases=[PHASE_MAPPER[str(node)] for node in odd.Bus.Nodes()],
                 coordinate=loc,
                 voltagelimits=limitsets,

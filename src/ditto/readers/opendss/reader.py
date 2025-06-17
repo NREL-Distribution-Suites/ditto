@@ -2,9 +2,13 @@ from pathlib import Path
 
 from gdm.distribution.common import SequencePair
 from gdm.distribution import DistributionSystem
+
+from pydantic import ValidationError
+from rich.console import Console
+from infrasys import Component
+from rich.table import Table
 import opendssdirect as odd
 from loguru import logger
-from infrasys import Component
 
 from ditto.readers.opendss.components.conductors import get_conductors_equipment
 from ditto.readers.opendss.components.cables import get_cables_equipment
@@ -33,6 +37,8 @@ SEQUENCE_PAIRS = [SequencePair(1, 2), SequencePair(1, 3), SequencePair(2, 3)]
 class Reader(AbstractReader):
     """Class interface for Opendss case file reader"""
 
+    validation_errors = []
+
     def __init__(self, Opendss_master_file: Path, crs: str | None = None) -> None:
         """Constructor for the Opendss reader
 
@@ -48,7 +54,23 @@ class Reader(AbstractReader):
 
     def _add_components(self, components: list[Component]):
         """Internal method to add components to the system."""
+
         if components:
+            for component in components:
+                try:
+                    component.__class__.model_validate(component.model_dump())
+                except ValidationError as e:
+                    for error in e.errors():
+                        self.validation_errors.append(
+                            [
+                                component.name,
+                                component.__class__.__name__,
+                                error["loc"][0] if error["loc"] else "On model validation",
+                                error["type"],
+                                error["msg"],
+                            ]
+                        )
+
             self.system.add_components(*components)
 
     def _read(self):
@@ -114,6 +136,7 @@ class Reader(AbstractReader):
         logger.debug("Updating graph to fix split phase representation...")
         update_split_phase_nodes(graph, self.system)
         logger.debug("System update complete...")
+        self._validate_model()
 
     def get_system(self) -> DistributionSystem:
         """Returns an instance of DistributionSystem
@@ -123,3 +146,24 @@ class Reader(AbstractReader):
         """
 
         return self.system
+
+    def _validate_model(self):
+        if self.validation_errors:
+            error_table = Table(title="Validation warning summary")
+            error_table.add_column("Model", justify="right", style="cyan", no_wrap=True)
+            error_table.add_column("Type", style="green")
+            error_table.add_column("Field", justify="right", style="bright_magenta")
+            error_table.add_column("Error", style="bright_red")
+            error_table.add_column("Message", justify="right", style="turquoise2")
+
+            for row in self.validation_errors:
+                print(row)
+                error_table.add_row(*row)
+
+            console = Console()
+            console.print(error_table)
+            raise Exception(
+                "Validations errors occured when running the script. See the table above"
+            )
+
+        ...

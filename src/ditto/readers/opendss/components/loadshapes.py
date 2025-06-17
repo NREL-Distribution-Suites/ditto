@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from gdm.distribution.components import (
-    DistributionLoad,
     DistributionVoltageSource,
     DistributionSolar,
+    DistributionLoad,
 )
 from infrasys.normalization import NormalizationMax, NormalizationByValue
 from gdm.quantities import ActivePower, ReactivePower, Irradiance

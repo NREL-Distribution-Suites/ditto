@@ -4,10 +4,10 @@ from gdm.distribution.enums import VoltageTypes, ConnectionType
 from gdm.distribution.components import DistributionCapacitor, DistributionBus
 from gdm.distribution.equipment import PhaseCapacitorEquipment, CapacitorEquipment
 from gdm.quantities import (
-    PositiveReactivePower,
-    PositiveResistance,
-    PositiveReactance,
-    PositiveVoltage,
+    ReactivePower,
+    Resistance,
+    Reactance,
+    Voltage,
 )
 from infrasys.system import System
 import opendssdirect as odd
@@ -48,24 +48,24 @@ def _build_capacitor_source_equipment(
     )
 
     for el in nodes:
-        phase_capacitor = PhaseCapacitorEquipment(
+        phase_capacitor = PhaseCapacitorEquipment.model_construct(
             name=f"{equipment_uuid}_{el}",
-            rated_reactive_power=PositiveReactivePower(kvar_ / len(nodes), "kilovar"),
+            rated_reactive_power=ReactivePower(kvar_ / len(nodes), "kilovar"),
             num_banks=odd.Capacitors.NumSteps(),
             num_banks_on=sum(odd.Capacitors.States()),
-            resistance=PositiveResistance(0, "ohm"),
-            reactance=PositiveReactance(0, "ohm"),
+            resistance=Resistance(0, "ohm"),
+            reactance=Reactance(0, "ohm"),
         )
         phase_capacitor = get_equipment_from_catalog(
             phase_capacitor, phase_capacitor_equipment_catalog
         )
         ph_caps.append(phase_capacitor)
 
-    capacitor_equipment = CapacitorEquipment(
+    capacitor_equipment = CapacitorEquipment.model_construct(
         name=str(equipment_uuid),
         phase_capacitors=ph_caps,
         connection_type=ConnectionType.DELTA if odd.Capacitors.IsDelta() else ConnectionType.STAR,
-        rated_voltage=PositiveVoltage(odd.Capacitors.kV(), "kilovolt"),
+        rated_voltage=Voltage(odd.Capacitors.kV(), "kilovolt"),
         voltage_type=voltage_type,
     )
 
@@ -97,7 +97,7 @@ def get_capacitors(system: System) -> list[DistributionCapacitor]:
         )
         bus1 = buses[0].split(".")[0]
         capacitors.append(
-            DistributionCapacitor(
+            DistributionCapacitor.model_construct(
                 name=odd.Capacitors.Name().lower(),
                 bus=system.get_component(DistributionBus, bus1),
                 phases=[PHASE_MAPPER[el] for el in nodes],

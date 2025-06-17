@@ -56,14 +56,14 @@ def _build_load_equipment() -> tuple[LoadEquipment, list[str], str, list[str]]:
         else:
             msg = f"Invalid load model type {model} passed. valid options are {LoadTypes}"
             raise ValueError(msg)
-        load = PhaseLoadEquipment(
+        load = PhaseLoadEquipment.model_construct(
             name=f"{equipment_uuid}_{el}",
             real_power=ActivePower(kw_per_phase, "kilowatt"),
             reactive_power=ReactivePower(kvar_per_phase, "kilovar"),
             **zip_params_dict,
         )
         ph_loads.append(load)
-    load_equipment = LoadEquipment(
+    load_equipment = LoadEquipment.model_construct(
         name=str(uuid4()),
         phase_loads=ph_loads,
         connection_type=ConnectionType.DELTA if odd.Loads.IsDelta() else ConnectionType.STAR,
@@ -103,7 +103,7 @@ def get_loads(system: System) -> list[DistributionLoad]:
         bus1 = buses[0].split(".")[0]
         profile_names = [odd.Loads.Daily(), odd.Loads.Yearly(), odd.Loads.Duty()]
         profiles = build_profiles(profile_names, ObjectsWithProfile.LOAD, profile_catalog)
-        distribution_load = DistributionLoad(
+        distribution_load = DistributionLoad.model_construct(
             name=load_name,
             bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],

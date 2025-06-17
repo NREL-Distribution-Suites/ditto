@@ -4,7 +4,7 @@ from typing import Any
 from uuid import uuid4
 from enum import Enum
 
-from gdm.quantities import PositiveApparentPower, PositiveVoltage
+from gdm.quantities import ApparentPower, Voltage
 from gdm.distribution.common import SequencePair
 from gdm.distribution.components import (
     DistributionTransformer,
@@ -101,13 +101,13 @@ def _build_xfmr_equipment(
         num_taps = query("numtaps", int)
         taps = query("taps", list)
         tap = [taps[wdg_index]] * num_phase
-        winding = WindingEquipment(
-            rated_power=PositiveApparentPower(query("kva", float), "kilova"),
+        winding = WindingEquipment.model_construct(
+            rated_power=ApparentPower(query("kva", float), "kilova"),
             num_phases=num_phase,
             connection_type=ConnectionType.DELTA
             if query("conn", str).lower() == "delta"
             else ConnectionType.STAR,
-            rated_voltage=PositiveVoltage(rated_voltage, "kilovolt"),
+            rated_voltage=Voltage(rated_voltage, "kilovolt"),
             resistance=query("%r", float),
             is_grounded=False,  # TODO: Should be moved to the transformer model. Only known once the transformer is installed
             voltage_type=VoltageTypes.LINE_TO_GROUND,
@@ -122,7 +122,7 @@ def _build_xfmr_equipment(
     coupling_sequences = SEQUENCE_PAIRS[:1] if number_windings == 2 else SEQUENCE_PAIRS
     reactances = all_reactances[:1] if number_windings == 2 else all_reactances
 
-    dist_transformer = DistributionTransformerEquipment(
+    dist_transformer = DistributionTransformerEquipment.model_construct(
         name=equipment_uuid,
         pct_no_load_loss=query(r"%noloadloss", float),
         pct_full_load_loss=query(r"%loadloss", float),
@@ -199,7 +199,7 @@ def get_transformers(
             distribution_transformer_equipment_catalog,
             winding_equipment_catalog,
         )
-        transformer = DistributionTransformer(
+        transformer = DistributionTransformer.model_construct(
             name=odd.Transformers.Name().lower(),
             buses=buses,
             winding_phases=phases,

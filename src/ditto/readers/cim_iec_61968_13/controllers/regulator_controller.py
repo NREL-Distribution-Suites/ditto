@@ -1,6 +1,6 @@
 from gdm.distribution.controllers import RegulatorController
 from gdm.distribution.components import DistributionBus
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 from infrasys.quantities import Time
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
@@ -50,13 +50,13 @@ class RegulatorControllerMapper(CimMapper):
         return Time(float(row["initial_delay"]), "second")
 
     def map_vsetpoint(self, row):
-        return PositiveVoltage(float(row["target"]), "volt")
+        return Voltage(float(row["target"]), "volt")
 
     def min_v_limit(self, row):
-        return PositiveVoltage(float(row["min_voltage"]), "volt")
+        return Voltage(float(row["min_voltage"]), "volt")
 
     def max_v_limit(self, row):
-        return PositiveVoltage(float(row["max_voltage"]), "volt")
+        return Voltage(float(row["max_voltage"]), "volt")
 
     def map_pt_ratio(self, row):
         return float(row["pt_ratio"])
@@ -74,4 +74,4 @@ class RegulatorControllerMapper(CimMapper):
         return 5
 
     def map_bandwidth(self, row):
-        return PositiveVoltage(float(row["deadband"]), "volt")
+        return Voltage(float(row["deadband"]), "volt")

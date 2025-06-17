@@ -1,4 +1,4 @@
-from gdm.quantities import PositiveCurrent, PositiveDistance, PositiveResistancePULength
+from gdm.quantities import Current, Distance, ResistancePULength
 from gdm.distribution.equipment import BareConductorEquipment
 import opendssdirect as odd
 from loguru import logger
@@ -26,19 +26,19 @@ def get_conductors_equipment() -> list[BareConductorEquipment]:
         length_units = query_model_data(model_type, model_name, "runits", str)
         gmr = query_model_data(model_type, model_name, "gmr", float)
         diam = query_model_data(model_type, model_name, "diam", float)
-        conductor = BareConductorEquipment(
-            emergency_ampacity=PositiveCurrent(
+        conductor = BareConductorEquipment.model_construct(
+            emergency_ampacity=Current(
                 query_model_data(model_type, model_name, "emergamps", float), "ampere"
             ),
-            conductor_diameter=PositiveDistance(diam if diam else gmr / 0.7788, f"{radius_units}"),
-            conductor_gmr=PositiveDistance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
-            ac_resistance=PositiveResistancePULength(
+            conductor_diameter=Distance(diam if diam else gmr / 0.7788, f"{radius_units}"),
+            conductor_gmr=Distance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
+            ac_resistance=ResistancePULength(
                 query_model_data(model_type, model_name, "rac", float), f"ohms/{length_units}"
             ),
-            dc_resistance=PositiveResistancePULength(
+            dc_resistance=ResistancePULength(
                 query_model_data(model_type, model_name, "rdc", float), f"ohms/{length_units}"
             ),
-            ampacity=PositiveCurrent(
+            ampacity=Current(
                 query_model_data(model_type, model_name, "normamps", float), "ampere"
             ),
             name=model_name,

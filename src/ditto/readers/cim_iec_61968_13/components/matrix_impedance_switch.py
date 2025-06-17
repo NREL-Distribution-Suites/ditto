@@ -1,5 +1,5 @@
 from gdm.distribution.components import MatrixImpedanceSwitch, DistributionBus
-from gdm.quantities import PositiveDistance
+from gdm.quantities import Distance
 from gdm.distribution.equipment import (
     MatrixImpedanceSwitchEquipment,
     MatrixImpedanceBranchEquipment,
@@ -19,7 +19,7 @@ class MatrixImpedanceSwitchMapper(CimMapper):
         return MatrixImpedanceSwitch(
             name=self.map_name(row),
             buses=self.map_buses(row),
-            length=PositiveDistance(1, "m"),
+            length=Distance(1, "m"),
             phases=self.map_phases(row),
             equipment=self.map_equipment(row),
             is_closed=self.map_is_closed(row),
@@ -41,7 +41,7 @@ class MatrixImpedanceSwitchMapper(CimMapper):
 
     def map_length(self, row):
         length = float(row["length"])
-        return PositiveDistance(length, "m")
+        return Distance(length, "m")
 
     def map_phases(self, row):
         return self.bus_2.phases

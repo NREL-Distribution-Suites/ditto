@@ -1,8 +1,8 @@
-from gdm.quantities import PositiveReactivePower, PositiveResistance, PositiveReactance
+from gdm.quantities import ReactivePower, Resistance, Reactance
 from gdm.distribution.equipment.phase_capacitor_equipment import PhaseCapacitorEquipment
 from gdm.distribution.equipment.capacitor_equipment import CapacitorEquipment
 from gdm.distribution.enums import ConnectionType, VoltageTypes
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 
@@ -34,7 +34,7 @@ class CapacitorEquipmentMapper(CimMapper):
         return VoltageTypes.LINE_TO_LINE if n_phases == 3 else VoltageTypes.LINE_TO_LINE
 
     def map_rated_voltage(self, row):
-        return PositiveVoltage(float(row["rated_voltage"]), "volt")
+        return Voltage(float(row["rated_voltage"]), "volt")
 
     def map_phase_capacitors(self, row):
         phase_loads = []
@@ -75,15 +75,15 @@ class PhaseCapacitorEquipmentMapper(CimMapper):
 
     # Resistance and Reactance not included for capacitors
     def map_resistance(self):
-        return PositiveResistance(0, "ohm")
+        return Resistance(0, "ohm")
 
     # Resistance and Reactance not included for capacitors
     def map_reactance(self):
-        return PositiveReactance(0, "ohm")
+        return Reactance(0, "ohm")
 
     # TODO: This doesn't make sense. We should have fixed and switched values
     def map_rated_reactive_power(self, var_per_phase):
-        return PositiveReactivePower(var_per_phase, "var")
+        return ReactivePower(var_per_phase, "var")
 
     # TODO: This doesn't make sense. This should indicate if the bank is switched
     def map_num_banks_on(self, row):

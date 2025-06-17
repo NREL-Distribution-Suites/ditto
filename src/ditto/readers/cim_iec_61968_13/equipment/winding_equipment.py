@@ -1,5 +1,5 @@
 from gdm.distribution.enums import VoltageTypes, ConnectionType, Phase
-from gdm.quantities import PositiveVoltage, PositiveApparentPower
+from gdm.quantities import Voltage, ApparentPower
 from gdm.distribution.equipment import WindingEquipment
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
@@ -79,16 +79,16 @@ class WindingEquipmentMapper(CimMapper):
     def map_rated_voltage(self, row, winding_number):
         voltage = float(row[f"wdg_{winding_number}_rated_voltage"])
         if self.n_phases > 1:
-            return PositiveVoltage(voltage / 1.732, "volt")
+            return Voltage(voltage / 1.732, "volt")
         else:
-            return PositiveVoltage(voltage, "volt")
+            return Voltage(voltage, "volt")
 
     def map_voltage_type(self, row, winding_number):
         return VoltageTypes.LINE_TO_GROUND
 
     def map_rated_power(self, row, winding_number):
         rated_power = float(row[f"wdg_{winding_number}_apparent_power"])
-        return PositiveApparentPower(rated_power, "va")
+        return ApparentPower(rated_power, "va")
 
     def map_num_phases(self, row, winding_number):
         return self.n_phases

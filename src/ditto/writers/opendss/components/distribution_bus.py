@@ -37,3 +37,6 @@ class DistributionBusMapper(OpenDSSMapper):
     def map_voltage_type(self):
         # Handled in map_rated_voltage
         return
+
+    def map_in_service(self):
+        return

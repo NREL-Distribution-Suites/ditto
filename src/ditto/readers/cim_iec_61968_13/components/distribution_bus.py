@@ -1,6 +1,6 @@
 from gdm.distribution.components import DistributionBus
 from gdm.distribution.common import VoltageLimitSet
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 from infrasys.location import Location
 from gdm.distribution.enums import (
     VoltageTypes,
@@ -38,7 +38,7 @@ class DistributionBusMapper(CimMapper):
 
     # Nominal voltage is only defined by transformers
     def map_rated_voltage(self, row):
-        return PositiveVoltage(float(row["rated_voltage"]) / 1.732, "volt")
+        return Voltage(float(row["rated_voltage"]) / 1.732, "volt")
 
     def map_phases(self, row):
         phases = row["phase"].split(",")
@@ -49,11 +49,11 @@ class DistributionBusMapper(CimMapper):
         return [
             VoltageLimitSet(
                 limit_type=LimitType.MIN,
-                value=PositiveVoltage(float(row["rated_voltage"]) * 0.95, "volt"),
+                value=Voltage(float(row["rated_voltage"]) * 0.95, "volt"),
             ),
             VoltageLimitSet(
                 limit_type=LimitType.MAX,
-                value=PositiveVoltage(float(row["rated_voltage"]) * 1.05, "volt"),
+                value=Voltage(float(row["rated_voltage"]) * 1.05, "volt"),
             ),
         ]
 

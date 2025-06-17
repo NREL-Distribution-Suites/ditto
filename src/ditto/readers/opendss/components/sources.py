@@ -52,7 +52,7 @@ def _build_voltage_source_equipment(
 
     for node, angle in zip(nodes, angles):
         voltage = Voltage(odd.Vsources.BasekV() * odd.Vsources.PU(), "kilovolt")
-        phase_slack = PhaseVoltageSourceEquipment(
+        phase_slack = PhaseVoltageSourceEquipment.model_construct(
             name=f"{equipment_uuid}_{node}",
             r0=Resistance(phase_src_properties["r0"], "ohm"),
             r1=Resistance(phase_src_properties["r1"], "ohm"),
@@ -68,7 +68,7 @@ def _build_voltage_source_equipment(
 
         phase_slacks.append(phase_slack)
 
-    slack_equipment = VoltageSourceEquipment(
+    slack_equipment = VoltageSourceEquipment.model_construct(
         name=str(equipment_uuid),
         sources=phase_slacks,
     )
@@ -105,7 +105,7 @@ def get_voltage_sources(system: System) -> list[DistributionVoltageSource]:
 
         profile_names = [query("yearly"), query("daily"), query("duty")]
         profiles = build_profiles(profile_names, ObjectsWithProfile.SOURCE, profile_catalog)
-        voltage_source = DistributionVoltageSource(
+        voltage_source = DistributionVoltageSource.model_construct(
             name=soure_name,
             bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],

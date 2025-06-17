@@ -2,7 +2,7 @@ from gdm.distribution.equipment import MatrixImpedanceBranchEquipment
 from gdm.quantities import (
     CapacitancePULength,
     ResistancePULength,
-    PositiveCurrent,
+    Current,
 )
 import numpy as np
 
@@ -53,4 +53,4 @@ class MatrixImpedanceBranchEquipmentMapper(CimMapper):
         return CapacitancePULength(c_matrix, "F/m")
 
     def map_ampacity(self, row):
-        return PositiveCurrent(row["ampacity_normal"], "ampere")
+        return Current(row["ampacity_normal"], "ampere")

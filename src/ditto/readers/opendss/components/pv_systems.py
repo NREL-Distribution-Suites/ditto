@@ -1,15 +1,15 @@
 from uuid import uuid4
 
 from gdm.distribution.enums import VoltageTypes
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 from gdm.distribution.components import DistributionSolar, DistributionBus
 from gdm.distribution.equipment import (
     InverterEquipment,
     SolarEquipment,
 )
 from gdm.quantities import (
-    PositiveApparentPower,
-    PositiveActivePower,
+    ApparentPower,
+    ActivePower,
     ReactivePower,
     Irradiance,
 )
@@ -58,12 +58,12 @@ def _build_pv_equipment(
         else VoltageTypes.LINE_TO_LINE
     )
 
-    solar_equipment = SolarEquipment(
+    solar_equipment = SolarEquipment.model_construct(
         name=str(equipment_uuid),
-        rated_power=PositiveActivePower(kw_dc, "kilova"),
+        rated_power=ActivePower(kw_dc, "kilova"),
         resistance=float(query(r"%r")),
         reactance=float(query(r"%x")),
-        rated_voltage=PositiveVoltage(float(query(r"kv")), "kilovolt"),
+        rated_voltage=Voltage(float(query(r"kv")), "kilovolt"),
         voltage_type=voltage_type,
     )
     solar_equipment = get_equipment_from_catalog(solar_equipment, solar_equipment_catalog)
@@ -95,16 +95,16 @@ def get_pvsystems(system: System) -> list[DistributionSolar]:
 
         solar_equipment, buses, nodes = _build_pv_equipment(solar_equipment_catalog)
         bus1 = buses[0].split(".")[0]
-        distribution_solar = DistributionSolar(
+        distribution_solar = DistributionSolar.model_construct(
             name=solar_name,
             bus=system.get_component(DistributionBus, bus1),
             phases=[PHASE_MAPPER[el] for el in nodes],
             irradiance=Irradiance(odd.PVsystems.Irradiance(), "kilowatt/meter**2"),
-            active_power=PositiveActivePower(odd.PVsystems.kW(), "kilowatt"),
+            active_power=ActivePower(odd.PVsystems.kW(), "kilowatt"),
             reactive_power=ReactivePower(odd.PVsystems.kvar(), "kilovar"),
-            inverter=InverterEquipment(
+            inverter=InverterEquipment.model_construct(
                 name=str(uuid4()),
-                rated_apparent_power=PositiveApparentPower(odd.PVsystems.kVARated(), "kilova"),
+                rated_apparent_power=ApparentPower(odd.PVsystems.kVARated(), "kilova"),
                 rise_limit=None,
                 fall_limit=None,
                 eff_curve=None,

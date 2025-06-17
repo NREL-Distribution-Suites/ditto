@@ -1,6 +1,6 @@
 from gdm.distribution.components import MatrixImpedanceBranch, DistributionBus
 from gdm.distribution.equipment import MatrixImpedanceBranchEquipment
-from gdm.quantities import PositiveDistance
+from gdm.quantities import Distance
 
 from ditto.readers.cim_iec_61968_13.cim_mapper import CimMapper
 from ditto.readers.cim_iec_61968_13.common import phase_mapper
@@ -31,7 +31,7 @@ class MatrixImpedanceBranchMapper(CimMapper):
 
     def map_length(self, row):
         length = float(row["length"])
-        return PositiveDistance(length, "m")
+        return Distance(length, "m")
 
     def map_phases(self, row):
         phases = row["phases_1"].split(",")

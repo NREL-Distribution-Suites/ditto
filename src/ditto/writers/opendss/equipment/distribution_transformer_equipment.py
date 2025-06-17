@@ -82,3 +82,6 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
 
     def map_is_center_tapped(self):
         pass  # Used on buses
+
+    def map_mounting(self):
+        pass

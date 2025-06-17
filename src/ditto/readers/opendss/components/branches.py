@@ -5,11 +5,10 @@ from infrasys import System, Component
 from infrasys.quantities import Time
 
 from gdm.quantities import (
-    PositiveResistancePULength,
     CapacitancePULength,
+    ResistancePULength,
     ReactancePULength,
-    PositiveDistance,
-    PositiveCurrent,
+    Distance,
     Current,
 )
 
@@ -32,7 +31,6 @@ from gdm.distribution.components import (
 )
 from gdm.distribution.enums import Phase
 
-from infrasys.quantities import Distance
 import opendssdirect as odd
 from loguru import logger
 import numpy as np
@@ -99,7 +97,7 @@ def get_geometry_branch_equipments(
             equipment = equipments[0]
             conductor_elements.append(equipment)
 
-        geometry_branch_equipment = GeometryBranchEquipment(
+        geometry_branch_equipment = GeometryBranchEquipment.model_construct(
             name=model_name,
             conductors=conductor_elements,
             horizontal_positions=Distance(x_coordinates, units),
@@ -147,9 +145,10 @@ def _build_matrix_branch(
     r_matrix = module.RMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Rmatrix()
     x_matrix = module.XMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Xmatrix()
     c_matrix = module.CMatrix() if model_type == MatrixBranchTypes.LINE.value else module.Cmatrix()
+    amps = module.NormAmps() if module.NormAmps() else 0.001
     matrix_branch_dict = {
         "name": equipment_uuid,
-        "r_matrix": PositiveResistancePULength(
+        "r_matrix": ResistancePULength(
             np.reshape(np.array(r_matrix), (num_phase, num_phase)),
             f"ohm/{length_units}",
         ),
@@ -161,7 +160,7 @@ def _build_matrix_branch(
             np.reshape(np.array(c_matrix), (num_phase, num_phase)),
             f"nanofarad/{length_units}",
         ),
-        "ampacity": PositiveCurrent(module.NormAmps(), "ampere"),
+        "ampacity": Current(amps, "ampere"),
     }
     if model_class == MatrixImpedanceSwitchEquipment:
         # TODO: implement switch controller logic here
@@ -171,7 +170,7 @@ def _build_matrix_branch(
         matrix_branch_dict.update(fuse)
     elif model_class == MatrixImpedanceRecloserEquipment:
         matrix_branch_dict.update(recloser)
-    matrix_branch_equipment = model_class(**matrix_branch_dict)
+    matrix_branch_equipment = model_class.model_construct(**matrix_branch_dict)
     matrix_branch_equipment = get_equipment_from_catalog(
         matrix_branch_equipment, matrix_branch_equipments_catalog, model_class.__name__
     )
@@ -287,14 +286,14 @@ def get_branches(
                     bus_obj = system.get_component(DistributionBus, bus)
                     bus_obj.phases.append(Phase.N)
 
-            geometry_branch = GeometryBranch(
+            geometry_branch = GeometryBranch.model_construct(
                 name=odd.Lines.Name().lower(),
                 equipment=geometry_branch_equipment,
                 buses=[
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                length=PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
+                length=Distance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
                 phases=[PHASE_MAPPER[node] for node in nodes],
             )
             branches.append(geometry_branch)
@@ -332,7 +331,7 @@ def get_branches(
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                "length": PositiveDistance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
+                "length": Distance(odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]),
                 "phases": [PHASE_MAPPER[node] for node in nodes],
                 "equipment": equipment,
             }
@@ -341,7 +340,7 @@ def get_branches(
                     not (odd.CktElement.IsOpen(1, node + 1) or odd.CktElement.IsOpen(2, node + 1))
                     for node in range(len(nodes))
                 ]
-            matrix_branch = model_class(**model_dict)
+            matrix_branch = model_class.model_construct(**model_dict)
             branches.append(matrix_branch)
         flag = odd.Lines.Next()
 

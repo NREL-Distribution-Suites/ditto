@@ -1,4 +1,4 @@
-from gdm import Phase
+from gdm.distribution.enums import Phase
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes

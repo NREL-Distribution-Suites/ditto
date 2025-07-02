@@ -1,4 +1,4 @@
-from gdm import ConnectionType
+from gdm.distribution.enums import ConnectionType
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
@@ -21,7 +21,7 @@ class DistributionCapacitorMapper(OpenDSSMapper):
         for phase in self.model.phases:
             self.opendss_dict["Bus1"] += self.phase_map[phase]
         # TODO: Should we include the phases its connected to here?
-        nom_voltage = self.model.bus.nominal_voltage.to("kV").magnitude
+        nom_voltage = self.model.bus.rated_voltage.to("kV").magnitude
         self.opendss_dict["kV"] = nom_voltage if num_phases == 1 else nom_voltage * 1.732
 
     def map_phases(self):
@@ -53,7 +53,7 @@ class DistributionCapacitorMapper(OpenDSSMapper):
             total_resistance.append(phase_capacitor.resistance.to("ohm").magnitude)
             total_reactance.append(phase_capacitor.reactance.to("ohm").magnitude)
             total_rated_capacity.append(
-                phase_capacitor.rated_capacity.to("kvar").magnitude
+                phase_capacitor.rated_reactive_power.to("kvar").magnitude
             )  # from general capacitor equipment
             self.opendss_dict["States"] = [1] * num_banks
         self.opendss_dict["R"] = [sum(total_resistance) / num_banks] * num_banks
@@ -62,3 +62,6 @@ class DistributionCapacitorMapper(OpenDSSMapper):
         self.opendss_dict["kvar"] = [total_kvar_per_bank] * num_banks
 
         # TODO: We're not building equipment for the Capacitors. This means that there's no guarantee that we're addressing all of the attributes in the equipment in a structured way like we are for the component.
+
+    def map_in_service(self):
+        self.opendss_dict["Enabled"] = "Yes" if self.model.in_serivce else "No"

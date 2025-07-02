@@ -6,7 +6,8 @@ from typing import Any
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm import DistributionBus, MatrixImpedanceSwitch
+from gdm.distribution.components.distribution_bus import DistributionBus
+from gdm.distribution.components.matrix_impedance_switch import MatrixImpedanceSwitch
 from altdss_schema import altdss_models
 from loguru import logger
 

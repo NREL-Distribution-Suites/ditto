@@ -14,18 +14,18 @@ class CapacitorEquipmentMapper(CymeMapper):
 
     def parse(self, row, connection):
         name = self.map_name(row)
-        nominal_voltage = self.map_nominal_voltage(row)
+        rated_voltage = self.map_rated_voltage(row)
         phase_capacitors = self.map_phase_capacitors(row)
         voltage_type = self.map_voltage_type(connection)
         return CapacitorEquipment(name=name,
                                   phase_capacitors=phase_capacitors,
-                                  nominal_voltage=nominal_voltage,
+                                  rated_voltage=rated_voltage,
                                   voltage_type=voltage_type)
 
     def map_name(self, row):
         return row["ID"]
     
-    def map_nominal_voltage(self, row):
+    def map_rated_voltage(self, row):
         return PositiveVoltage(float(row["KV"]), "kilovolt")
 
     def map_phase_capacitors(self, row):
@@ -54,9 +54,9 @@ class PhaseCapacitorEquipmentMapper(CymeMapper):
 
     def parse(self, row, phase):
         name = self.map_name(row, phase)
-        rated_capacity = self.map_rated_capacity(row)
+        rated_reactive_power = self.map_rated_reactive_power(row)
         return PhaseCapacitorEquipment(name = name,
-                                       rated_capacity=rated_capacity,
+                                       rated_reactive_power=rated_reactive_power,
                                        num_banks_on=self.num_banks_on)
 
     def map_name(self, row, phase):
@@ -68,5 +68,5 @@ class PhaseCapacitorEquipmentMapper(CymeMapper):
             return row["ID"] + "_C"
 
 
-    def map_rated_capacity(self, row):
+    def map_rated_reactive_power(self, row):
         return PositiveReactivePower(float(row["KVAR"]),'kilovar')

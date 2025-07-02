@@ -1,3 +1,4 @@
+from ditto.readers.cyme.utils import read_cyme_data
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 from ditto.readers.cyme.equipment.load_equipment import LoadEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
@@ -10,14 +11,14 @@ class DistributionLoadMapper(CymeMapper):
         super().__init__(system)
 
     cyme_file = 'Load'  
-    cyme_section = 'LOADS'
+    cyme_section = 'CUSTOMER LOADS'
 
 
-    def parse(self, row):
+    def parse(self, row, section_id_sections, load_file):
         name = self.map_name(row)
-        bus = self.map_bus(row)
+        bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
-        equipment = self.map_equipment(row)
+        equipment = self.map_equipment(row, load_file)
         if len(phases) == 0:
             logger.warning(f"Load {name} has no kW values. Skipping...")
             return None
@@ -27,9 +28,32 @@ class DistributionLoadMapper(CymeMapper):
                                 equipment=equipment)
         
     def map_name(self, row):
-        return row["LoadModelName"]
+        load_phase = row["LoadPhase"]
+        return row["DeviceNumber"]+"_"+str(load_phase)
 
-    def map_bus(self, row):
+    def map_bus(self, row, section_id_sections):
+        section_id = row['SectionID']
+        section = section_id_sections[section_id]
+        from_bus_name = section["FromNodeID"]
+        to_bus_name = section["ToNodeID"]
+        to_bus = None
+        from_bus = None
+        try:
+            from_bus = self.system.get_component(component_type=DistributionBus,name=from_bus_name)
+        except Exception as e:    
+            pass
+
+        try:
+            to_bus = self.system.get_component(component_type=DistributionBus,name=to_bus_name)
+        except Exception as e:
+            pass
+
+        if from_bus is None:
+            return to_bus
+        if from_bus is None:
+            logger.warning(f"Load {section_id} has no bus")
+        return from_bus
+
         bus_name = row["NodeID"]
         bus = None
         try:
@@ -43,15 +67,21 @@ class DistributionLoadMapper(CymeMapper):
 
     def map_phases(self, row):
         phases = []
-        if row['Value1A'] is not None:
-            phases.append(Phase.A)
-        if row['Value1B'] is not None:
-            phases.append(Phase.B)
-        if row['Value1C'] is not None:
-            phases.append(Phase.C)
+        if row['LoadPhase'] is not None:
+            phase = row['LoadPhase']
+            if phase == 'A':
+                phases.append(Phase.A)
+            elif phase == 'B':
+                phases.append(Phase.B)
+            elif phase == 'C':
+                phases.append(Phase.C)
         return phases
 
-    def map_equipment(self, row):
+    def map_equipment(self, row, load_file):
         mapper = LoadEquipmentMapper(self.system)
-        equipment = mapper.parse(row)
-        return equipment
+        equipment_data = read_cyme_data(load_file, mapper.cyme_section)
+        for idx, equipment_row in equipment_data.iterrows():
+            if equipment_row['DeviceNumber'] == row['DeviceNumber']:
+                equipment = mapper.parse(equipment_row, row)
+                return equipment
+        return None

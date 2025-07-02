@@ -12,15 +12,17 @@ class LoadEquipmentMapper(CymeMapper):
     cyme_file = 'Load'
     cyme_section = 'LOADS'
 
-    def parse(self, row):
+    def parse(self, row, network_row):
         name = self.map_name(row)
+        # Connection is not included in LOOADS but in CONSUMER LOADS
         connection_type = self.map_connection_type(row)
-        phase_loads = self.map_phase_loads(row)
+        phase_loads = self.map_phase_loads(network_row)
         return LoadEquipment(name=name,
-                             phase_loads=phase_loads)
+                             phase_loads=phase_loads,
+                             connection_type=connection_type)
 
     def map_name(self, row):
-        return row['LoadModelName']
+        return row['DeviceNumber']
 
     def map_connection_type(self, row):
         connection_number = int(row['Connection'])
@@ -29,7 +31,7 @@ class LoadEquipmentMapper(CymeMapper):
             1: ConnectionType.STAR, #Y
             2: ConnectionType.DELTA, #Delta
             3: ConnectionType.OPEN_DELTA, #Open Delta
-            4: ConnectinType.DELTA, #Closed Delta
+            4: ConnectionType.DELTA, #Closed Delta
             5: ConnectionType.ZIG_ZAG, # Zg
             6: ConnectionType.STAR, # CT
             7: ConnectionType.DELTA, # Dg - Not sure what this is?
@@ -39,12 +41,9 @@ class LoadEquipmentMapper(CymeMapper):
     def map_phase_loads(self, row):
         # Get the PhaseLoadEquipment with the same name as the Load
         name = row['DeviceNumber']
-        phase_loads = []
-        for phase in ['A', 'B', 'C']:
-            phase_load_name = name + '_' + phase
-            phase_load = self.system.get_component(component_type=PhaseLoadEquipment, name=phase_load_name)
-            if phase_load is not None:
-                phase_loads.append(phase_load)
+        phase_load_equipment_mapper = PhaseLoadEquipmentMapper(self.system)
+        phase_load_equipment = phase_load_equipment_mapper.parse(row)
+        phase_loads = [phase_load_equipment]
         return phase_loads
 
 class PhaseLoadEquipmentMapper(CymeMapper):
@@ -56,8 +55,8 @@ class PhaseLoadEquipmentMapper(CymeMapper):
 
     def parse(self, row):
         name = self.map_name(row)
-        real_power = map_real_power(row),
-        reactive_power = map_reactive_power(row),
+        real_power = self.map_real_power(row)
+        reactive_power = self.map_reactive_power(row)
         z_real = self.map_z_real(row)
         z_imag = self.map_z_imag(row)
         i_real = self.map_i_real(row)
@@ -90,10 +89,12 @@ class PhaseLoadEquipmentMapper(CymeMapper):
             kvar = v2
         # kva and pf
         elif value_type == 1:
+            v2 = v2/100.0
             kw = v1 * v2
             kvar = v1 * (1 - v2**2) ** 0.5
         # kw and pf
         elif value_type == 2:
+            v2 = v2/100.0
             kw = v1
             kvar = v1 * (1/v2**2 - 1) ** 0.5
         # amp and pf

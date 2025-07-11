@@ -1,4 +1,5 @@
 from gdm.distribution.equipment import BareConductorEquipment, ConcentricCableEquipment
+from gdm.distribution.enums import WireInsulationType
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
@@ -56,3 +57,12 @@ class GeometryBranchEquipmentMapper(OpenDSSMapper):
                 raise ValueError(f"Unknown conductor type {conductor}")
             all_conductors.append(f"{conductor_type}.{conductor.name}")
         self.opendss_dict["Conductors"] = all_conductors
+
+    def map_insulation(self):
+        for conductor in self.model.conductors:
+            if isinstance(conductor, BareConductorEquipment):
+                self.opendss_dict["EpsR"] = WireInsulationType.AIR.value
+            elif isinstance(conductor, ConcentricCableEquipment):
+                self.opendss_dict["EpsR"] = WireInsulationType.XLPE.value
+            else:
+                raise ValueError(f"Unknown conductor type {conductor}")

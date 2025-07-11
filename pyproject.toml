@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = [
   "opendssdirect.py",
-  "grid-data-models==2.1.0",
+  "grid-data-models==2.1.2",
   "rdflib",
   "NREL-altdss-schema==0.0.1",
 ]
@@ -48,8 +48,6 @@ dev = [
   "pytest",
   "ruff"
 ]
-
-
 
 [tool.pytest.ini_options]
 minversion = "6.0"

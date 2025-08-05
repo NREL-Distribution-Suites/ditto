@@ -6,6 +6,7 @@ from gdm.distribution.components import (
     DistributionCapacitor,
     DistributionSolar,
     DistributionLoad,
+    DistributionBus,
 )
 from networkx import Graph, DiGraph
 
@@ -68,18 +69,11 @@ def _get_split_phase_sub_graph(
         Graph: subgraph for a given distribution transformer
     """
 
-    xfmr_buses = list({bus.name for bus in xfmr.buses})
-    hv_xfmr_bus = (
-        xfmr_buses[1]
-        if xfmr_buses[0] in list(nx.dfs_successors(graph, xfmr_buses[1]))
-        else xfmr_buses[0]
+    xfmr_buses = list(
+        {(bus.name, bus.rated_voltage.to("kilovolt").magnitude) for bus in xfmr.buses}
     )
-    lv_xfmr_bus = (
-        xfmr_buses[0]
-        if xfmr_buses[0] in list(nx.dfs_successors(graph, xfmr_buses[1]))
-        else xfmr_buses[1]
-    )
-
+    hv_xfmr_bus = max(xfmr_buses, key=lambda x: x[1])[0]
+    lv_xfmr_bus = min(xfmr_buses, key=lambda x: x[1])[0]
     xfmr_info = graph[hv_xfmr_bus][lv_xfmr_bus]
     assert (
         xfmr_info["type"] == DistributionTransformer
@@ -137,14 +131,16 @@ def _fix_bus_phases(
         subgraph (Graph): subgraph (downstream) of a split phase dirtribution transformer
         system (DistributionSystem): Instance of an gdm DistributionSystem
     """
+    for u in subgraph.nodes():
+        if u != hv_xfmr_bus:
+            bus = system.get_component(DistributionBus, u)
+            bus.phases = _mapped_phases(mapped_split_phases, bus.phases)
+
     for _, _, data in subgraph.edges(data=True):
         model: DistributionBranchBase = system.get_component(data["type"], data["name"])
         assert issubclass(
             model.__class__, DistributionBranchBase
         ), f"Unsupported model type {model.__class__.__name__}"
-        for bus in model.buses:
-            if bus.name != hv_xfmr_bus:
-                bus.phases = _mapped_phases(mapped_split_phases, bus.phases)
         model.phases = _mapped_phases(mapped_split_phases, model.phases)
 
 

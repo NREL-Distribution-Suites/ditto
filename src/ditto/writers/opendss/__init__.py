@@ -32,3 +32,5 @@ from ditto.writers.opendss.components.distribution_regulator import Distribution
 from ditto.writers.opendss.controllers.distribution_regulator_controller import (
     RegulatorControllerMapper,
 )
+from ditto.writers.opendss.profile import ProfileMapper
+from ditto.writers.opendss.components.distribution_solar import DistributionSolarMapper

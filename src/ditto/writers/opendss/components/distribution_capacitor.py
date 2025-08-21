@@ -1,12 +1,15 @@
 from gdm.distribution.enums import ConnectionType
+from gdm.distribution import DistributionSystem
+from infrasys import Component
+
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionCapacitorMapper(OpenDSSMapper):
-    def __init__(self, model):
-        super().__init__(model)
+    def __init__(self, model: Component, system: DistributionSystem):
+        super().__init__(model, system)
 
     altdss_name = "Capacitor_kvarkV"
     altdss_composition_name = "Capacitor"

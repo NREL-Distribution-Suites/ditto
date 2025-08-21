@@ -1,10 +1,14 @@
+from gdm.distribution import DistributionSystem
+from infrasys import Component
+
+
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionTransformerEquipmentMapper(OpenDSSMapper):
-    def __init__(self, model):
-        super().__init__(model)
+    def __init__(self, model: Component, system: DistributionSystem):
+        super().__init__(model, system)
 
     altdss_name = "XfmrCode_X12X13X23"
     altdss_composition_name = "XfmrCode"

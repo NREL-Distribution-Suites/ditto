@@ -34,11 +34,11 @@ class Writer(AbstractWriter):
         altdss_object = altdss_class.model_validate(model_map.opendss_dict)
         if model_map.altdss_composition_name is not None:
             altdss_composition_class = getattr(altdss_models, model_map.altdss_composition_name)
+
             altdss_composition_object = altdss_composition_class(altdss_object)
             dss_string = altdss_composition_object.dumps_dss()
         else:
             dss_string = altdss_object.dumps_dss()
-
         return dss_string
 
     def prepare_folder(self, output_path):
@@ -70,6 +70,11 @@ class Writer(AbstractWriter):
 
         seen_equipment = set()
         seen_controller = set()
+        seen_profile = set()
+
+        output_redirect = Path("")
+        profiles = self._write_profiles(output_path, seen_profile, output_redirect, base_redirect)
+
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)
@@ -92,7 +97,7 @@ class Writer(AbstractWriter):
                 ):
                     continue
 
-                model_map = mapper(model)
+                model_map = mapper(model, self.system)
                 model_map.populate_opendss_dictionary()
 
                 dss_string = self._get_dss_string(model_map)
@@ -111,7 +116,7 @@ class Writer(AbstractWriter):
                         )
                     else:
                         equipment_mapper = getattr(opendss_mapper, equipment_mapper_name)
-                        equipment_map = equipment_mapper(model.equipment)
+                        equipment_map = equipment_mapper(model.equipment, self.system)
                         equipment_map.populate_opendss_dictionary()
                         equipment_dss_string = self._get_dss_string(equipment_map)
 
@@ -124,13 +129,11 @@ class Writer(AbstractWriter):
                             )
                         else:
                             controller_mapper = getattr(opendss_mapper, controller_mapper_name)
-                            controller_map = controller_mapper(controller, model.name)
+                            controller_map = controller_mapper(controller, model.name, self.system)
                             controller_map.populate_opendss_dictionary()
                             controller_dss_string = self._get_dss_string(controller_map)
 
                 output_folder = output_path
-                output_redirect = Path("")
-
                 self._build_directory_structure(
                     separate_substations,
                     separate_feeders,
@@ -187,6 +190,8 @@ class Writer(AbstractWriter):
                         substations_redirect[model_map.substation].add(
                             Path(equipment_map.opendss_file)
                         )
+                        if profiles:
+                            substations_redirect
 
                 if separate_feeders:
                     combined_feeder_sub = Path(model_map.substation) / Path(model_map.feeder)
@@ -205,6 +210,51 @@ class Writer(AbstractWriter):
         self._write_base_master(base_redirect, output_folder)
         self._write_substation_master(substations_redirect)
         self._write_feeder_master(feeders_redirect)
+
+    def _write_profiles(
+        self, output_folder, seen_profile: set, output_redirect, base_redirect
+    ) -> dict[str, dict[str, list[str]]]:
+        all_profiles = []
+        profile_type = None
+        for component in self.system.iter_all_components():
+            profiles = self.system.list_time_series(component)
+            profile_data = []
+            for profile in profiles:
+                if profile_type is None:
+                    profile_type = profile.__class__
+
+                if not issubclass(profile.__class__, profile_type):
+                    msg = (
+                        f"Profile {profile} is not of type {profile_type}. OpenDSS conversion "
+                        + "requires all profiles to be of the same type. Please check your data model."
+                    )
+                    raise ValueError(msg)
+
+                profile_data.append(
+                    {
+                        "profile": profile,
+                        "metadata": self.system.list_time_series_metadata(
+                            component, profile.variable_name
+                        ),
+                    }
+                )
+            if profile_data:
+                profile_map = opendss_mapper.ProfileMapper(component, profile_data, self.system)
+                profile_map.populate_opendss_dictionary()
+                model_text = self._get_dss_string(profile_map)
+                all_profiles.append(model_text)
+                profile_id = profile_map.substation + profile_map.feeder + model_text
+                if profile_id not in seen_profile:
+                    seen_profile.add(profile_id)
+                    with open(
+                        output_folder / profile_map.opendss_file, "a", encoding="utf-8"
+                    ) as fp:
+                        fp.write(model_text)
+
+                if profile_map is not None:
+                    base_redirect.add(output_redirect / profile_map.opendss_file)
+
+        return all_profiles
 
     def _build_directory_structure(
         self,

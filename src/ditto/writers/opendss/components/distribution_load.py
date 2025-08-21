@@ -1,13 +1,16 @@
 from gdm.quantities import ActivePower, ReactivePower
 from gdm.distribution.enums import ConnectionType
+from gdm.distribution import DistributionSystem
+from infrasys import Component
+
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionLoadMapper(OpenDSSMapper):
-    def __init__(self, model):
-        super().__init__(model)
+    def __init__(self, model: Component, system: DistributionSystem):
+        super().__init__(model, system)
 
     altdss_name = "Load_kWkvar"
     altdss_composition_name = "Load"
@@ -18,7 +21,10 @@ class DistributionLoadMapper(OpenDSSMapper):
 
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
-        # TODO: Want to set the Yearly attribute here, but need to access the system. Is that possible?
+
+        profile_name = self.get_profile_name(self.model)
+        if profile_name:
+            self.opendss_dict["Yearly"] = profile_name
 
     def map_bus(self):
         num_phases = len(self.model.phases)

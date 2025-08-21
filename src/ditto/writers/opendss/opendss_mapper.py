@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+
+from gdm.distribution import DistributionSystem
 from infrasys import Component
 
 
@@ -17,8 +19,9 @@ class OpenDSSMapper(ABC):
     }
     connection_map = {"STAR": "wye", "DELTA": "delta", "OPEN_DELTA": "delta", "OPEN_STAR": "wye"}
 
-    def __init__(self, model):
-        self.model: Component = model
+    def __init__(self, model: Component, system: DistributionSystem):
+        self.model = model
+        self.system = system
         self.opendss_dict = {}
         self.substation = ""
         self.feeder = ""
@@ -65,3 +68,25 @@ class OpenDSSMapper(ABC):
         for field in self.model.model_fields:
             mapping_function = getattr(self, "map_" + field)
             mapping_function()
+
+    def get_profile_name(self, component):
+        profiles = self.system.list_time_series(component)
+        profile_data = []
+        for profile in profiles:
+            profile_data.append(
+                {
+                    "profile": profile,
+                    "metadata": self.system.list_time_series_metadata(
+                        component, profile.variable_name
+                    ),
+                }
+            )
+        if profile_data:
+            metadata = profile_data[0]["metadata"]
+
+            if metadata[0].user_attributes and "profile_name" in metadata[0].user_attributes:
+                profile_name = metadata[0].user_attributes["profile_name"]
+            else:
+                profile_name = str(self.model.uuid)
+
+            return profile_name

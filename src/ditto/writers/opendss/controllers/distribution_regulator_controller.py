@@ -1,7 +1,8 @@
+from gdm.distribution.controllers import RegulatorController
+from gdm.distribution import DistributionSystem
+
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
-
-from gdm.distribution.controllers import RegulatorController
 
 
 class RegulatorControllerMapper(OpenDSSMapper):
@@ -10,8 +11,8 @@ class RegulatorControllerMapper(OpenDSSMapper):
     altdss_composition_name = None
     opendss_file = OpenDSSFileTypes.REGULATOR_CONTROLLERS_FILE.value
 
-    def __init__(self, model: RegulatorController, xfmr_name: str):
-        super().__init__(model)
+    def __init__(self, model: RegulatorController, xfmr_name: str, system: DistributionSystem):
+        super().__init__(model, system)
         self.model: RegulatorController = model
         self.xfmr_name = xfmr_name
 

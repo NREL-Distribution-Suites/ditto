@@ -3,10 +3,13 @@ from gdm.distribution.enums import Phase
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
+from gdm.distribution import DistributionSystem
+from infrasys import Component
+
 
 class DistributionBranchMapper(OpenDSSMapper):
-    def __init__(self, model):
-        super().__init__(model)
+    def __init__(self, model: Component, system: DistributionSystem):
+        super().__init__(model, system)
 
     altdss_name = "Line_Common"
     altdss_composition_name = "Line"

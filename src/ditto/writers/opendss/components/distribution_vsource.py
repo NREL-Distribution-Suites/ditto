@@ -1,12 +1,15 @@
 from gdm.distribution.enums import VoltageTypes
+from gdm.distribution import DistributionSystem
+from infrasys import Component
+
 
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
 
 
 class DistributionVoltageSourceMapper(OpenDSSMapper):
-    def __init__(self, model):
-        super().__init__(model)
+    def __init__(self, model: Component, system: DistributionSystem):
+        super().__init__(model, system)
 
     altdss_name = "Vsource_Z0Z1Z2"
     altdss_composition_name = "Vsource"
@@ -17,6 +20,10 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
 
     def map_name(self):
         self.opendss_dict["Name"] = self.model.name
+
+        profile_name = self.get_profile_name(self.model)
+        if profile_name:
+            self.opendss_dict["Yearly"] = profile_name
 
     def map_bus(self):
         self.opendss_dict["Bus1"] = self.model.bus.name

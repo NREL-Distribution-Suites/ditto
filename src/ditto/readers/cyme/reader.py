@@ -1,4 +1,4 @@
-from gdm.quantities import Distance, PositiveCurrent, PositiveResistancePULength
+from gdm.quantities import Distance, Current, ResistancePULength
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
 from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm.distribution.distribution_system import DistributionSystem
@@ -16,7 +16,9 @@ class Reader(AbstractReader):
         "DistributionLoad",
         "BareConductorEquipment",
         "GeometryBranchEquipment",
+        "GeometryBranchByPhaseEquipment",
         "GeometryBranch",
+        "GeometryBranchByPhase",
         "DistributionTransformerEquipment",
         "DistributionTransformer"
     ]
@@ -35,30 +37,25 @@ class Reader(AbstractReader):
             name="Default",
             conductor_diameter=Distance(0.368000,'inch').to('mm'), 
             conductor_gmr=Distance(0.133200,'inch').to('mm'),
-            ampacity=PositiveCurrent(600.0,'amp'),
-            emergency_ampacity=PositiveCurrent(600.0,'amp'),
-            ac_resistance=PositiveResistancePULength(0.555000,'ohm/mile').to('ohm/km'),
-            dc_resistance=PositiveResistancePULength(0.555000,'ohm/mile').to('ohm/km'),
+            ampacity=Current(600.0,'amp'),
+            emergency_ampacity=Current(600.0,'amp'),
+            ac_resistance=ResistancePULength(0.555000,'ohm/mile').to('ohm/km'),
+            dc_resistance=ResistancePULength(0.555000,'ohm/mile').to('ohm/km'),
         )
         self.system.add_component(default_conductor)
 
-        section_data = read_cyme_data(network_file,"SECTION")
-        for idx, row in section_data.iterrows():
-            section_id = row["SectionID"]
-            section_id_sections[section_id] = row
+        node_feeder_map = {}
 
-            from_node = row["FromNodeID"]
-            to_node = row["ToNodeID"]
+        section_data = read_cyme_data(network_file,"SECTION", node_feeder_map, parse_feeders=True)
 
-            if not from_node in from_node_sections:
-                from_node_sections[from_node] = []
-            from_node_sections[from_node].append(row)    
-            if not to_node in to_node_sections:
-                to_node_sections[to_node] = []
-            to_node_sections[to_node].append(row)    
+        section_id_sections = section_data.set_index("SectionID").to_dict(orient="index")
+        from_node_sections = section_data.groupby("FromNodeID").apply(lambda df: df.to_dict(orient="records")).to_dict()
+        to_node_sections = section_data.groupby("ToNodeID").apply(lambda df: df.to_dict(orient="records")).to_dict()
+
 
 
         for component_type in self.component_types:
+            print(component_type)
             mapper_name = component_type + "Mapper"
             if not hasattr(cyme_mapper, mapper_name):
                 logger.warning(f"Mapper {mapper_name} not found. Skipping.")
@@ -76,35 +73,70 @@ class Reader(AbstractReader):
             else:
                 raise ValueError(f"Unknown CYME file {cyme_file}")
 
-            transformer_network_data = read_cyme_data(network_file, 'TRANSFORMER SETTING')
-            transformer_map = {}
-            for idx, row in transformer_network_data.iterrows():
-                transformer_type = row['EqID']
-                transformer_map[transformer_type] = row
-            
 
-            components = []
-            for idx, row in data.iterrows():
-                mapper_name = component_type + "Mapper"
-                if mapper_name == "DistributionCapacitorMapper":
-                    model_entry = mapper.parse(row, section_id_sections, equipment_file)
-                elif mapper_name == "DistributionBusMapper":
-                    model_entry = mapper.parse(row, from_node_sections, to_node_sections)
-                elif mapper_name == "DistributionLoadMapper":
-                    model_entry = mapper.parse(row, section_id_sections, load_file)
-                elif mapper_name == "GeometryBranchMapper":
-                    model_entry = mapper.parse(row, section_id_sections)
-                elif mapper_name == "GeometryBranchEquipmentMapper":
-                    model_entry = mapper.parse(row, equipment_file)
-                elif mapper_name == "DistributionTransformerEquipmentMapper":
-                    network_row = None
-                    if row['ID'] in transformer_map:
-                        network_row = transformer_map[row['ID']]
-                    model_entry = mapper.parse(row, network_row) 
-                else:
-                    model_entry = mapper.parse(row)
-                if model_entry is not None:
-                    components.append(model_entry)
+            args = []
+            mapper_name = component_type + "Mapper"
+            if mapper_name == "DistributionCapacitorMapper":
+
+                equipment_data = read_cyme_data(equipment_file, "SHUNT CAPACITOR")
+                equipment_data.index = equipment_data['ID']
+                args = [section_id_sections, equipment_data]
+
+            elif mapper_name == "DistributionBusMapper":
+                args = [from_node_sections, to_node_sections, node_feeder_map]
+
+            elif mapper_name == "DistributionLoadMapper":
+
+                equipment_data = read_cyme_data(load_file, "LOADS")
+                equipment_data.index = equipment_data['DeviceNumber']
+                args = [section_id_sections, equipment_data]
+
+            elif mapper_name == "GeometryBranchMapper":
+                args = [section_id_sections]
+            
+            elif mapper_name == "GeometryBranchByPhaseMapper":
+                args = [section_id_sections]
+
+            elif mapper_name == "BareConductorEquipmentMapper":
+                args = []
+
+            elif mapper_name == "GeometryBranchEquipmentMapper":
+                args = [equipment_file]
+
+            elif mapper_name == "GeometryBranchByPhaseEquipmentMapper":
+                spacing_ids = read_cyme_data(equipment_file,"SPACING TABLE FOR LINE")
+                spacing_ids.index = spacing_ids['ID']
+                args = [spacing_ids]
+
+            elif mapper_name == "DistributionTransformerEquipmentMapper":
+                transformer_network_data = read_cyme_data(network_file, 'TRANSFORMER SETTING')
+                transformer_map = {}
+                for idx, row in transformer_network_data.iterrows():
+                    transformer_type = row['EqID']
+                    transformer_map[transformer_type] = row
+
+                byphase_transformer_network_data = read_cyme_data(equipment_file, "TRANSFORMER BYPHASE SETTING")
+                for idx, row in byphase_transformer_network_data.iterrows():
+                    for phase in ['1', '2', '3']:
+                        transformer_type = row['PhaseTransformerID' + phase]
+                        if transformer_type is not None and transformer_type != '':
+                            transformer_map[transformer_type] = row
+                args = [transformer_map]
+
+            elif mapper_name == "DistributionTransformerMapper":
+                transformer_equipment_data = read_cyme_data(equipment_file, "TRANSFORMER")
+                transformer_map = {}
+                for idx, row in transformer_equipment_data.iterrows():
+                    transformer_type = row['ID']
+                    transformer_map[transformer_type] = row
+                args = [section_id_sections, transformer_map]
+
+            def parse_row(row):
+                model_entry = mapper.parse(row, *args)
+                return model_entry
+
+            components = data.apply(parse_row, axis=1)
+            components = [c for c in components if c is not None]
             self.system.add_components(*components)
 
     def get_system(self) -> DistributionSystem:

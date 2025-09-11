@@ -13,12 +13,12 @@ class DistributionCapacitorMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'SHUNT CAPACITOR SETTING'
 
-    def parse(self, row, section_id_sections, equipment_file):
+    def parse(self, row, section_id_sections, equipment_data):
         name = self.map_name(row)
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
         controllers = self.map_controllers(row)
-        equipment = self.map_equipment(row, equipment_file)
+        equipment = self.map_equipment(row, equipment_data)
         in_service = self.map_in_service(row)
         return DistributionCapacitor(name=name,
                                       bus=bus,
@@ -67,13 +67,12 @@ class DistributionCapacitorMapper(CymeMapper):
     def map_controllers(self, row):
         return []
 
-    def map_equipment(self, row, equipment_file):
+    def map_equipment(self, row, equipment_data):
         mapper = CapacitorEquipmentMapper(self.system)
-        equipment_data = read_cyme_data(equipment_file, mapper.cyme_section)
-        for idx, equipment_row in equipment_data.iterrows():
-            if equipment_row['ID'] == row['ShuntCapacitorID']:
-                equipment = mapper.parse(equipment_row, connection=row['Connection'])
-                return equipment
+        equipment_row = equipment_data.loc[row['ShuntCapacitorID']]
+        if not equipment_row.empty:
+            equipment = mapper.parse(equipment_row, connection=row['Connection'])
+            return equipment
         return None
     
     def map_in_service(self, row):

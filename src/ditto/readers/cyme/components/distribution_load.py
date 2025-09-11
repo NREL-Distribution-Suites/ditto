@@ -14,11 +14,11 @@ class DistributionLoadMapper(CymeMapper):
     cyme_section = 'CUSTOMER LOADS'
 
 
-    def parse(self, row, section_id_sections, load_file):
+    def parse(self, row, section_id_sections, equipment_file):
         name = self.map_name(row)
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
-        equipment = self.map_equipment(row, load_file)
+        equipment = self.map_equipment(row, equipment_file)
         if len(phases) == 0:
             logger.warning(f"Load {name} has no kW values. Skipping...")
             return None
@@ -77,11 +77,11 @@ class DistributionLoadMapper(CymeMapper):
                 phases.append(Phase.C)
         return phases
 
-    def map_equipment(self, row, load_file):
+    def map_equipment(self, row, equipment_file):
         mapper = LoadEquipmentMapper(self.system)
-        equipment_data = read_cyme_data(load_file, mapper.cyme_section)
-        for idx, equipment_row in equipment_data.iterrows():
-            if equipment_row['DeviceNumber'] == row['DeviceNumber']:
-                equipment = mapper.parse(equipment_row, row)
-                return equipment
+        equipment_row = equipment_file.loc[row['DeviceNumber']]
+        if equipment_row is not None:
+            equipment = mapper.parse(equipment_row, row)
+            return equipment
+        
         return None

@@ -12,18 +12,20 @@ class DistributionBusMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'NODE'
 
-    def parse(self, row, from_node_sections, to_node_sections):
+    def parse(self, row, from_node_sections, to_node_sections, node_feeder_map):
         name = self.map_name(row)
+        feeder = node_feeder_map.get(name, None)
         coordinate = self.map_coordinate(row)
         rated_voltage = self.map_rated_voltage(row)
         phases = self.map_phases(row, from_node_sections, to_node_sections)
         voltage_limits = self.map_voltagelimits(row)
         voltage_type = self.map_voltage_type(row)
         return DistributionBus(name=name, 
-                              coordinate=coordinate, 
-                              rated_voltage=rated_voltage, 
-                              phases=phases, 
-                              voltagelimits=voltage_limits, 
+                              coordinate=coordinate,
+                              rated_voltage=rated_voltage,
+                              feeder=feeder,
+                              phases=phases,
+                              voltagelimits=voltage_limits,
                               voltage_type=voltage_type)
 
     def map_name(self, row):

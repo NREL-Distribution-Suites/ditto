@@ -1,7 +1,7 @@
 from infrasys.location import Location
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.enums import VoltageTypes, Phase
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 
 
@@ -37,7 +37,7 @@ class DistributionBusMapper(CymeMapper):
 
     def map_rated_voltage(self, row):
         #return PositiveVoltage(float(row['UserDefinedBaseVoltage']), "kilovolts")
-        return PositiveVoltage(12.47, "kilovolts")
+        return Voltage(12.47, "kilovolts")
 
     def map_phases(self, row, from_node_sections, to_node_sections):
         node_id = row["NodeID"]
@@ -71,9 +71,9 @@ class DistributionBusMapper(CymeMapper):
         low_voltage = None
         high_voltage = None
         if row['LowVoltageLimit'] != '':
-            low_voltage = PositiveVoltage(row['LowVoltageLimit'], "kilovolts")
+            low_voltage = Voltage(row['LowVoltageLimit'], "kilovolts")
         if row['HighVoltageLimit'] != '':
-            high_voltage = PositiveVoltage(row['HighVoltageLimit'], "kilovolts")
+            high_voltage = Voltage(row['HighVoltageLimit'], "kilovolts")
         if low_voltage is not None and high_voltage is not None:
             return [low_voltage, high_voltage]
         else:

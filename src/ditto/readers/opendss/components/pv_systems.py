@@ -5,7 +5,7 @@ from gdm import (
     DistributionBus,
     SolarEquipment,
 )
-from gdm.quantities import PositiveActivePower
+from gdm.quantities import ActivePower
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
@@ -43,8 +43,8 @@ def _build_pv_equipment(
 
     solar_equipment = SolarEquipment(
         name=str(equipment_uuid),
-        rated_capacity=PositiveActivePower(kva_ac, "kilova"),
-        solar_power=PositiveActivePower(kw_dc, "kilova"),
+        rated_capacity=ActivePower(kva_ac, "kilova"),
+        solar_power=ActivePower(kw_dc, "kilova"),
         resistance=float(query(r"%r")),
         reactance=float(query(r"%x")),
         cutout_percent=float(query(r"%cutout")),

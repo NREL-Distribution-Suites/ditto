@@ -1,8 +1,8 @@
 from gdm.quantities import (
-    PositiveCurrent,
-    PositiveDistance,
-    PositiveResistancePULength,
-    PositiveVoltage,
+    Current,
+    Distance,
+    ResistancePULength,
+    Voltage,
 )
 from gdm import ConcentricCableEquipment
 from pydantic import PositiveInt
@@ -37,42 +37,42 @@ def get_cables_equipment() -> list[ConcentricCableEquipment]:
         diam_strand = query_model_data(model_type, model_name, "diam", float)
 
         cable = ConcentricCableEquipment(
-            strand_ac_resistance=PositiveResistancePULength(
+            strand_ac_resistance=ResistancePULength(
                 query_model_data(model_type, model_name, "rstrand", float), f"ohms/{length_units}"
             ),
-            dc_resistance=PositiveResistancePULength(
+            dc_resistance=ResistancePULength(
                 query_model_data(model_type, model_name, "rdc", float), f"ohms/{length_units}"
             ),
-            phase_ac_resistance=PositiveResistancePULength(
+            phase_ac_resistance=ResistancePULength(
                 query_model_data(model_type, model_name, "rac", float), f"ohms/{length_units}"
             ),
-            strand_gmr=PositiveDistance(
+            strand_gmr=Distance(
                 gmr_strand if gmr_strand else diam_strand * 0.7788, f"{radius_units}"
             ),
-            strand_diameter=PositiveDistance(
+            strand_diameter=Distance(
                 diam_strand if diam_strand else gmr_strand / 0.7788, f"{radius_units}"
             ),
-            ampacity=PositiveCurrent(
+            ampacity=Current(
                 query_model_data(model_type, model_name, "normamps", float), "ampere"
             ),
-            emergency_ampacity=PositiveCurrent(
+            emergency_ampacity=Current(
                 query_model_data(model_type, model_name, "emergamps", float), "ampere"
             ),
-            insulation_thickness=PositiveDistance(
+            insulation_thickness=Distance(
                 query_model_data(model_type, model_name, "InsLayer", float), "ampere"
             ),
-            cable_diameter=PositiveDistance(
+            cable_diameter=Distance(
                 query_model_data(model_type, model_name, "DiaCable", float), "ampere"
             ),
-            insulation_diameter=PositiveDistance(
+            insulation_diameter=Distance(
                 query_model_data(model_type, model_name, "diains", float), "ampere"
             ),
             num_neutral_strands=PositiveInt(
                 query_model_data(model_type, model_name, "k", int), "ampere"
             ),
-            conductor_diameter=PositiveDistance(diam if diam else gmr / 0.7788, f"{radius_units}"),
-            conductor_gmr=PositiveDistance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
-            rated_voltage=PositiveVoltage(12.47, "volts"),
+            conductor_diameter=Distance(diam if diam else gmr / 0.7788, f"{radius_units}"),
+            conductor_gmr=Distance(gmr if gmr else diam * 0.7788, f"{gmr_units}"),
+            rated_voltage=Voltage(12.47, "volts"),
             loading_limit=None,
             name=model_type,
         )

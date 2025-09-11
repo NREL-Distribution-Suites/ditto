@@ -5,11 +5,10 @@ from infrasys import System, Component
 from infrasys.quantities import Time
 
 from gdm.quantities import (
-    PositiveResistancePULength,
+    ResistancePULength,
     CapacitancePULength,
     ReactancePULength,
-    PositiveDistance,
-    PositiveCurrent,
+    Distance,
     Current,
 )
 
@@ -148,7 +147,7 @@ def _build_matrix_branch(
     num_phase = module.Phases()
     thermal_limits = ThermalLimitSet(
         limit_type="max",
-        value=PositiveCurrent(module.EmergAmps(), "ampere"),
+        value=Current(module.EmergAmps(), "ampere"),
     )
 
     thermal_limits = get_equipment_from_catalog(thermal_limits, thermal_limit_catalog)
@@ -172,7 +171,7 @@ def _build_matrix_branch(
     )
     matrix_branch_dict = {
         "name": equipment_uuid,
-        "r_matrix": PositiveResistancePULength(
+        "r_matrix": ResistancePULength(
             np.reshape(np.array(r_matrix), (num_phase, num_phase)),
             f"ohm/{length_units}",
         ),
@@ -184,7 +183,7 @@ def _build_matrix_branch(
             np.reshape(np.array(c_matrix), (num_phase, num_phase)),
             f"nanofarad/{length_units}",
         ),
-        "ampacity": PositiveCurrent(module.NormAmps(), "ampere"),
+        "ampacity": Current(module.NormAmps(), "ampere"),
         "loading_limit": thermal_limits,
     }
     if model_class == MatrixImpedanceSwitchEquipment:
@@ -321,7 +320,7 @@ def get_branches(
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                length=PositiveDistance(
+                length=Distance(
                     odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]
                 ),
                 phases=[PHASE_MAPPER[node] for node in nodes],
@@ -361,7 +360,7 @@ def get_branches(
                     system.get_component(DistributionBus, bus1),
                     system.get_component(DistributionBus, bus2),
                 ],
-                "length": PositiveDistance(
+                "length": Distance(
                     odd.Lines.Length(), UNIT_MAPPER[odd.Lines.Units()]
                 ),
                 "phases": [PHASE_MAPPER[node] for node in nodes],

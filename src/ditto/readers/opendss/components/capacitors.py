@@ -7,7 +7,7 @@ from gdm import (
     PhaseCapacitorEquipment,
     ConnectionType,
 )
-from gdm.quantities import PositiveReactivePower, PositiveResistance, PositiveReactance
+from gdm.quantities import ReactivePower, Resistance, Reactance
 from infrasys.system import System
 import opendssdirect as odd
 from loguru import logger
@@ -41,11 +41,11 @@ def _build_capacitor_source_equipment(
     for el in nodes:
         phase_capacitor = PhaseCapacitorEquipment(
             name=f"{equipment_uuid}_{el}",
-            rated_capacity=PositiveReactivePower(kvar_ / len(nodes), "kilovar"),
+            rated_capacity=ReactivePower(kvar_ / len(nodes), "kilovar"),
             num_banks=odd.Capacitors.NumSteps(),
             num_banks_on=sum(odd.Capacitors.States()),
-            resistance=PositiveResistance(0, "ohm"),
-            reactance=PositiveReactance(0, "ohm"),
+            resistance=Resistance(0, "ohm"),
+            reactance=Reactance(0, "ohm"),
         )
         phase_capacitor = get_equipment_from_catalog(
             phase_capacitor, phase_capacitor_equipment_catalog

@@ -4,7 +4,7 @@ from typing import Any
 from uuid import uuid4
 from enum import Enum
 
-from gdm.quantities import PositiveApparentPower, PositiveVoltage
+from gdm.quantities import ApparentPower, Voltage
 from gdm import (
     DistributionTransformerEquipment,
     DistributionTransformer,
@@ -98,12 +98,12 @@ def _build_xfmr_equipment(
         taps = query("taps", list)
         tap = [taps[wdg_index]] * num_phase
         winding = WindingEquipment(
-            rated_power=PositiveApparentPower(query("kva", float), "kilova"),
+            rated_power=ApparentPower(query("kva", float), "kilova"),
             num_phases=num_phase,
             connection_type=ConnectionType.DELTA
             if query("conn", str).lower() == "delta"
             else ConnectionType.STAR,
-            nominal_voltage=PositiveVoltage(nominal_voltage, "kilovolt"),
+            nominal_voltage=Voltage(nominal_voltage, "kilovolt"),
             resistance=query("%r", float),
             is_grounded=False,  # TODO: Should be moved to the transformer model. Only known once the transformer is installed
             voltage_type=VoltageTypes.LINE_TO_GROUND,

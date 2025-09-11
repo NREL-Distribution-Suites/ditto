@@ -1,9 +1,9 @@
 from ditto.readers.cyme.cyme_mapper import CymeMapper
-from gdm.quantities import PositiveReactivePower, PositiveResistance, PositiveReactance
+from gdm.quantities import ReactivePower, Resistance, Reactance
 from gdm.distribution.equipment.phase_capacitor_equipment import PhaseCapacitorEquipment
 from gdm.distribution.equipment.capacitor_equipment import CapacitorEquipment
 from gdm.distribution.enums import VoltageTypes, ConnectionType
-from gdm.quantities import PositiveVoltage
+from gdm.quantities import Voltage
 
 class CapacitorEquipmentMapper(CymeMapper):
     def __init__(self, system):
@@ -26,7 +26,7 @@ class CapacitorEquipmentMapper(CymeMapper):
         return row["ID"]
     
     def map_rated_voltage(self, row):
-        return PositiveVoltage(float(row["KV"]), "kilovolt")
+        return Voltage(float(row["KV"]), "kilovolt")
 
     def map_phase_capacitors(self, row):
         phase_capacitors = []
@@ -69,4 +69,4 @@ class PhaseCapacitorEquipmentMapper(CymeMapper):
 
 
     def map_rated_reactive_power(self, row):
-        return PositiveReactivePower(float(row["KVAR"]),'kilovar')
+        return ReactivePower(float(row["KVAR"]),'kilovar')

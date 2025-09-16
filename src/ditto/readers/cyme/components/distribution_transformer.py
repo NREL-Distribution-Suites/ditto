@@ -25,8 +25,7 @@ class DistributionTransformerMapper(CymeMapper):
                                                 winding_phases=winding_phases,
                                                 equipment=equipment)
         except Exception as e:
-            print(f"Error creating DistributionTransformer {name}: {e}")
-            print(buses)
+            logger.warning(f"Failed to create DistributionTransformer {name}: {e}")
             return None
 
     def map_name(self, row):
@@ -49,9 +48,9 @@ class DistributionTransformerMapper(CymeMapper):
         phase = section['Phase']
         if equipment_row is None:
             print(f"Equipment row not found for transformer {row['EqID']}. Assuming 2 windings. {section}")
-            equipment_row = {'Type': 2}
+            equipment_row = {'Type': "2"}
         windings_list = []
-        if equipment_row['Type'] == 4:
+        if equipment_row['Type'] == "4":
             num_windings = 3
         else:
             num_windings = 2
@@ -69,5 +68,80 @@ class DistributionTransformerMapper(CymeMapper):
 
     def map_equipment(self, row):
         transformer_id = row['EqID']
+        equipment = self.system.get_component(component_type=DistributionTransformerEquipment, name=transformer_id)
+        return equipment
+
+
+class DistributionTransformerByPhaseMapper(CymeMapper):
+    def __init__(self, system):
+        super().__init__(system)
+
+    cyme_file = 'Network'
+    cyme_section = 'TRANSFORMER BYPHASE SETTING'
+
+    def parse(self, row, section_id_sections, transformer_map):
+        additional_transformers = []
+        for phase in ['1', '2', '3']:
+            if row['PhaseTransformerID' + phase] is None or row['PhaseTransformerID' + phase] == '':
+                continue
+            equipment_row = transformer_map.get(row['PhaseTransformerID' + phase], None)
+            name = self.map_name(row, phase)
+            equipment = self.map_equipment(row, phase)
+            buses = self.map_buses(row, section_id_sections, equipment.is_center_tapped)
+            winding_phases = self.map_winding_phases(row, phase, equipment_row)
+            
+
+            try:
+                additional_transformers.append(DistributionTransformer(name=name,
+                                                                        buses=buses,
+                                                                        winding_phases=winding_phases,
+                                                                        equipment=equipment))
+            except Exception as e:
+                logger.warning(f"Failed to add additional transformer {name} for phase {phase} on {row['SectionID']}: {e}")
+                continue
+        return additional_transformers
+
+
+    def map_name(self, row, phase):
+        name = row['SectionID'] + f"_{phase}"
+        return name
+
+    def map_buses(self, row, section_id_sections, is_center_tapped=False):
+        section_id = str(row['SectionID'])
+        section = section_id_sections[section_id]
+        from_bus_name = section['FromNodeID']
+        to_bus_name = section['ToNodeID']
+
+        from_bus = self.system.get_component(component_type=DistributionBus, name=from_bus_name)
+        to_bus = self.system.get_component(component_type=DistributionBus, name=to_bus_name)
+        if is_center_tapped:
+            return [from_bus, to_bus, to_bus]
+        return [from_bus, to_bus]
+
+    def map_winding_phases(self, row, phase, equipment_row):
+        if equipment_row is None:
+            print(f"Equipment row not found for transformer {row['PhaseTransformerID' + phase]}. Assuming 2 windings.")
+            equipment_row = {'Type': 2}
+        windings_list = []
+        num_windings = 3
+        if equipment_row['Type'] == "4":
+            num_windings = 3
+        else:
+            num_windings = 2
+
+        for i in range(num_windings):
+            winding_phases = []
+            if '1' == phase:
+                winding_phases.append(Phase.A)
+            if '2' == phase:
+                winding_phases.append(Phase.B)
+            if '3' == phase:
+                winding_phases.append(Phase.C)
+            windings_list.append(winding_phases)
+        assert len(windings_list) == num_windings
+        return windings_list
+
+    def map_equipment(self, row, phase):
+        transformer_id = row['PhaseTransformerID' + phase]
         equipment = self.system.get_component(component_type=DistributionTransformerEquipment, name=transformer_id)
         return equipment

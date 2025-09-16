@@ -1,7 +1,7 @@
 import pandas as pd
 from gdm.distribution.components.distribution_feeder import DistributionFeeder
 
-def read_cyme_data(cyme_file, cyme_section, node_feeder_map = None, parse_feeders=False):
+def read_cyme_data(cyme_file, cyme_section, node_feeder_map = None, feeder_voltage_map = None, parse_feeders=False):
     all_data = []
     headers = None
     with open(cyme_file) as f:
@@ -21,6 +21,7 @@ def read_cyme_data(cyme_file, cyme_section, node_feeder_map = None, parse_feeder
                     if parse_feeders:
                         if line.startswith("FEEDER"):
                             feeder_id = line.split(",")[0].split("=")[1].strip()
+                            feeder_voltage_map[feeder_id] = line.split(",")[9].strip()
                         else:
                             feeder_id = None
                     # For SECTION Feeder headers

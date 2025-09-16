@@ -8,5 +8,7 @@ from ditto.readers.cyme.components.geometry_branch import GeometryBranchMapper
 from ditto.readers.cyme.components.geometry_branch import GeometryBranchByPhaseMapper
 from ditto.readers.cyme.equipment.distribution_transformer_equipment import DistributionTransformerEquipmentMapper
 from ditto.readers.cyme.equipment.distribution_transformer_equipment import WindingEquipmentMapper
-from ditto.readers.cyme.components.distribution_transformer import DistributionTransformerMapper
+from ditto.readers.cyme.components.distribution_transformer import DistributionTransformerByPhaseMapper, DistributionTransformerMapper
+from ditto.readers.cyme.components.matrix_impedance_switch import MatrixImpedanceSwitchMapper
+from ditto.readers.cyme.equipment.matrix_impedance_switch_equipment import MatrixImpedanceSwitchEquipmentMapper
 

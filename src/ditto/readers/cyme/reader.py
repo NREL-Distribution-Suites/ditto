@@ -12,6 +12,7 @@ class Reader(AbstractReader):
     # Order of components is important
     component_types = [
         "DistributionBus",
+        "MatrixImpedanceSwitch",
         "DistributionCapacitor",
         "DistributionLoad",
         "BareConductorEquipment",
@@ -20,6 +21,7 @@ class Reader(AbstractReader):
         "GeometryBranch",
         "GeometryBranchByPhase",
         "DistributionTransformerEquipment",
+        "DistributionTransformerByPhase",
         "DistributionTransformer"
     ]
 
@@ -45,8 +47,9 @@ class Reader(AbstractReader):
         self.system.add_component(default_conductor)
 
         node_feeder_map = {}
+        feeder_voltage_map = {}
 
-        section_data = read_cyme_data(network_file,"SECTION", node_feeder_map, parse_feeders=True)
+        section_data = read_cyme_data(network_file,"SECTION", node_feeder_map, feeder_voltage_map, parse_feeders=True)
 
         section_id_sections = section_data.set_index("SectionID").to_dict(orient="index")
         from_node_sections = section_data.groupby("FromNodeID").apply(lambda df: df.to_dict(orient="records")).to_dict()
@@ -55,11 +58,12 @@ class Reader(AbstractReader):
 
 
         for component_type in self.component_types:
-            print(component_type)
+            logger.info(f"Parsing Type: {component_type}")
             mapper_name = component_type + "Mapper"
             if not hasattr(cyme_mapper, mapper_name):
                 logger.warning(f"Mapper {mapper_name} not found. Skipping.")
             mapper = getattr(cyme_mapper, mapper_name)(self.system)
+
             cyme_file = mapper.cyme_file
             cyme_section = mapper.cyme_section
 
@@ -83,7 +87,7 @@ class Reader(AbstractReader):
                 args = [section_id_sections, equipment_data]
 
             elif mapper_name == "DistributionBusMapper":
-                args = [from_node_sections, to_node_sections, node_feeder_map]
+                args = [from_node_sections, to_node_sections, node_feeder_map, feeder_voltage_map]
 
             elif mapper_name == "DistributionLoadMapper":
 
@@ -103,6 +107,11 @@ class Reader(AbstractReader):
             elif mapper_name == "GeometryBranchEquipmentMapper":
                 args = [equipment_file]
 
+            elif mapper_name == "MatrixImpedanceSwitchMapper":
+                equipment_data = read_cyme_data(equipment_file, "SWITCH")
+                equipment_data.index = equipment_data['ID']
+                args = [section_id_sections, equipment_data]
+
             elif mapper_name == "GeometryBranchByPhaseEquipmentMapper":
                 spacing_ids = read_cyme_data(equipment_file,"SPACING TABLE FOR LINE")
                 spacing_ids.index = spacing_ids['ID']
@@ -115,7 +124,7 @@ class Reader(AbstractReader):
                     transformer_type = row['EqID']
                     transformer_map[transformer_type] = row
 
-                byphase_transformer_network_data = read_cyme_data(equipment_file, "TRANSFORMER BYPHASE SETTING")
+                byphase_transformer_network_data = read_cyme_data(network_file, "TRANSFORMER BYPHASE SETTING")
                 for idx, row in byphase_transformer_network_data.iterrows():
                     for phase in ['1', '2', '3']:
                         transformer_type = row['PhaseTransformerID' + phase]
@@ -123,7 +132,7 @@ class Reader(AbstractReader):
                             transformer_map[transformer_type] = row
                 args = [transformer_map]
 
-            elif mapper_name == "DistributionTransformerMapper":
+            elif mapper_name == "DistributionTransformerMapper" or mapper_name == "DistributionTransformerByPhaseMapper":
                 transformer_equipment_data = read_cyme_data(equipment_file, "TRANSFORMER")
                 transformer_map = {}
                 for idx, row in transformer_equipment_data.iterrows():
@@ -137,6 +146,7 @@ class Reader(AbstractReader):
 
             components = data.apply(parse_row, axis=1)
             components = [c for c in components if c is not None]
+            components = [item for c in components for item in (c if isinstance(c, list) else [c])]
             self.system.add_components(*components)
 
     def get_system(self) -> DistributionSystem:

@@ -11,4 +11,8 @@ from ditto.readers.cyme.equipment.distribution_transformer_equipment import Wind
 from ditto.readers.cyme.components.distribution_transformer import DistributionTransformerByPhaseMapper, DistributionTransformerMapper
 from ditto.readers.cyme.components.matrix_impedance_switch import MatrixImpedanceSwitchMapper
 from ditto.readers.cyme.equipment.matrix_impedance_switch_equipment import MatrixImpedanceSwitchEquipmentMapper
+from ditto.readers.cyme.components.matrix_impedance_fuse import MatrixImpedanceFuseMapper
+from ditto.readers.cyme.equipment.matrix_impedance_fuse_equipment import MatrixImpedanceFuseEquipmentMapper
+from ditto.readers.cyme.components.matrix_impedance_recloser import MatrixImpedanceRecloserMapper
+from ditto.readers.cyme.equipment.matrix_impedance_recloser_equipment import MatrixImpedanceRecloserEquipmentMapper
 

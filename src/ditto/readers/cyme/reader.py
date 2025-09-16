@@ -12,7 +12,9 @@ class Reader(AbstractReader):
     # Order of components is important
     component_types = [
         "DistributionBus",
+        "MatrixImpedanceRecloser",
         "MatrixImpedanceSwitch",
+        "MatrixImpedanceFuse",
         "DistributionCapacitor",
         "DistributionLoad",
         "BareConductorEquipment",
@@ -109,6 +111,16 @@ class Reader(AbstractReader):
 
             elif mapper_name == "MatrixImpedanceSwitchMapper":
                 equipment_data = read_cyme_data(equipment_file, "SWITCH")
+                equipment_data.index = equipment_data['ID']
+                args = [section_id_sections, equipment_data]
+
+            elif mapper_name == "MatrixImpedanceFuseMapper":
+                equipment_data = read_cyme_data(equipment_file, "FUSE")
+                equipment_data.index = equipment_data['ID']
+                args = [section_id_sections, equipment_data]
+
+            elif mapper_name == "MatrixImpedanceRecloserMapper":
+                equipment_data = read_cyme_data(equipment_file, "RECLOSER")
                 equipment_data.index = equipment_data['ID']
                 args = [section_id_sections, equipment_data]
 

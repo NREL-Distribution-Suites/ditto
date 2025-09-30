@@ -14,14 +14,15 @@ class GeometryBranchMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'OVERHEADLINE SETTING'
 
-    def parse(self, row, section_id_sections):
+    def parse(self, row, used_sections, section_id_sections):
         name = self.map_name(row)
         buses = self.map_buses(row,section_id_sections)
         length = self.map_length(row)
         phases = self.map_phases(row, section_id_sections)
         equipment = self.map_equipment(row)
         try:
-            return GeometryBranch(name=name,
+            used_sections.add(name)
+            return GeometryBranch.model_construct(name=name,
                                 buses=buses,
                                 length=length,
                                 phases=phases,
@@ -74,14 +75,15 @@ class GeometryBranchByPhaseMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'OVERHEAD BYPHASE SETTING'
 
-    def parse(self, row, section_id_sections):
+    def parse(self, row, used_sections, section_id_sections):
         name = self.map_name(row)
         buses = self.map_buses(row,section_id_sections)
         length = self.map_length(row)
         phases = self.map_phases(row, section_id_sections)
         equipment = self.map_equipment(row)
         try:
-            return GeometryBranch(name=name,
+            used_sections.add(name)
+            return GeometryBranch.model_construct(name=name,
                                 buses=buses,
                                 length=length,
                                 phases=phases,

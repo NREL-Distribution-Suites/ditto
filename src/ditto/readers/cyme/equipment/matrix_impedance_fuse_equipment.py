@@ -3,6 +3,7 @@ from gdm.quantities import Distance, Current, ResistancePULength, ReactancePULen
 from gdm.distribution.equipment.matrix_impedance_fuse_equipment import MatrixImpedanceFuseEquipment
 from gdm.distribution.common.curve import TimeCurrentCurve
 from infrasys.quantities import Time
+from gdm.distribution.enums import LineType
 
 
 class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
@@ -25,6 +26,7 @@ class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
             name=name,
             delay=delay,
             tcc_curve=tcc_curve,
+            construction=LineType.OVERHEAD,
             r_matrix=r_matrix,
             x_matrix=x_matrix,
             c_matrix=c_matrix,
@@ -36,10 +38,10 @@ class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
 
     def map_r_matrix(self, phases):
         default_matrix = [
-            [0.08820, 0.0312137, 0.0306264],
-            [0.0312137, 0.0901946, 0.0316143],
-            [0.0306264, 0.0316143, 0.0889665],
-        ]
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                ]
         matrix = [row[:len(phases)] for row in default_matrix[:len(phases)]]
         return ResistancePULength(
             matrix,
@@ -48,9 +50,9 @@ class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
 
     def map_x_matrix(self, phases):
         default_matrix = [
-                    [0.20744, 0.0935314, 0.0760312],
-                    [0.0935314, 0.200783, 0.0855879],
-                    [0.0760312, 0.0855879, 0.204877],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
                 ]
         matrix = [row[:len(phases)] for row in default_matrix[:len(phases)]]
         return ReactancePULength(
@@ -60,9 +62,9 @@ class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
 
     def map_c_matrix(self, phases):
         default_matrix = [
-                    [2.90301, -0.679335, -0.22313],
-                    [-0.679335, 3.15896, -0.481416],
-                    [-0.22313, -0.481416, 2.8965],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
                 ]
         matrix = [row[:len(phases)] for row in default_matrix[:len(phases)]]
 

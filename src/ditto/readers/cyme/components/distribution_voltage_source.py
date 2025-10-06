@@ -26,7 +26,7 @@ class DistributionVoltageSourceMapper(CymeMapper):
         if feeder_voltage is None or feeder_voltage == '':
             return None
 
-        phases = bus.phases
+        phases = [phs for phs in bus.phases]
         equipment = self.map_equipment(bus, feeder_id, feeder_voltage)
 
         return DistributionVoltageSource.model_construct(name=name,

@@ -4,7 +4,7 @@ from ditto.readers.cyme.cyme_mapper import CymeMapper
 from gdm.distribution.equipment.geometry_branch_equipment import GeometryBranchEquipment
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
 from gdm.distribution.equipment.concentric_cable_equipment import ConcentricCableEquipment
-
+from loguru import logger
 
 class GeometryBranchEquipmentMapper(CymeMapper):
     def __init__(self, system):
@@ -13,13 +13,13 @@ class GeometryBranchEquipmentMapper(CymeMapper):
     cyme_file = 'Equipment'
     cyme_section = 'LINE'
 
-    def parse(self, row, equipment_file):
+    def parse(self, row, spacing_ids):
         name = self.map_name(row)
-        conductors = self.map_conductors(row, equipment_file)
-        horizontal_positions = self.map_horizontal_positions(row, equipment_file)
-        vertical_positions = self.map_vertical_positions(row, equipment_file)
+        conductors = self.map_conductors(row, spacing_ids)
+        horizontal_positions = self.map_horizontal_positions(row, spacing_ids)
+        vertical_positions = self.map_vertical_positions(row, spacing_ids)
 
-        return GeometryBranchEquipment(name=name,
+        return GeometryBranchEquipment.model_construct(name=name,
                                        conductors=conductors,
                                        horizontal_positions=horizontal_positions,
                                        vertical_positions=vertical_positions)
@@ -28,59 +28,56 @@ class GeometryBranchEquipmentMapper(CymeMapper):
         name = row['ID']
         return name
 
-    def map_vertical_positions(self, row, equipment_file):
+    def map_vertical_positions(self, row, spacing_ids):
         spacing_id = row['SpacingID']
-        spacing_ids = read_cyme_data(equipment_file,"SPACING TABLE FOR LINE")
-        for idx, row in spacing_ids.iterrows():
-            if row['ID'] == spacing_id:
-                vertical_positions = []
-                spacing = row
-                cond1_y = spacing['PosOfCond1_Y']
-                cond2_y = spacing['PosOfCond2_Y']
-                cond3_y = spacing['PosOfCond3_Y']
-                neutral_y = spacing['PosOfNeutralCond_Y']
-                if cond1_y != "":
-                    y1 = float(cond1_y)
-                    vertical_positions.append(y1)
-                if cond2_y != "":
-                    y2 = float(cond2_y)
-                    vertical_positions.append(y2)
-                if cond3_y != "":
-                    y3 = float(cond3_y)
-                    vertical_positions.append(y3)
-                if neutral_y != "":
-                    y_n = float(neutral_y)
-                    vertical_positions.append(y_n)
-                return Distance(vertical_positions, 'feet').to('m')
+        spacing = spacing_ids.loc[spacing_id]
+
+        if not spacing.empty:
+            vertical_positions = []
+            cond1_y = spacing['PosOfCond1_Y']
+            cond2_y = spacing['PosOfCond2_Y']
+            cond3_y = spacing['PosOfCond3_Y']
+            neutral_y = spacing['PosOfNeutralCond_Y']
+            if cond1_y != "":
+                y1 = float(cond1_y)
+                vertical_positions.append(y1)
+            if cond2_y != "":
+                y2 = float(cond2_y)
+                vertical_positions.append(y2)
+            if cond3_y != "":
+                y3 = float(cond3_y)
+                vertical_positions.append(y3)
+            if neutral_y != "":
+                y_n = float(neutral_y)
+                vertical_positions.append(y_n)
+            return Distance(vertical_positions, 'feet').to('m')
         return None
 
-    def map_horizontal_positions(self, row, equipment_file):
+    def map_horizontal_positions(self, row, spacing_ids):
         spacing_id = row['SpacingID']
-        spacing_ids = read_cyme_data(equipment_file,"SPACING TABLE FOR LINE")
-        for idx, row in spacing_ids.iterrows():
-            if row['ID'] == spacing_id:
-                spacing = row
-                horizontal_positions = []
-                cond1_x = spacing['PosOfCond1_X']
-                cond2_x = spacing['PosOfCond2_X']
-                cond3_x = spacing['PosOfCond3_X']
-                neutral_x = spacing['PosOfNeutralCond_X']
-                if cond1_x != "":
-                    x1 = float(cond1_x)
-                    horizontal_positions.append(x1)
-                if cond2_x != "":
-                    x2 = float(cond2_x)
-                    horizontal_positions.append(x2)
-                if cond3_x != "":
-                    x3 = float(cond3_x)
-                    horizontal_positions.append(x3)
-                if neutral_x != "":
-                    x_n = float(neutral_x)
-                    horizontal_positions.append(x_n)
-                return Distance(horizontal_positions, 'feet').to('m')
+        spacing = spacing_ids.loc[spacing_id]
+        if not spacing.empty:
+            horizontal_positions = []
+            cond1_x = spacing['PosOfCond1_X']
+            cond2_x = spacing['PosOfCond2_X']
+            cond3_x = spacing['PosOfCond3_X']
+            neutral_x = spacing['PosOfNeutralCond_X']
+            if cond1_x != "":
+                x1 = float(cond1_x)
+                horizontal_positions.append(x1)
+            if cond2_x != "":
+                x2 = float(cond2_x)
+                horizontal_positions.append(x2)
+            if cond3_x != "":
+                x3 = float(cond3_x)
+                horizontal_positions.append(x3)
+            if neutral_x != "":
+                x_n = float(neutral_x)
+                horizontal_positions.append(x_n)
+            return Distance(horizontal_positions, 'feet').to('m')
         return None
 
-    def map_conductors(self,row, equipment_file):
+    def map_conductors(self,row, spacing_ids):
         phase_conductor_name = row['PhaseCondID']
         neutral_conductor_name = row['NeutralCondID']
         try:
@@ -93,24 +90,22 @@ class GeometryBranchEquipmentMapper(CymeMapper):
             neutral_conductor = self.system.get_component(component_type=BareConductorEquipment, name="Default")
 
         spacing_id = row['SpacingID']
-        spacing_ids = read_cyme_data(equipment_file,"SPACING TABLE FOR LINE")
-        for idx, row in spacing_ids.iterrows():
-            if row['ID'] == spacing_id:
-                spacing = row
-                conductors = []
-                cond1 = spacing['PosOfCond1_X']
-                cond2 = spacing['PosOfCond2_X']
-                cond3 = spacing['PosOfCond3_X']
-                neutral = spacing['PosOfNeutralCond_X']
-                if cond1 != "":
-                    conductors.append(phase_conductor)
-                if cond2 != "":
-                    conductors.append(phase_conductor)
-                if cond3 != "":
-                    conductors.append(phase_conductor)
-                if neutral != "":
-                    conductors.append(neutral_conductor)
-                return conductors
+        spacing = spacing_ids.loc[spacing_id]
+        if not spacing.empty:
+            conductors = []
+            cond1 = spacing['PosOfCond1_X']
+            cond2 = spacing['PosOfCond2_X']
+            cond3 = spacing['PosOfCond3_X']
+            neutral = spacing['PosOfNeutralCond_X']
+            if cond1 != "":
+                conductors.append(phase_conductor)
+            if cond2 != "":
+                conductors.append(phase_conductor)
+            if cond3 != "":
+                conductors.append(phase_conductor)
+            if neutral != "":
+                conductors.append(neutral_conductor)
+            return conductors
         return None
 
 class ConcentricCableEquipmentMapper(CymeMapper):
@@ -134,7 +129,7 @@ class ConcentricCableEquipmentMapper(CymeMapper):
         strand_ac_resistance = self.map_strand_ac_resistance(row)
         num_neutral_strands = self.map_num_neutral_strands(row)
         rated_voltage = self.map_rated_voltage(row)
-        return ConcentricCableEquipment(name=name,
+        return ConcentricCableEquipment.model_construct(name=name,
                                         strand_diameter=strand_diameter,
                                         conductor_diameter=conductor_diameter,
                                         cable_diameter=cable_diameter,  
@@ -190,7 +185,7 @@ class BareConductorEquipmentMapper(CymeMapper):
         emergency_ampacity = self.map_emergency_ampacity(row)
         ac_resistance = self.map_ac_resistance(row)
         dc_resistance = self.map_dc_resistance(row)
-        return BareConductorEquipment(name=name,
+        return BareConductorEquipment.model_construct(name=name,
                                      conductor_diameter=conductor_diameter,
                                      conductor_gmr=conductor_gmr,
                                      ampacity=ampacity,
@@ -247,7 +242,7 @@ class GeometryBranchByPhaseEquipmentMapper(CymeMapper):
         horizontal_positions = self.map_horizontal_positions(row, spacing_ids)
         vertical_positions = self.map_vertical_positions(row, spacing_ids)
 
-        return GeometryBranchEquipment(name=name,
+        return GeometryBranchEquipment.model_construct(name=name,
                                        conductors=conductors,
                                        horizontal_positions=horizontal_positions,
                                        vertical_positions=vertical_positions)
@@ -257,51 +252,58 @@ class GeometryBranchByPhaseEquipmentMapper(CymeMapper):
         return name
 
     def map_vertical_positions(self, row, spacing_ids):
-        spacing_id = row['SpacingID']
-        row = spacing_ids.loc[spacing_id]
+        phase_A_conductor_name = row['CondID_A']
+        phase_B_conductor_name = row['CondID_B']
+        phase_C_conductor_name = row['CondID_C']
+        neutral_conductor_name = row['CondID_N1']
 
-        if not row.empty:
+        spacing_id = row['SpacingID']
+        spacing = spacing_ids.loc[spacing_id]
+
+        if not spacing.empty:
             vertical_positions = []
-            spacing = row
             cond1_y = spacing['PosOfCond1_Y']
             cond2_y = spacing['PosOfCond2_Y']
             cond3_y = spacing['PosOfCond3_Y']
             neutral_y = spacing['PosOfNeutralCond_Y']
-            if cond1_y != "":
+            if cond1_y != "" and phase_A_conductor_name != "NONE":
                 y1 = float(cond1_y)
                 vertical_positions.append(y1)
-            if cond2_y != "":
+            if cond2_y != "" and phase_B_conductor_name != "NONE":
                 y2 = float(cond2_y)
                 vertical_positions.append(y2)
-            if cond3_y != "":
+            if cond3_y != "" and phase_C_conductor_name != "NONE":
                 y3 = float(cond3_y)
                 vertical_positions.append(y3)
-            if neutral_y != "":
+            if neutral_y != "" and neutral_conductor_name != "NONE":
                 y_n = float(neutral_y)
                 vertical_positions.append(y_n)
             return Distance(vertical_positions, 'feet').to('m')
         return None
 
     def map_horizontal_positions(self, row, spacing_ids):
+        phase_A_conductor_name = row['CondID_A']
+        phase_B_conductor_name = row['CondID_B']
+        phase_C_conductor_name = row['CondID_C']
+        neutral_conductor_name = row['CondID_N1']
         spacing_id = row['SpacingID']
-        row = spacing_ids.loc[spacing_id]
-        if not row.empty:
-            spacing = row
+        spacing = spacing_ids.loc[spacing_id]
+        if not spacing.empty:
             horizontal_positions = []
             cond1_x = spacing['PosOfCond1_X']
             cond2_x = spacing['PosOfCond2_X']
             cond3_x = spacing['PosOfCond3_X']
             neutral_x = spacing['PosOfNeutralCond_X']
-            if cond1_x != "":
+            if cond1_x != "" and phase_A_conductor_name != "NONE":
                 x1 = float(cond1_x)
                 horizontal_positions.append(x1)
-            if cond2_x != "":
+            if cond2_x != "" and phase_B_conductor_name != "NONE":
                 x2 = float(cond2_x)
                 horizontal_positions.append(x2)
-            if cond3_x != "":
+            if cond3_x != "" and phase_C_conductor_name != "NONE":
                 x3 = float(cond3_x)
                 horizontal_positions.append(x3)
-            if neutral_x != "":
+            if neutral_x != "" and neutral_conductor_name != "NONE":
                 x_n = float(neutral_x)
                 horizontal_positions.append(x_n)
             return Distance(horizontal_positions, 'feet').to('m')
@@ -312,40 +314,38 @@ class GeometryBranchByPhaseEquipmentMapper(CymeMapper):
         phase_B_conductor_name = row['CondID_B']
         phase_C_conductor_name = row['CondID_C']
         neutral_conductor_name = row['CondID_N1']
-        try:
+
+        phase_A_conductor = None
+        phase_B_conductor = None
+        phase_C_conductor = None
+        neutral_conductor = None
+
+        if phase_A_conductor_name != "NONE":
             phase_A_conductor = self.system.get_component(component_type=BareConductorEquipment, name=phase_A_conductor_name)
-        except Exception as e:
-            phase_A_conductor = self.system.get_component(component_type=BareConductorEquipment, name="Default")
-        try:
+        if phase_B_conductor_name != "NONE":
             phase_B_conductor = self.system.get_component(component_type=BareConductorEquipment, name=phase_B_conductor_name)
-        except Exception as e:
-            phase_B_conductor = self.system.get_component(component_type=BareConductorEquipment, name="Default")
-        try:
+        if phase_C_conductor_name != "NONE":
             phase_C_conductor = self.system.get_component(component_type=BareConductorEquipment, name=phase_C_conductor_name)
-        except Exception as e:
-            phase_C_conductor = self.system.get_component(component_type=BareConductorEquipment, name="Default")
-        try:
+        if neutral_conductor_name != "NONE":
             neutral_conductor = self.system.get_component(component_type=BareConductorEquipment, name=neutral_conductor_name)
-        except Exception as e:
-            neutral_conductor = self.system.get_component(component_type=BareConductorEquipment, name="Default")
 
         spacing_id = row['SpacingID']
 
-        row = spacing_ids.loc[spacing_id]
-        if not row.empty:
-            spacing = row
+        spacing = spacing_ids.loc[spacing_id]
+        if not spacing.empty:
             conductors = []
             cond1 = spacing['PosOfCond1_X']
             cond2 = spacing['PosOfCond2_X']
             cond3 = spacing['PosOfCond3_X']
             neutral = spacing['PosOfNeutralCond_X']
-            if cond1 != "" and phase_A_conductor != "NONE":
+            if cond1 != "" and phase_A_conductor is not None:
                 conductors.append(phase_A_conductor)
-            if cond2 != "" and phase_B_conductor != "NONE":
+            if cond2 != "" and phase_B_conductor is not None:
                 conductors.append(phase_B_conductor)
-            if cond3 != "" and phase_C_conductor != "NONE":
+            if cond3 != "" and phase_C_conductor is not None:
                 conductors.append(phase_C_conductor)
-            if neutral != "" and neutral_conductor != "NONE":
+            if neutral != "" and neutral_conductor is not None:
                 conductors.append(neutral_conductor)
+
             return conductors      
         return None

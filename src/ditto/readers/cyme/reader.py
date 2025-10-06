@@ -109,7 +109,7 @@ class Reader(AbstractReader):
                 "GeometryBranchMapper": lambda: [used_sections, section_id_sections],
                 "GeometryBranchByPhaseMapper": lambda: [used_sections, section_id_sections],
                 "BareConductorEquipmentMapper": lambda: [],
-                "GeometryBranchEquipmentMapper": lambda: [equipment_file],
+                "GeometryBranchEquipmentMapper": lambda: [read_cyme_data(equipment_file,"SPACING TABLE FOR LINE", index_col='ID')],
                 "MatrixImpedanceSwitchMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "SWITCH", index_col='ID')],
                 "MatrixImpedanceFuseMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "FUSE", index_col='ID')],
                 "MatrixImpedanceRecloserMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "RECLOSER", index_col='ID')],
@@ -270,6 +270,6 @@ def filter_feeder(object, feeder_name=None):
         for bus in object.buses:
             if not hasattr(bus.feeder, "name"):
                 return False
-            if bus.feeder.name == feeder_name:
-                return True
+        if object.buses[0].feeder.name == feeder_name and object.buses[1].feeder.name == feeder_name: 
+            return True
         return False

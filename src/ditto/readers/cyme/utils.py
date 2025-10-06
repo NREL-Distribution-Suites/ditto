@@ -1,7 +1,8 @@
 import pandas as pd
 from gdm.distribution.components.distribution_feeder import DistributionFeeder
+from gdm.quantities import Voltage
 
-def read_cyme_data(cyme_file, cyme_section, node_feeder_map = None, feeder_voltage_map = None, parse_feeders=False):
+def read_cyme_data(cyme_file, cyme_section, index_col=None, node_feeder_map = None, feeder_voltage_map = None, parse_feeders=False):
     all_data = []
     headers = None
     with open(cyme_file) as f:
@@ -21,7 +22,7 @@ def read_cyme_data(cyme_file, cyme_section, node_feeder_map = None, feeder_volta
                     if parse_feeders:
                         if line.startswith("FEEDER"):
                             feeder_id = line.split(",")[0].split("=")[1].strip()
-                            feeder_voltage_map[feeder_id] = line.split(",")[9].strip()
+                            feeder_voltage_map[feeder_id] = None
                         else:
                             feeder_id = None
                     # For SECTION Feeder headers
@@ -46,4 +47,6 @@ def read_cyme_data(cyme_file, cyme_section, node_feeder_map = None, feeder_volta
                         raise Exception(f"Failed to parse line: {line}")
 
     data = pd.DataFrame(all_data, columns=headers)
+    if index_col is not None:
+        data.set_index(index_col, inplace=True, drop=False)
     return data

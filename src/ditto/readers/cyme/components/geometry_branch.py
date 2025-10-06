@@ -18,19 +18,15 @@ class GeometryBranchMapper(CymeMapper):
         name = self.map_name(row)
         buses = self.map_buses(row,section_id_sections)
         length = self.map_length(row)
-        phases = self.map_phases(row, section_id_sections)
         equipment = self.map_equipment(row)
-        try:
-            used_sections.add(name)
-            return GeometryBranch.model_construct(name=name,
-                                buses=buses,
-                                length=length,
-                                phases=phases,
-                                equipment=equipment)
-        except Exception as e:
-            print(f"Error creating GeometryBranch {name}: {e}")
-            print(buses)
-            return None
+        phases = self.map_phases(row, section_id_sections, equipment, buses)
+
+        used_sections.add(name)
+        return GeometryBranch.model_construct(name=name,
+                            buses=buses,
+                            length=length,
+                            phases=phases,
+                            equipment=equipment)
 
     def map_name(self, row):
         name = row['SectionID']
@@ -50,7 +46,7 @@ class GeometryBranchMapper(CymeMapper):
         length = Distance(float(row['Length']),'mile').to('km')
         return length
 
-    def map_phases(self, row, section_id_sections):
+    def map_phases(self, row, section_id_sections, equipment, buses):
         section_id = str(row['SectionID'])
         section = section_id_sections[section_id]
         phase = section['Phase']
@@ -61,7 +57,17 @@ class GeometryBranchMapper(CymeMapper):
             phases.append(Phase.B)
         if 'C' in phase:
             phases.append(Phase.C)
-        return phases
+
+        if len(phases) == len(equipment.conductors):
+            return phases
+        elif len(phase) == len(equipment.conductors) - 1:
+            phases.append(Phase.N)
+            for bus in buses:
+                if bus.phases is not None and Phase.N not in bus.phases:
+                    bus.phases.append(Phase.N)
+            return phases
+        else:
+            raise ValueError(f"Number of phases {len(phases)} does not match number of conductors {len(equipment.conductors)} for line {row['SectionID']}")
 
     def map_equipment(self, row):
         line_id = row['LineCableID']
@@ -79,19 +85,16 @@ class GeometryBranchByPhaseMapper(CymeMapper):
         name = self.map_name(row)
         buses = self.map_buses(row,section_id_sections)
         length = self.map_length(row)
-        phases = self.map_phases(row, section_id_sections)
         equipment = self.map_equipment(row)
-        try:
-            used_sections.add(name)
-            return GeometryBranch.model_construct(name=name,
-                                buses=buses,
-                                length=length,
-                                phases=phases,
-                                equipment=equipment)
-        except Exception as e:
-            print(f"Error creating GeometryBranch {name}: {e}")
-            print(buses)
-            return None
+        phases = self.map_phases(row, section_id_sections, equipment, buses)
+
+        used_sections.add(name)
+        return GeometryBranch.model_construct(name=name,
+                            buses=buses,
+                            length=length,
+                            phases=phases,
+                            equipment=equipment)
+
 
     def map_name(self, row):
         name = row['SectionID']
@@ -111,7 +114,7 @@ class GeometryBranchByPhaseMapper(CymeMapper):
         length = Distance(float(row['Length']),'mile').to('km')
         return length
 
-    def map_phases(self, row, section_id_sections):
+    def map_phases(self, row, section_id_sections, equipment, buses):
         section_id = str(row['SectionID'])
         section = section_id_sections[section_id]
         phase = section['Phase']
@@ -122,6 +125,15 @@ class GeometryBranchByPhaseMapper(CymeMapper):
             phases.append(Phase.B)
         if 'C' in phase:
             phases.append(Phase.C)
+        
+        if len(phases) == len(equipment.conductors):
+            return phases
+        elif len(phase) == len(equipment.conductors) - 1:
+            phases.append(Phase.N)
+            for bus in buses:
+                if bus.phases is not None and Phase.N not in bus.phases:
+                    bus.phases.append(Phase.N)
+            return phases
         return phases
 
     def map_equipment(self, row):

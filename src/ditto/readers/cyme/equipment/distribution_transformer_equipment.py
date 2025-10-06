@@ -23,7 +23,7 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
         winding_reactances = self.map_winding_reactances(row, is_center_tapped)
         coupling_sequences = self.map_coupling(row, is_center_tapped)
 
-        return DistributionTransformerEquipment(name=name,
+        return DistributionTransformerEquipment.model_construct(name=name,
                                                 pct_no_load_loss=pct_no_load_loss,
                                                 pct_full_load_loss=pct_full_load_loss,
                                                 windings=windings,
@@ -166,7 +166,7 @@ class WindingEquipmentMapper(CymeMapper):
         total_taps = self.map_total_taps(row)
         min_tap_pu = self.min_tap_pu(row)
         max_tap_pu = self.max_tap_pu(row)
-        return WindingEquipment(name=name,
+        return WindingEquipment.model_construct(name=name,
                                 resistance=resistance,
                                 is_grounded=is_grounded,
                                 rated_voltage=rated_voltage,

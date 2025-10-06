@@ -31,9 +31,9 @@ class MatrixImpedanceSwitchEquipmentMapper(CymeMapper):
 
     def map_r_matrix(self, phases):
         default_matrix = [
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
+            [1e-6, 0.0, 0.0],
+            [0.0, 1e-6, 0.0],
+            [0.0, 0.0, 1e-6],
         ]
         matrix = [row[:len(phases)] for row in default_matrix[:len(phases)]]
         return ResistancePULength(
@@ -43,9 +43,9 @@ class MatrixImpedanceSwitchEquipmentMapper(CymeMapper):
 
     def map_x_matrix(self, phases):
         default_matrix = [
-                    [0.0, 0.0, 0.0],
-                    [0.0, 0.0, 0.0],
-                    [0.0, 0.0, 0.0],
+                    [1e-4, 0.0, 0.0],
+                    [0.0, 1e-4, 0.0],
+                    [0.0, 0.0, 1e-4],
                 ]
         matrix = [row[:len(phases)] for row in default_matrix[:len(phases)]]
         return ReactancePULength(

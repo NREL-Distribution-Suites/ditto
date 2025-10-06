@@ -69,22 +69,32 @@ class MatrixImpedanceBranchMapper(CymeMapper):
         return phases
 
     def map_equipment(self, row, phases):
-        default_matrix = [
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-        ]
-        matrix = [row[:len(phases)] for row in default_matrix[:len(phases)]]
+
+        r = [
+            [1e-6, 0.0, 0.0],
+            [0.0, 1e-6, 0.0],
+            [0.0, 0.0, 1e-6],
+            ]
         r_matrix = ResistancePULength(
-            matrix,
+            [row[:len(phases)] for row in r[:len(phases)]],
             "ohm/mi",
         )
+        x = [
+            [1e-4, 0.0, 0.0],
+            [0.0, 1e-4, 0.0],
+            [0.0, 0.0, 1e-4],
+            ]
         x_matrix = ReactancePULength(
-            matrix,
+            [row[:len(phases)] for row in x[:len(phases)]],
             "ohm/mi",
         )
+        c = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            ]
         c_matrix = CapacitancePULength(
-            matrix,
+            [row[:len(phases)] for row in c[:len(phases)]],
             "nanofarad/mi",
         )
         ampacity = Current(600.0, "A")

@@ -294,7 +294,7 @@ def build_split_phase_distribution_line(
     return MatrixImpedanceBranch(
         buses=[bus1, bus2],
         length=Distance(130.2, "meter"),
-        phases=[Phase.S1, Phase.S2, Phase.N],
+        phases=[Phase.S1, Phase.S2],
         name="DistBranch_{}_{}".format(bus1.name, bus2.name),
         equipment=matrix,
     )

@@ -20,8 +20,8 @@ from gdm.distribution.equipment import (
 from loguru import logger
 
 from ditto.writers.abstract_writer import AbstractWriter
-import ditto.writers.opendss as opendss_mapper
 from ditto.enumerations import OpenDSSFileTypes
+import ditto.writers.opendss as opendss_mapper
 
 
 class Writer(AbstractWriter):

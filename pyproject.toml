@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = [
   "opendssdirect.py",
-  "grid-data-models==2.1.4",
+  "grid-data-models==2.1.5",
   "rdflib",
   "NREL-altdss-schema==0.0.2",
 ]

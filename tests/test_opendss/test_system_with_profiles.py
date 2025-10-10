@@ -31,7 +31,9 @@ def test_export_opends_model_with_profiles(
 def test_export_opends_model_with_discontineous_profiles(
     distribution_system_with_nonsequential_timeseries: DistributionSystem, tmp_path
 ):
-    fixed_tmp_path = tmp_path
+    from pathlib import Path
+
+    fixed_tmp_path = Path("")
     distribution_system_with_nonsequential_timeseries.info()
     writer = Writer(distribution_system_with_nonsequential_timeseries)
     csv_files = glob.glob(os.path.join(fixed_tmp_path, "*.dss"))

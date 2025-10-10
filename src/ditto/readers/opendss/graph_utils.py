@@ -15,6 +15,13 @@ import networkx as nx
 from ditto.readers.opendss.common import get_source_bus
 
 
+def dfs_multidigraph(G: nx.MultiGraph, source: str) -> nx.MultiDiGraph:
+    tree = nx.MultiDiGraph()
+    for u, v, k in nx.edge_dfs(G, source=source):
+        tree.add_edge(u, v, key=k, **G[u][v][k])
+    return tree
+
+
 def update_split_phase_nodes(graph: Graph, system: DistributionSystem) -> DistributionSystem:
     """Return the system with corrected split phase representation
 
@@ -28,11 +35,7 @@ def update_split_phase_nodes(graph: Graph, system: DistributionSystem) -> Distri
 
     source_buses = get_source_bus(system)
     assert len(set(source_buses)) == 1, "Source bus should be singular"
-    tree = nx.dfs_tree(graph, source=source_buses[0])
-    for u, v in tree.edges():
-        attrs = graph.edges[u, v]
-        tree.add_edge(u, v, **attrs)
-
+    tree = dfs_multidigraph(graph, source=source_buses[0])
     split_phase_transformers = _get_split_phase_transformers(system)
     for transformer in split_phase_transformers:
         _get_split_phase_sub_graph(transformer, tree, system)
@@ -74,22 +77,24 @@ def _get_split_phase_sub_graph(
     )
     hv_xfmr_bus = max(xfmr_buses, key=lambda x: x[1])[0]
     lv_xfmr_bus = min(xfmr_buses, key=lambda x: x[1])[0]
+
     xfmr_info = graph[hv_xfmr_bus][lv_xfmr_bus]
-    assert (
-        xfmr_info["type"] == DistributionTransformer
-    ), f"Unsupported model type {xfmr_info['type']}"
-    model_type = xfmr_info["type"]
-    xfmr_model = system.get_component(model_type, xfmr_info["name"])
+    for k in xfmr_info:
+        assert (
+            xfmr_info[k]["type"] == DistributionTransformer
+        ), f"Unsupported model type {xfmr_info[k]['type']}"
+        model_type = xfmr_info[k]["type"]
+        xfmr_model = system.get_component(model_type, xfmr_info[k]["name"])
 
-    filter_nodes = []
-    for node, sucessors in nx.bfs_successors(graph, lv_xfmr_bus):
-        filter_nodes.append(node)
-        filter_nodes.extend(sucessors)
+        filter_nodes = []
+        for node, sucessors in nx.bfs_successors(graph, lv_xfmr_bus):
+            filter_nodes.append(node)
+            filter_nodes.extend(sucessors)
 
-    descendants = set(filter_nodes)
-    subgraph = graph.subgraph(descendants)
-    _get_components_in_subgraph(hv_xfmr_bus, xfmr_model, subgraph, system)
-    return
+        descendants = set(filter_nodes)
+        subgraph = graph.subgraph(descendants)
+        _get_components_in_subgraph(hv_xfmr_bus, xfmr_model, subgraph, system)
+        return
 
 
 def _get_components_in_subgraph(
@@ -151,7 +156,6 @@ def _mapped_phases(mapped_split_phases, phases):
                 mapped_split_phases[phase] if phase in mapped_split_phases else phase
                 for phase in phases
             ]
-            + [Phase.N]
         )
     )
 

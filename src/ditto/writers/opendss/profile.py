@@ -20,7 +20,6 @@ class ProfileMapper(OpenDSSMapper):
         self.profile_datasets = profile_datasets
         self.model: TimeSeriesMetadata = profile_datasets[0]["profile"]
         self.metadata: list[TimeSeriesMetadata] = profile_datasets[0]["metadata"]
-
         if issubclass(self.model.__class__, SingleTimeSeries):
             self.altdss_name = "LoadShape_PMultQMultInterval"
         elif issubclass(self.model.__class__, NonSequentialTimeSeries):
@@ -62,6 +61,7 @@ class ProfileMapper(OpenDSSMapper):
                 # units = profile["profile"].data.units
                 data = profile["profile"].data.magnitude.tolist()
                 self.opendss_dict[metadata.user_attributes["profile_type"]] = data
+                self.opendss_dict["UseActual"] = self.metadata[0].user_attributes["use_actual"]
                 # var = metadata.variable_name
                 # variable_value = getattr(self.component, var).to(units).magnitude
                 # if metadata.user_attributes['profile_type'] == "PMult":

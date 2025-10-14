@@ -46,7 +46,7 @@ class MatrixImpedanceFuseMapper(CymeMapper):
         return [from_bus, to_bus]
 
     def map_length(self, row):
-        length = Distance(0.001,'km')
+        length = Distance(0.001,'kilometer')
         return length
     
     def map_phases(self, row, section_id_sections):

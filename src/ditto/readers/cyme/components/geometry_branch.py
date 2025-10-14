@@ -43,7 +43,7 @@ class GeometryBranchMapper(CymeMapper):
         return [from_bus, to_bus]
 
     def map_length(self, row):
-        length = Distance(float(row['Length']),'mile').to('km')
+        length = Distance(float(row['Length']),'foot').to('km')
         return length
 
     def map_phases(self, row, section_id_sections, equipment, buses):
@@ -111,7 +111,7 @@ class GeometryBranchByPhaseMapper(CymeMapper):
         return [from_bus, to_bus]
 
     def map_length(self, row):
-        length = Distance(float(row['Length']),'mile').to('km')
+        length = Distance(float(row['Length']),'foot').to('km')
         return length
 
     def map_phases(self, row, section_id_sections, equipment, buses):

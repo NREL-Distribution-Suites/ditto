@@ -52,7 +52,7 @@ class MatrixImpedanceBranchMapper(CymeMapper):
         return [from_bus, to_bus]
 
     def map_length(self):
-        length = Distance(float(1.0),'m')
+        length = Distance(0.001,'kilometer')
         return length
 
     def map_phases(self, row, section_id_sections):

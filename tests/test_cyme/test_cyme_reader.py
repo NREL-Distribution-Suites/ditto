@@ -17,6 +17,7 @@ assert cyme_circuit_models.exists, f"{cyme_circuit_models} does not exist"
 
 cyme_network_name = "Network.txt"
 cyme_equipment_name = "Equipment.txt"
+cyme_load_name = "Load.txt"
 
 target_files = set([cyme_network_name, cyme_equipment_name])
 matching_folders = []
@@ -33,11 +34,12 @@ def test_cyme_reader(cyme_folder: Path, tmp_path):
     if not export_path.exists():
         export_path.mkdir(parents=True, exist_ok=True)
 
-    reader = Reader(cyme_folder / cyme_network_name, cyme_folder / cyme_equipment_name)
+    reader = Reader(cyme_folder / cyme_network_name, cyme_folder / cyme_equipment_name, cyme_folder / cyme_load_name)
     writer = Writer(reader.get_system())
     writer.write(export_path / "opendss", separate_substations=False, separate_feeders=False)
     system = reader.get_system()
     json_path = (export_path / cyme_folder.stem.lower()).with_suffix(".json")
     system.to_json(json_path, overwrite=True, indent=4)
+    system.to_geojson(export_path / (cyme_folder.stem.lower() + ".geojson"))
   
     assert json_path.exists(), "Failed to export the json file"

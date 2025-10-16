@@ -18,4 +18,7 @@ from ditto.readers.cyme.components.matrix_impedance_fuse import MatrixImpedanceF
 from ditto.readers.cyme.equipment.matrix_impedance_fuse_equipment import MatrixImpedanceFuseEquipmentMapper
 from ditto.readers.cyme.components.matrix_impedance_recloser import MatrixImpedanceRecloserMapper
 from ditto.readers.cyme.equipment.matrix_impedance_recloser_equipment import MatrixImpedanceRecloserEquipmentMapper
+from ditto.readers.cyme.components.matrix_impedance_branch import MatrixImpedanceBranchMapper
+from ditto.readers.cyme.components.distribution_voltage_source import DistributionVoltageSourceMapper
+from ditto.readers.cyme.equipment.phase_voltagesource_equipment import PhaseVoltageSourceEquipmentMapper
 

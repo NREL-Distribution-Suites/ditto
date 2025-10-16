@@ -12,7 +12,7 @@ class MatrixImpedanceSwitchMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'SWITCH SETTING'
 
-    def parse(self, row, section_id_sections, equipment_data):
+    def parse(self, row, used_sections, section_id_sections, equipment_data):
 
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
@@ -20,7 +20,7 @@ class MatrixImpedanceSwitchMapper(CymeMapper):
         phases = self.map_phases(row, section_id_sections)
         is_closed = self.map_is_closed(row, phases)
         equipment = self.map_equipment(row, phases, equipment_data)
-
+        used_sections.add(name)
         return MatrixImpedanceSwitch(
             name=name,
             buses=buses,

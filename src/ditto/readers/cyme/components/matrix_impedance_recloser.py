@@ -13,7 +13,7 @@ class MatrixImpedanceRecloserMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'RECLOSER SETTING'
 
-    def parse(self, row, section_id_sections, equipment_data):
+    def parse(self, row, used_sections, section_id_sections, equipment_data):
 
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
@@ -22,6 +22,8 @@ class MatrixImpedanceRecloserMapper(CymeMapper):
         is_closed = self.map_is_closed(row, phases)
         controller = self.map_controller(row)
         equipment = self.map_equipment(row, phases, equipment_data)
+
+        used_sections.add(name)
 
         return MatrixImpedanceRecloser(
             name=name,

@@ -13,23 +13,17 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
     cyme_file = 'Equipment'
     cyme_section = 'TRANSFORMER'
 
-    def parse(self, row, transformer_map):
-        network_row = None
-        if row['ID'] in transformer_map:
-            network_row = transformer_map[row['ID']]
-            
-        if network_row is None:
-            return None
+    def parse(self, row, network_row):
         
         name = self.map_name(row)
         pct_no_load_loss = self.map_pct_no_load_loss(row)
         pct_full_load_loss = self.map_pct_full_load_loss(row)
-        windings = self.map_windings(row, network_row)
-        winding_reactances = self.map_winding_reactances(row)
         is_center_tapped = self.map_is_center_tapped(row)
-        coupling_sequences = self.map_coupling(row)
-        
-        return DistributionTransformerEquipment(name=name,
+        windings = self.map_windings(row, network_row, is_center_tapped)
+        winding_reactances = self.map_winding_reactances(row, is_center_tapped)
+        coupling_sequences = self.map_coupling(row, is_center_tapped)
+
+        return DistributionTransformerEquipment.model_construct(name=name,
                                                 pct_no_load_loss=pct_no_load_loss,
                                                 pct_full_load_loss=pct_full_load_loss,
                                                 windings=windings,
@@ -55,14 +49,14 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
         pct_full_load_loss = rated_current_sec*resistance_sec/100
         return pct_full_load_loss
 
-    def map_winding_reactances(self, row):
+    def map_winding_reactances(self, row, is_center_tapped):
         xr_ratio = float(row['XR'])
         if xr_ratio == 0:
             xr_ratio = 0.01
         rx_ratio = 1/xr_ratio
         reactance_pu = float(row['Z1'])/((1+rx_ratio**2)**0.5)
         transformer_type = row['Type']
-        if transformer_type == '4':
+        if is_center_tapped:
             winding_reactances = [reactance_pu, reactance_pu, reactance_pu]
         else:
             winding_reactances = [reactance_pu]
@@ -74,11 +68,8 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
             return True
         return False
 
-    def map_windings(self, row, network_row):
+    def map_windings(self, row, network_row, is_center_tapped):
         windings = []
-        is_center_tapped = False
-        if row['Type'] == '4':
-            is_center_tapped = True
 
         winding_mapper1 = WindingEquipmentMapper(self.system)
         winding_1 = winding_mapper1.parse(row, network_row, winding_number=1)
@@ -92,9 +83,9 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
             windings.append(winding_3)
         return windings
     
-    def map_coupling(self, row):
+    def map_coupling(self, row, is_center_tapped):
         transformer_type = row['Type']
-        if transformer_type == '4':
+        if is_center_tapped:
             coupling = [SequencePair(0,1),
                         SequencePair(0,2),
                         SequencePair(1,2)]
@@ -122,16 +113,52 @@ class WindingEquipmentMapper(CymeMapper):
                 10: 'YNG_Y',
                 11: 'Yg_Zg',
                 12: 'D_Zg',
-                15: 'YG_CT',
-                16: 'D_DCT',
         }
+    
+    # The documentation is confusing on where the below connection types are used
+    # It appears they are used in the equipment file although it is repoted in the network file
+    connection_map = {
+        0: 'Yg_Yg',
+        1: 'D_Yg',
+        2: 'D_D',
+        3: 'Y_Y',
+        4: 'DO_DO',
+        5: 'YO_D',
+        6: 'Yg_D',
+        7: 'D_Y',
+        8: 'Y_D',
+        9: 'Yg_Y',
+        10: 'Y_Yg',
+        11: 'Yg_Zg',
+        12: 'D_Zg',
+        13: 'Zg_Yg',
+        14: 'Zg_D',
+        15: 'Yg_CT',
+        16: 'D_CT',
+        17: 'Yg_DCT',
+        18: 'D_DCT',
+        19: 'Y_DCT',
+        20: 'DO_DOCT',
+        21: 'YO_DOCT',
+        22: 'DO_YO',
+        23: 'Yg_Dn',
+        24: 'Y_Dn',
+        25: 'D_Dn',
+        26: 'Zg_Dn',
+        27: 'Dn_Yg',
+        28: 'Dn_Y',
+        29: 'Dn_D',
+        30: 'Dn_Dn',
+        31: 'Dn_Zg',
+        99: 'Equip_Connection',
+    } 
 
     def parse(self, row, network_row, winding_number):
         name = self.map_name(row)
         resistance = self.map_resistance(row, winding_number)
         is_grounded = self.map_is_grounded(row, winding_number)
         rated_voltage = self.map_rated_voltage(row, winding_number)
-        voltage_type = self.map_voltage_type(row)
+        voltage_type = self.map_voltage_type(row, rated_voltage)
         rated_power = self.map_rated_power(row)
         num_phases = self.map_num_phases(row)
         connection_type = self.map_connection_type(row, winding_number)
@@ -139,7 +166,7 @@ class WindingEquipmentMapper(CymeMapper):
         total_taps = self.map_total_taps(row)
         min_tap_pu = self.min_tap_pu(row)
         max_tap_pu = self.max_tap_pu(row)
-        return WindingEquipment(name=name,
+        return WindingEquipment.model_construct(name=name,
                                 resistance=resistance,
                                 is_grounded=is_grounded,
                                 rated_voltage=rated_voltage,
@@ -198,7 +225,11 @@ class WindingEquipmentMapper(CymeMapper):
         voltage = Voltage(float(voltage), "kilovolt")
         return voltage
 
-    def map_voltage_type(self, row):
+    def map_voltage_type(self, row, rated_voltage):
+        # This is from the CYME documentation but appears to not be entirely correct
+        # Clearly L-L voltages still appear with a voltage type of 1
+        if row["VoltageUnit"] == '1':
+            return VoltageTypes.LINE_TO_GROUND
         return VoltageTypes.LINE_TO_LINE
 
     def map_rated_power(self, row):
@@ -239,7 +270,7 @@ class WindingEquipmentMapper(CymeMapper):
         elif 'CT' == winding_type:
             connection_type = 'STAR'
         else:
-            raise ValueError("Unknown winding type: {}".format(winding_type))
+            connection_type = 'STAR'
 
         return ConnectionType(connection_type)
 
@@ -257,8 +288,8 @@ class WindingEquipmentMapper(CymeMapper):
             else:
                 tap = network_row.get('PrimTap', None)
                 if tap is None:
-                    tap = network_row.get('PrimaryTapSettingA', 100)
-                tap = float(tap) - 100
+                    tap = network_row.get('PrimaryTapSettingA', 0)
+                tap = float(tap) / 100
 
         elif winding_number == 2:
             if network_row is None:
@@ -266,18 +297,20 @@ class WindingEquipmentMapper(CymeMapper):
             else:
                 tap = network_row.get('SecTap', None)
                 if tap is None:
-                    tap = network_row.get('SecondaryTapSettingA', 100)
-                tap = float(tap) - 100
+                    tap = network_row.get('SecondaryTapSettingA', 0)
+                tap = float(tap) / 100
         elif winding_number == 3:
             if network_row is None:
                 tap = 0.0
             else:
                 tap = network_row.get('SecTap', None)
                 if tap is None:
-                    tap = network_row.get('SecondaryTapSettingA', 100)
-                tap = float(tap) - 100
+                    tap = network_row.get('SecondaryTapSettingA', 0)
+                tap = float(tap) / 100
+        if row['Taps'] == '' or row['Taps'] is None:
+            tap = 0.0
         for phase in range(1, num_phases + 1):
-            tap_positions.append(0.0)
+            tap_positions.append(tap)
         return tap_positions
 
     def map_total_taps(self, row):

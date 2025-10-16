@@ -1,10 +1,10 @@
 from loguru import logger
 from ditto.readers.cyme.cyme_mapper import CymeMapper
+from ditto.readers.cyme.equipment.distribution_transformer_equipment import DistributionTransformerEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_transformer import DistributionTransformer
 from gdm.distribution.equipment.distribution_transformer_equipment import DistributionTransformerEquipment
-from gdm.quantities import ActivePower, ReactivePower
-from gdm.distribution.enums import ConnectionType, Phase
+from gdm.distribution.enums import Phase
 
 class DistributionTransformerMapper(CymeMapper):
     def __init__(self, system):
@@ -13,14 +13,15 @@ class DistributionTransformerMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'TRANSFORMER SETTING'
 
-    def parse(self, row, section_id_sections, transformer_map):
-        equipment_row = transformer_map.get(row['EqID'], None)
+    def parse(self, row, used_sections, section_id_sections, equipment_data):
+        equipment_row = equipment_data.get(row['EqID'], None)
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
         winding_phases = self.map_winding_phases(row, section_id_sections, equipment_row)
-        equipment = self.map_equipment(row)
+        equipment = self.map_equipment(row, equipment_row)
         try:
-            return DistributionTransformer(name=name,
+            used_sections.add(name)
+            return DistributionTransformer.model_construct(name=name,
                                                 buses=buses,
                                                 winding_phases=winding_phases,
                                                 equipment=equipment)
@@ -66,10 +67,13 @@ class DistributionTransformerMapper(CymeMapper):
             windings_list.append(winding_phases)
         return windings_list
 
-    def map_equipment(self, row):
-        transformer_id = row['EqID']
-        equipment = self.system.get_component(component_type=DistributionTransformerEquipment, name=transformer_id)
-        return equipment
+    def map_equipment(self, row, equipment_row):
+        mapper = DistributionTransformerEquipmentMapper(self.system)
+        if equipment_row is not None:
+            equipment = mapper.parse(equipment_row, row)
+            if equipment is not None:
+                return equipment
+        return None
 
 
 class DistributionTransformerByPhaseMapper(CymeMapper):
@@ -79,20 +83,23 @@ class DistributionTransformerByPhaseMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'TRANSFORMER BYPHASE SETTING'
 
-    def parse(self, row, section_id_sections, transformer_map):
+    def parse(self, row, used_sections, section_id_sections, equipment_data):
         additional_transformers = []
+        
         for phase in ['1', '2', '3']:
             if row['PhaseTransformerID' + phase] is None or row['PhaseTransformerID' + phase] == '':
                 continue
-            equipment_row = transformer_map.get(row['PhaseTransformerID' + phase], None)
+            equipment_row = equipment_data.get(row['PhaseTransformerID' + phase], None)
+            
             name = self.map_name(row, phase)
-            equipment = self.map_equipment(row, phase)
+            equipment = self.map_equipment(row, phase, equipment_row)
             buses = self.map_buses(row, section_id_sections, equipment.is_center_tapped)
             winding_phases = self.map_winding_phases(row, phase, equipment_row)
             
 
             try:
-                additional_transformers.append(DistributionTransformer(name=name,
+                used_sections.add(row['SectionID'])
+                additional_transformers.append(DistributionTransformer.model_construct(name=name,
                                                                         buses=buses,
                                                                         winding_phases=winding_phases,
                                                                         equipment=equipment))
@@ -141,7 +148,10 @@ class DistributionTransformerByPhaseMapper(CymeMapper):
         assert len(windings_list) == num_windings
         return windings_list
 
-    def map_equipment(self, row, phase):
-        transformer_id = row['PhaseTransformerID' + phase]
-        equipment = self.system.get_component(component_type=DistributionTransformerEquipment, name=transformer_id)
-        return equipment
+    def map_equipment(self, row, phase, equipment_row):
+        mapper = DistributionTransformerEquipmentMapper(self.system)
+        if equipment_row is not None:
+            equipment = mapper.parse(equipment_row, row)
+            if equipment is not None:
+                return equipment
+        return None

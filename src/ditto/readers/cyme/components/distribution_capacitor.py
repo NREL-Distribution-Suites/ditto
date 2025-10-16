@@ -20,7 +20,7 @@ class DistributionCapacitorMapper(CymeMapper):
         controllers = self.map_controllers(row)
         equipment = self.map_equipment(row, equipment_data)
         in_service = self.map_in_service(row)
-        return DistributionCapacitor(name=name,
+        return DistributionCapacitor.model_construct(name=name,
                                       bus=bus,
                                       phases=phases,
                                       controllers=controllers,

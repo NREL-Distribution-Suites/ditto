@@ -19,10 +19,16 @@ class DistributionLoadMapper(CymeMapper):
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
         equipment = self.map_equipment(row, equipment_file)
+        if len(list(self.system.list_components_by_name(DistributionLoad, name))) > 0:
+            existing_load = self.system.get_component(component_type=DistributionLoad, name=name)
+            existing_load.equipment.phase_loads.real_power += equipment.phase_loads.real_power
+            existing_load.equipment.phase_loads.reactive_power += equipment.phase_loads.reactive_power
+            return None
+
         if len(phases) == 0:
             logger.warning(f"Load {name} has no kW values. Skipping...")
             return None
-        return DistributionLoad(name=name,
+        return DistributionLoad.model_construct(name=name,
                                 bus=bus,
                                 phases=phases,
                                 equipment=equipment)

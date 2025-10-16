@@ -23,7 +23,7 @@ class DistributionBusMapper(CymeMapper):
         rated_voltage = self.map_rated_voltage(row, phases, feeder_voltage_map.get(feeder_name))
         voltage_limits = self.map_voltagelimits(row)
         voltage_type = self.map_voltage_type(row)
-        return DistributionBus(name=name, 
+        return DistributionBus.model_construct(name=name, 
                               coordinate=coordinate,
                               rated_voltage=rated_voltage,
                               feeder=feeder,

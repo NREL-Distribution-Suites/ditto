@@ -12,7 +12,7 @@ class MatrixImpedanceFuseMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'FUSE SETTING'
 
-    def parse(self, row, section_id_sections, equipment_data):
+    def parse(self, row, used_sections, section_id_sections, equipment_data):
 
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
@@ -20,7 +20,8 @@ class MatrixImpedanceFuseMapper(CymeMapper):
         phases = self.map_phases(row, section_id_sections)
         is_closed = self.map_is_closed(row, phases)
         equipment = self.map_equipment(row, phases, equipment_data)
-
+    
+        used_sections.add(name)
         return MatrixImpedanceFuse(
             name=name,
             buses=buses,
@@ -45,7 +46,7 @@ class MatrixImpedanceFuseMapper(CymeMapper):
         return [from_bus, to_bus]
 
     def map_length(self, row):
-        length = Distance(0.001,'km')
+        length = Distance(0.001,'kilometer')
         return length
     
     def map_phases(self, row, section_id_sections):

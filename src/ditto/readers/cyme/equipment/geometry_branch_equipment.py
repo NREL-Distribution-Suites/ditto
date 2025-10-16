@@ -1,4 +1,4 @@
-from gdm.quantities import Current, Distance, ResistancePULength, Distance
+from gdm.quantities import Current, Distance, ResistancePULength, Distance, Voltage
 from ditto.readers.cyme.utils import read_cyme_data
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 from gdm.distribution.equipment.geometry_branch_equipment import GeometryBranchEquipment
@@ -120,19 +120,20 @@ class ConcentricCableEquipmentMapper(CymeMapper):
     cyme_file = 'Equipment'
     cyme_section = 'CABLE'
 
-    def parse(self, row):
+    def parse(self, row, equipment_file):
         name = self.map_name(row)
-        strand_diameter = self.map_strand_diameter(row)
-        conductor_diameter = self.map_conductor_diameter(row) 
-        cable_diameter = self.map_cable_diameter(row)
-        insulation_thickness = self.map_insulation_thickness(row)
-        insulation_diameter = self.map_insulation_diameter(row)
+        strand_diameter = self.map_strand_diameter(row, equipment_file)
+        conductor_diameter = self.map_conductor_diameter(row, equipment_file) 
+        cable_diameter = self.map_cable_diameter(row, equipment_file)
+        insulation_thickness = self.map_insulation_thickness(row, equipment_file)
+        insulation_diameter = conductor_diameter+2*insulation_thickness + Distance(0.001,'mm')
+        cable_diameter = insulation_diameter + 2* strand_diameter
         amapcity = self.map_ampacity(row)
-        conductor_gmr = self.map_conductor_gmr(row)
-        strand_gmr = self.map_strand_gmr(row)
-        phase_ac_resistance = self.map_phase_ac_resistance(row)
-        strand_ac_resistance = self.map_strand_ac_resistance(row)
-        num_neutral_strands = self.map_num_neutral_strands(row)
+        conductor_gmr = conductor_diameter/2 *0.7788
+        strand_gmr = strand_diameter/2 * 0.7788
+        phase_ac_resistance = self.map_phase_ac_resistance(row, equipment_file)
+        strand_ac_resistance = self.map_strand_ac_resistance(row, equipment_file)
+        num_neutral_strands = self.map_num_neutral_strands(row, equipment_file)
         rated_voltage = self.map_rated_voltage(row)
         return ConcentricCableEquipment(name=name,
                                         strand_diameter=strand_diameter,
@@ -152,9 +153,9 @@ class ConcentricCableEquipmentMapper(CymeMapper):
         name = row['ID']
         return name 
 
-    def map_conductor_diameter(self, row):
+    def map_conductor_diameter(self, row, equipment_file):
         cable_name = row['ID']
-        conductor_info = read_cyme_data(self.system.equipment_file,"CABLE CONDUCTOR")
+        conductor_info = read_cyme_data(equipment_file,"CABLE CONDUCTOR")
         for idx, row in conductor_info.iterrows():
             if row['ID'] == cable_name:
                 conductor_diameter = float(row['Diameter'])
@@ -162,14 +163,56 @@ class ConcentricCableEquipmentMapper(CymeMapper):
         return None
 
 
-    def map_strand_diameter(self, row):
+    def map_strand_diameter(self, row, equipment_file):
         cable_name = row['ID']
-        strand_info = read_cyme_data(self.system.equipment_file,"CABLE CONCENTRIC NEUTRAL")
+        strand_info = read_cyme_data(equipment_file,"CABLE CONCENTRIC NEUTRAL")
         for idx, row in strand_info.iterrows():
             if row['ID'] == cable_name:
-                strand_diameter = float(row['Diameter'])
+                strand_diameter = float(row['Thickness'])
                 return Distance(strand_diameter,'inch').to('mm')
-        return None
+        return Distance(0.01,'mm')
+    
+    def map_insulation_thickness(self, row, equipment_file):
+        # TODO: Understand how this is actually represented
+        return Distance(0.001,'mm')
+
+    def map_insulation_diameter(self, row, equipment_file):
+        # TODO: Understand how this is actually represented
+        pass
+
+    def map_conductor_gmr(self, row, equipment_file):
+        pass
+
+    def map_strand_gmr(self, row, equipment_file):
+        pass
+
+    def map_cable_diameter(self, row, equipment_file):
+        # TODO: should this be changed?
+        pass
+
+    def map_phase_ac_resistance(self, row, equipment_file):
+        resistance = ResistancePULength(float(row['R1']), 'ohm/mile').to('ohm/km')
+        return resistance
+
+    def map_strand_ac_resistance(self, row, equipment_file):
+        # Using the same as for Cable. Need to check this...
+        resistance = ResistancePULength(float(row['R1']), 'ohm/mile').to('ohm/km')
+        return resistance
+
+    def map_num_neutral_strands(self, row, equipment_file):
+        cable_name = row['ID']
+        strand_info = read_cyme_data(equipment_file,"CABLE CONCENTRIC NEUTRAL")
+        for idx, row in strand_info.iterrows():
+            if row['ID'] == cable_name:
+                strand_number = float(row['NumberOfWires'])
+                return strand_number
+
+        return 1
+
+    def map_rated_voltage(self, row):
+        # No voltage included. Need to remove this as a required field
+        return Voltage(23.0, "kilovolts")
+
 
     def map_ampacity(self, row):
         ampacity = Current(float(row['Amps']),'amp')

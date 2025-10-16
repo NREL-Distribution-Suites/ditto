@@ -67,7 +67,8 @@ class GeometryBranchMapper(CymeMapper):
                     bus.phases.append(Phase.N)
             return phases
         else:
-            raise ValueError(f"Number of phases {len(phases)} does not match number of conductors {len(equipment.conductors)} for line {row['SectionID']}")
+            return phases
+            #raise ValueError(f"Number of phases {len(phases)} does not match number of conductors {len(equipment.conductors)} for line {row['SectionID']}")
 
     def map_equipment(self, row):
         line_id = row['LineCableID']

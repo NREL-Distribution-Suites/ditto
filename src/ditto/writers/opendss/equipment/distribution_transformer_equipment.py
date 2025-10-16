@@ -39,7 +39,7 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
 
             num_phases = winding.num_phases
             # nominal_voltage
-            nom_voltage = winding.nominal_voltage.to("kV").magnitude
+            nom_voltage = winding.rated_voltage.to("kV").magnitude
             kvs.append(nom_voltage if num_phases == 1 else nom_voltage * 1.732)
             # resistance
             pctRs.append(winding.resistance)

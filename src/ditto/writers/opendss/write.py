@@ -76,9 +76,6 @@ class Writer(AbstractWriter):
 
             # Example mapper is class DistributionBusMapper
             for model in components:
-                # Example model is instance of DistributionBus
-                if not isinstance(model, DistributionComponentBase) and not (isinstance(model, BareConductorEquipment) or isinstance(model, ConcentricCableEquipment)):
-                    continue
                 model_map = mapper(model)
                 model_map.populate_opendss_dictionary()
                 dss_string = self._get_dss_string(model_map)

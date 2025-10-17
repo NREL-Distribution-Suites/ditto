@@ -24,6 +24,7 @@ class MatrixImpedanceBranchMapper(CymeMapper):
         length = self.map_length(row, cyme_section)
         phases = self.map_phases(row, section_id_sections)
         equipment = self.map_equipment(row, phases, cyme_section)
+        used_sections.add(name)
         try:
             return MatrixImpedanceBranch(name=name,
                                 buses=buses,

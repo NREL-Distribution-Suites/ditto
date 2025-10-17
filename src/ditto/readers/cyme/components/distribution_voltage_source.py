@@ -11,7 +11,7 @@ class DistributionVoltageSourceMapper(CymeMapper):
         super().__init__(cyme_model)
 
     cyme_file = 'Network'
-    cyme_section = 'HEADNODES'
+    cyme_section = 'SOURCE'
 
     def parse(self, row, feeder_voltage_map):
         name = self.map_name(row)
@@ -21,7 +21,7 @@ class DistributionVoltageSourceMapper(CymeMapper):
             return None
         feeder_id = feeder.name
 
-        feeder_voltage = feeder_voltage_map.get(feeder_id)
+        feeder_voltage = float(row['OperatingVoltageA'])
 
         if feeder_voltage is None or feeder_voltage == '':
             return None

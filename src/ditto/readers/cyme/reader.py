@@ -41,7 +41,6 @@ class Reader(AbstractReader):
         "GeometryBranchByPhase",
         "DistributionTransformerByPhase",
         "DistributionTransformer",
-        "MatrixImpedanceBranch",
     ]
 
     validation_errors = []

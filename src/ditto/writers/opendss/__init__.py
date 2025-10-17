@@ -30,3 +30,7 @@ from ditto.writers.opendss.equipment.matrix_impedance_fuse_equipment import (
     MatrixImpedanceFuseEquipmentMapper,
 )
 from ditto.writers.opendss.components.matrix_impedance_fuse import MatrixImpedanceFuseMapper
+from ditto.writers.opendss.equipment.matrix_impedance_recloser_equipment import (
+    MatrixImpedanceRecloserEquipmentMapper,
+)
+from ditto.writers.opendss.components.matrix_impedance_recloser import MatrixImpedanceRecloserMapper

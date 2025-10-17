@@ -16,3 +16,5 @@ class OpenDSSFileTypes(str, Enum):
     SWITCH_FILE = "Switches.dss"
     FUSE_CODES_FILE = "FuseCodes.dss"
     FUSE_FILE = "Fuses.dss"
+    RECLOSER_CODES_FILE = "RecloserCodes.dss"
+    RECLOSER_FILE = "Reclosers.dss"

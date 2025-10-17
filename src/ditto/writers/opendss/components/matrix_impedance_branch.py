@@ -11,4 +11,4 @@ class MatrixImpedanceBranchMapper(DistributionBranchMapper):
     opendss_file = OpenDSSFileTypes.LINES_FILE.value
 
     def map_equipment(self):
-        self.opendss_dict["LineCode"] = self.model.equipment.name
+        self.opendss_dict["LineCode"] = self.model.equipment.name.replace(" ", "_")

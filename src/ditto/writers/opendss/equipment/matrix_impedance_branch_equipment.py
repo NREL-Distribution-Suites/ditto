@@ -19,7 +19,7 @@ class MatrixImpedanceBranchEquipmentMapper(OpenDSSMapper):
         self.opendss_dict["Units"] = "km"
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name
+        self.opendss_dict["Name"] = self.model.name.replace(" ", "_")
 
     def map_r_matrix(self):
         r_matrix_ohms = self.model.r_matrix.to("ohm/km")

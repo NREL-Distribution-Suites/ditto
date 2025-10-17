@@ -44,7 +44,7 @@ class Writer(AbstractWriter):
         voltage_bases = []
         buses: list[DistributionBus] = list(self.system.get_components(DistributionBus))
         for bus in buses:
-            voltage_bases.append(bus.nominal_voltage.to("kilovolt").magnitude * 1.732)
+            voltage_bases.append(bus.rated_voltage.to("kilovolt").magnitude * 1.732)
         return list(set(voltage_bases))
 
     def write(  # noqa
@@ -53,6 +53,7 @@ class Writer(AbstractWriter):
         separate_substations: bool = True,
         separate_feeders: bool = True,
     ):
+        output_folder = output_path
         base_redirect = set()
         feeders_redirect = defaultdict(set)
         substations_redirect = defaultdict(set)
@@ -61,6 +62,7 @@ class Writer(AbstractWriter):
         component_types = self.system.get_component_types()
 
         seen_equipment = set()
+
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)

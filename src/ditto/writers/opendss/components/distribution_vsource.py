@@ -1,5 +1,7 @@
 from ditto.writers.opendss.opendss_mapper import OpenDSSMapper
 from ditto.enumerations import OpenDSSFileTypes
+from gdm.quantities import Voltage
+
 
 
 class DistributionVoltageSourceMapper(OpenDSSMapper):
@@ -11,10 +13,10 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.MASTER_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name
+        self.opendss_dict["Name"] = self.model.name.replace(" ", "_")
 
     def map_bus(self):
-        self.opendss_dict["Bus1"] = self.model.bus.name
+        self.opendss_dict["Bus1"] = self.model.bus.name.replace(" ","_")
         for phase in self.model.phases:
             self.opendss_dict["Bus1"] += self.phase_map[phase]
 
@@ -31,7 +33,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         voltage = self.model.equipment.sources[0].voltage
         angle = self.model.equipment.sources[0].angle
         num_phases = len(self.model.phases)
-        nominal_voltage = self.model.bus.nominal_voltage
+        rated_voltage = self.model.bus.rated_voltage
 
         for phase_source in self.model.equipment.sources:
             r1 += phase_source.r1
@@ -44,14 +46,14 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         r0 = r0.to("ohm")
         x1 = x1.to("ohm")
         x0 = x0.to("ohm")
-        voltage = voltage.to("kilovolt")
-        nominal_voltage = nominal_voltage.to("kilovolt")
+        # convert voltage from float to to quantity in kV
+        voltage = Voltage(voltage, "kilovolt")
+        rated_voltage = rated_voltage.to("kilovolt")
         angle = angle.to("degree")
 
-        v_mag = voltage.magnitude if num_phases == 1 else voltage.magnitude * 1.732
-        v_nom = nominal_voltage.magnitude if num_phases == 1 else nominal_voltage.magnitude * 1.732
+        v_nom = rated_voltage.magnitude
         self.opendss_dict["Angle"] = angle.magnitude
-        self.opendss_dict["pu"] = v_mag / v_nom
+        self.opendss_dict["pu"] = 1.0
         self.opendss_dict["BasekV"] = v_nom
         self.opendss_dict["Z0"] = complex(r0.magnitude, x0.magnitude)
         self.opendss_dict["Z1"] = complex(r1.magnitude, x1.magnitude)

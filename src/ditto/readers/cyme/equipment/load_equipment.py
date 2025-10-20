@@ -17,7 +17,7 @@ class LoadEquipmentMapper(CymeMapper):
         # Connection is not included in LOOADS but in CONSUMER LOADS
         connection_type = self.map_connection_type(row)
         phase_loads = self.map_phase_loads(network_row)
-        return LoadEquipment(name=name,
+        return LoadEquipment.model_construct(name=name,
                              phase_loads=phase_loads,
                              connection_type=connection_type)
 
@@ -40,7 +40,6 @@ class LoadEquipmentMapper(CymeMapper):
 
     def map_phase_loads(self, row):
         # Get the PhaseLoadEquipment with the same name as the Load
-        name = row['DeviceNumber']
         phase_load_equipment_mapper = PhaseLoadEquipmentMapper(self.system)
         phase_load_equipment = phase_load_equipment_mapper.parse(row)
         phase_loads = [phase_load_equipment]

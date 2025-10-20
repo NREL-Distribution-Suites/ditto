@@ -10,28 +10,33 @@ class DistributionLoadMapper(CymeMapper):
     def __init__(self, system):
         super().__init__(system)
 
+
     cyme_file = 'Load'  
     cyme_section = 'CUSTOMER LOADS'
 
-
-    def parse(self, row, section_id_sections, equipment_file):
+    def parse(self, row, section_id_sections, equipment_file, load_record):
         name = self.map_name(row)
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
         equipment = self.map_equipment(row, equipment_file)
-        if len(list(self.system.list_components_by_name(DistributionLoad, name))) > 0:
-            existing_load = self.system.get_component(component_type=DistributionLoad, name=name)
-            existing_load.equipment.phase_loads.real_power += equipment.phase_loads.real_power
-            existing_load.equipment.phase_loads.reactive_power += equipment.phase_loads.reactive_power
+
+        if load_record.get(name) is not None:
+            existing_load = load_record.get(name)
+            existing_load.equipment.phase_loads[0].real_power += equipment.phase_loads[0].real_power
+            existing_load.equipment.phase_loads[0].reactive_power += equipment.phase_loads[0].reactive_power
             return None
 
         if len(phases) == 0:
             logger.warning(f"Load {name} has no kW values. Skipping...")
             return None
-        return DistributionLoad.model_construct(name=name,
+        
+        load = DistributionLoad.model_construct(name=name,
                                 bus=bus,
                                 phases=phases,
                                 equipment=equipment)
+        load_record[name] = load
+        return load
+    
         
     def map_name(self, row):
         load_phase = row["LoadPhase"]

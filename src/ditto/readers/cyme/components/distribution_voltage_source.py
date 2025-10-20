@@ -31,6 +31,7 @@ class DistributionVoltageSourceMapper(CymeMapper):
 
         return DistributionVoltageSource.model_construct(name=name,
                                                         feeder=feeder,
+                                                        substation=substation,
                                                         bus=bus,
                                                         phases=phases,
                                                         equipment=equipment)
@@ -50,7 +51,7 @@ class DistributionVoltageSourceMapper(CymeMapper):
 
     def map_equipment(self, bus, feeder, feeder_voltage):
         mapper = PhaseVoltageSourceEquipmentMapper(self.system)
-        sources = mapper.parse(bus, feeder_voltage)
+        sources = mapper.parse(bus, voltage)
         return VoltageSourceEquipment.model_construct(
             name=feeder+bus.name+"-source",
             sources=sources

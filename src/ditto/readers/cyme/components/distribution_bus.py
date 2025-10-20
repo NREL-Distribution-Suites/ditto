@@ -12,21 +12,21 @@ class DistributionBusMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'NODE'
 
-    def parse(self, row, from_node_sections, to_node_sections, node_feeder_map, feeder_voltage_map):
+    def parse(self, row, from_node_sections, to_node_sections, node_feeder_map, node_substation_map):
         name = self.map_name(row)
         feeder = node_feeder_map.get(name, None)
-        feeder_name = None
-        if feeder is not None:
-            feeder_name = feeder.name
+        substation = node_substation_map.get(name, None)
+        
         coordinate = self.map_coordinate(row)
         phases = self.map_phases(row, from_node_sections, to_node_sections)
-        rated_voltage = self.map_rated_voltage(row, phases, feeder_voltage_map.get(feeder_name))
+        rated_voltage = self.map_rated_voltage(row)
         voltage_limits = self.map_voltagelimits(row)
         voltage_type = self.map_voltage_type(row)
         return DistributionBus.model_construct(name=name, 
                               coordinate=coordinate,
                               rated_voltage=rated_voltage,
                               feeder=feeder,
+                              substation=substation,
                               phases=phases,
                               voltagelimits=voltage_limits,
                               voltage_type=voltage_type)
@@ -40,7 +40,7 @@ class DistributionBusMapper(CymeMapper):
         crs = None
         return Location(x=X, y=Y, crs=crs)
 
-    def map_rated_voltage(self, row, phases, feeder_voltage):
+    def map_rated_voltage(self, row):
         #return PositiveVoltage(float(row['UserDefinedBaseVoltage']), "kilovolts")
         return Voltage(float(12.47), "kilovolts")
 

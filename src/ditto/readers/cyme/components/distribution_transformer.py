@@ -1,6 +1,7 @@
 from loguru import logger
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 from ditto.readers.cyme.equipment.distribution_transformer_equipment import DistributionTransformerEquipmentMapper
+from ditto.readers.cyme.equipment.distribution_transformer_three_winding_equipment import DistributionTransformerThreeWindingEquipmentMapper
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components.distribution_transformer import DistributionTransformer
 from gdm.distribution.equipment.distribution_transformer_equipment import DistributionTransformerEquipment
@@ -150,6 +151,77 @@ class DistributionTransformerByPhaseMapper(CymeMapper):
 
     def map_equipment(self, row, phase, equipment_row):
         mapper = DistributionTransformerEquipmentMapper(self.system)
+        if equipment_row is not None:
+            equipment = mapper.parse(equipment_row, row)
+            if equipment is not None:
+                return equipment
+        return None
+    
+
+
+class DistributionTransformerThreeWindingMapper(CymeMapper):
+    def __init__(self, system):
+        super().__init__(system)
+
+    cyme_file = 'Network'
+    cyme_section = 'THREE WINDING TRANSFORMER SETTING'
+
+    def parse(self, row, used_sections, section_id_sections, equipment_data):
+        equipment_row = equipment_data.get(row['EqID'], None)
+        name = self.map_name(row)
+        buses = self.map_buses(row, section_id_sections)
+        winding_phases = self.map_winding_phases(row, section_id_sections)
+        equipment = self.map_equipment(row, equipment_row)
+        try:
+            used_sections.add(name)
+            return DistributionTransformer.model_construct(name=name,
+                                                buses=buses,
+                                                winding_phases=winding_phases,
+                                                equipment=equipment)
+        except Exception as e:
+            logger.warning(f"Failed to create DistributionTransformer {name}: {e}")
+            return None
+
+    def map_name(self, row):
+        name = row['SectionID']
+        return name
+
+    def map_buses(self, row, section_id_sections):
+        section_id = str(row['SectionID'])
+        section = section_id_sections[section_id]
+        from_bus_name = section['FromNodeID']
+        to_bus_name = section['ToNodeID']
+        tertiary_bus = row['TertiaryNodeID']
+
+        from_bus = self.system.get_component(component_type=DistributionBus, name=from_bus_name)
+        to_bus = self.system.get_component(component_type=DistributionBus, name=to_bus_name)
+
+        tertiary_bus = self.system.get_component(component_type=DistributionBus, name=tertiary_bus)
+        if tertiary_bus.phases == []:
+            tertiary_bus.phases = to_bus.phases
+
+        return [from_bus, to_bus, tertiary_bus]
+
+    def map_winding_phases(self, row, section_id_sections):
+        section_id = str(row['SectionID'])
+        section = section_id_sections[section_id]
+        phase = section['Phase']
+        windings_list = []
+
+        num_windings = 3
+        for i in range(num_windings):
+            winding_phases = []
+            if 'A' in phase:
+                winding_phases.append(Phase.A)
+            if 'B' in phase:
+                winding_phases.append(Phase.B)
+            if 'C' in phase:
+                winding_phases.append(Phase.C)
+            windings_list.append(winding_phases)
+        return windings_list
+
+    def map_equipment(self, row, equipment_row):
+        mapper = DistributionTransformerThreeWindingEquipmentMapper(self.system)
         if equipment_row is not None:
             equipment = mapper.parse(equipment_row, row)
             if equipment is not None:

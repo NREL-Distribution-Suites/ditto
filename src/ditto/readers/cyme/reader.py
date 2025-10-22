@@ -13,6 +13,7 @@ from rich.console import Console
 from infrasys import Component
 from rich.table import Table
 from functools import partial
+from collections import defaultdict
 
 
 from gdm.distribution.components.distribution_bus import DistributionBus
@@ -26,7 +27,7 @@ from infrasys.exceptions import ISAlreadyAttached
 class Reader(AbstractReader):
     # Order of components is important
     component_types = [
-        "DistributionBus",
+        "DistributionBus", # First as other components connect to buses
         "DistributionVoltageSource",
         "MatrixImpedanceRecloser",
         "MatrixImpedanceSwitch",
@@ -38,19 +39,20 @@ class Reader(AbstractReader):
         "GeometryBranchEquipment",
         "GeometryBranchByPhaseEquipment",
         "GeometryBranch",
-        "MatrixImpedanceBranch",
         "GeometryBranchByPhase",
         "DistributionTransformerByPhase",
         "DistributionTransformer",
+        "DistributionTransformerThreeWinding",
+        "MatrixImpedanceBranch", # This must be last as it includes a catch-all for unrecognized branches
     ]
 
     validation_errors = []
 
-    def __init__(self, network_file, equipment_file, load_file, feeders, substations, load_model_id = None):
+    def __init__(self, network_file, equipment_file, load_file, load_model_id = None):
         self.system = DistributionSystem(auto_add_composed_components=True)
-        self.read(network_file, equipment_file, load_file, feeders, substations, load_model_id)
+        self.read(network_file, equipment_file, load_file, load_model_id)
 
-    def read(self, network_file, equipment_file, load_file, feeders, substations, load_model_id = None):
+    def read(self, network_file, equipment_file, load_file, load_model_id = None):
 
         # Section data read separately as it links to other tables
         section_id_sections = {}
@@ -78,8 +80,6 @@ class Reader(AbstractReader):
         section_id_sections = section_data.set_index("SectionID").to_dict(orient="index")
         from_node_sections = section_data.groupby("FromNodeID").apply(lambda df: df.to_dict(orient="records")).to_dict()
         to_node_sections = section_data.groupby("ToNodeID").apply(lambda df: df.to_dict(orient="records")).to_dict()
-
-
 
         for component_type in self.component_types:
             logger.info(f"Parsing Type: {component_type}")
@@ -116,9 +116,9 @@ class Reader(AbstractReader):
 
                 argument_handler = {
                     "DistributionCapacitorMapper": lambda: [section_id_sections,  read_cyme_data(equipment_file, "SHUNT CAPACITOR", index_col='ID')],
-                    "DistributionBusMapper": lambda: [from_node_sections, to_node_sections, node_feeder_map, feeder_voltage_map],
-                    "DistributionVoltageSourceMapper": lambda: [feeder_voltage_map],
-                    "DistributionLoadMapper": lambda: [section_id_sections, read_cyme_data(load_file, "LOADS", index_col='DeviceNumber')],
+                    "DistributionBusMapper": lambda: [from_node_sections, to_node_sections, node_feeder_map, node_substation_map],
+                    "DistributionVoltageSourceMapper": lambda: [],
+                    "DistributionLoadMapper": lambda: [section_id_sections, read_cyme_data(load_file, "LOADS", index_col='DeviceNumber'), load_record],
                     "GeometryBranchMapper": lambda: [used_sections, section_id_sections],
                     "GeometryBranchByPhaseMapper": lambda: [used_sections, section_id_sections],
                     "BareConductorEquipmentMapper": lambda: [],
@@ -127,6 +127,7 @@ class Reader(AbstractReader):
                     "MatrixImpedanceFuseMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "FUSE", index_col='ID')],
                     "MatrixImpedanceRecloserMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "RECLOSER", index_col='ID')],
                     "GeometryBranchByPhaseEquipmentMapper": lambda: [read_cyme_data(equipment_file,"SPACING TABLE FOR LINE", index_col='ID')],
+                    "DistributionTransformerThreeWindingMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "THREE WINDING TRANSFORMER", index_col='ID').to_dict("index")],
                     "DistributionTransformerMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "TRANSFORMER", index_col='ID').to_dict("index")],
                     "DistributionTransformerByPhaseMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "TRANSFORMER", index_col='ID').to_dict("index")],
                     "MatrixImpedanceBranchMapper": lambda: [used_sections, section_id_sections, cyme_section],
@@ -151,11 +152,10 @@ class Reader(AbstractReader):
                     components = [c for c in components if c is not None]
                     components = [item for c in components for item in (c if isinstance(c, list) else [c])]
                     self.system.add_components(*components)
-        truncated_network = None
-        if feeders is not None or substations is not None:
-            truncated_network = self.truncate_distribution_system(feeders, substations)
-        if truncated_network is not None:
-            self.system = truncated_network
+
+
+        self.system = self.assign_bus_voltages(network_dist_sys=self.system)
+
 
         for component_type in self.system.get_component_types():
             components = self.system.get_components(component_type)
@@ -182,7 +182,6 @@ class Reader(AbstractReader):
                             ]
                         )
 
-            self.system.add_components(*components)
 
     def _validate_model(self):
         if self.validation_errors:
@@ -207,138 +206,67 @@ class Reader(AbstractReader):
         return self.system
     
 
-        
-    def _get_bus_connected_components(
-        self, type_lists, bus_name, component_type
-    ):
-        if "bus" in component_type.model_fields:
-            return list(
-                filter(
-                    lambda x: x.bus.name == bus_name,
-                    type_lists[component_type],
-                )
-            )
-        elif "buses" in component_type.model_fields:
-            return list(
-                filter(
-                    lambda x: bus_name in [bus.name for bus in x.buses],
-                    type_lists[component_type],
-                )
-            )    
 
-    def truncate_distribution_system(self, feeders, substations):
-        truncated_network = DistributionSystem(auto_add_composed_components=True)
-        if substations is not None:
-            for substation in substations:
-                truncated_network = self.build_network(substation, network_type='substation', network_dist_sys=truncated_network)
-        if feeders is not None:
-            for feeder in feeders:
-                truncated_network = self.build_network(feeder, network_type='feeder', network_dist_sys=truncated_network)
-        return truncated_network
+    def assign_bus_voltages(self, network_dist_sys=None):
 
+        bus_queue = set()
+        observed_buses = set()
+        observed_components = set()
 
-    def build_network(self, network_name, network_type='feeder', network_dist_sys=None):
+        bus_obj_map = defaultdict(list)
+        for component_type in self.system.get_component_types():
+            component_list = list(self.system.get_components(component_type))
+            for comp in component_list:
+                if hasattr(comp, "buses"):
+                    for bus in comp.buses:
+                        bus_obj_map[bus.name].append(comp)
 
-        bus_queue = []
+        voltage_sources = list(self.system.get_components(DistributionVoltageSource))
 
-        type_lists = {}
-        if network_type == 'feeder':
-            for component_type in self.system.get_component_types():
-                type_lists[component_type] = list(self.system.get_components(component_type, filter_func=partial(filter_feeder, feeder_name=network_name)))
-        elif network_type == 'substation':
-            for component_type in self.system.get_component_types():
-                type_lists[component_type] = list(self.system.get_components(component_type, filter_func=partial(filter_substation, substation_name=network_name)))
-
-        voltage_sources = type_lists.get(DistributionVoltageSource, [])
-
-        print(voltage_sources)
 
         for vsource in voltage_sources:
-            vsource.bus.rated_voltage = vsource.equipment.sources[0].voltage * 1.732 if len(vsource.phases) == 3 else vsource.equipment[0].voltage
-            bus_queue.append(vsource.bus.name)
-            try:
-                network_dist_sys.add_component(vsource)
-            except:
-                pass
-        print(bus_queue)
+            vsource.bus.rated_voltage = vsource.equipment.sources[0].voltage * 1.732 if len(vsource.phases) > 1 else vsource.equipment[0].voltage   
+            bus_queue.add(vsource.bus.name)
         while bus_queue:
-            current_bus_name = bus_queue.pop(0)
+            current_bus_name = bus_queue.pop()
+            if current_bus_name in observed_buses:
+                continue
+
             current_bus = self.system.get_component(DistributionBus, name=current_bus_name)
             current_voltage = current_bus.rated_voltage
             current_voltage_type = current_bus.voltage_type
-            try:
-                network_dist_sys.add_component(current_bus)
-            except:
-                pass
-            for component_type in self.system.get_component_types():
-                conn_objs = self._get_bus_connected_components(type_lists, current_bus.name, component_type)
-                if conn_objs:
-                    if conn_objs != []:
-                        for obj in conn_objs:
-                            if network_dist_sys.has_component(obj):
-                                continue
-                            if hasattr(obj, 'buses'):
-                                for j, bus in enumerate(obj.buses):
-                                    if (bus.name != current_bus.name):
-                                        if component_type == DistributionTransformer:
-                                            for i, winding in enumerate(obj.equipment.windings):
-                                                voltage = winding.rated_voltage
-                                                voltage_type = winding.voltage_type
-                                                if (voltage_type == VoltageTypes.LINE_TO_GROUND) and ((voltage == Voltage(12.47, 'kilovolt')) or (voltage == Voltage(12.0, 'kilovolt')) or (voltage == Voltage(0.208, 'kilovolt'))):
-                                                    print("Changing voltage type to LINE_TO_LINE",voltage, winding.connection_type)
-                                                    winding.voltage_type = VoltageTypes.LINE_TO_LINE
-                                                voltage_type = winding.voltage_type
-                                                if i == j:
-                                                    if voltage != current_voltage:
-                                                        bus.voltage_type = voltage_type
-                                                        bus.rated_voltage = voltage
+            observed_buses.add(current_bus.name)
 
-                                            if (not network_dist_sys.has_component(bus)) and (bus.name not in bus_queue):
-                                                bus_queue.append(bus.name)
-                                        else:
-                                            bus.rated_voltage = current_voltage
-                                            bus.voltage_type = current_voltage_type
-                                            if (not network_dist_sys.has_component(bus)) and (bus.name not in bus_queue):
-                                                bus_queue.append(bus.name)
-                            elif hasattr(obj, 'bus'):
-                                if (obj.bus.name not in bus_queue) and (not network_dist_sys.has_component(obj.bus)):
-                                    bus_queue.append(obj.bus.name)
-                            try:
-                                network_dist_sys.add_component(obj)
-                            except:
-                                pass  
+            conn_objs = bus_obj_map[current_bus.name]
+            for obj in conn_objs:
+                if obj.name in observed_components:
+                    continue
+                observed_components.add(obj.name)
+                component_type = obj.__class__.__name__
+
+                for j, bus in enumerate(obj.buses):
+                    if (bus.name == current_bus.name):
+                        continue
+                    if component_type == 'DistributionTransformer':
+                        for i, winding in enumerate(obj.equipment.windings):
+                            voltage = winding.rated_voltage
+                            voltage_type = winding.voltage_type
+                            if (voltage_type == VoltageTypes.LINE_TO_GROUND) and ((voltage == Voltage(12.47, 'kilovolt')) or (voltage == Voltage(12.0, 'kilovolt')) or (voltage == Voltage(0.208, 'kilovolt'))):
+                                # Hacked in but no better way found yet
+                                winding.voltage_type = VoltageTypes.LINE_TO_LINE
+                            voltage_type = winding.voltage_type
+                            if i == j:
+                                if voltage != current_voltage:
+                                    bus.voltage_type = voltage_type
+                                    bus.rated_voltage = voltage
+
+                        if (not bus.name in observed_buses):
+                            bus_queue.add(bus.name)
+                    else:
+                        bus.rated_voltage = current_voltage
+                        bus.voltage_type = current_voltage_type
+                        if (not bus.name in observed_buses):
+                            bus_queue.add(bus.name)
+
         return network_dist_sys
 
-
-def filter_feeder(object, feeder_name=None):
-    if hasattr(object, 'bus'):
-        if not hasattr(object.bus.feeder, "name"):
-            return False
-        if object.bus.feeder.name == feeder_name:
-            return True
-        return False
-        
-    elif hasattr(object, 'buses'):
-        for bus in object.buses:
-            if not hasattr(bus.feeder, "name"):
-                return False
-        if object.buses[0].feeder.name == feeder_name and object.buses[1].feeder.name == feeder_name: 
-            return True
-        return False
-    
-
-def filter_substation(object, substation_name=None):
-    if hasattr(object, 'bus'):
-        if not hasattr(object.bus.substation, "name"):
-            return False
-        if object.bus.substation.name == substation_name:
-            return True
-        return False
-        
-    elif hasattr(object, 'buses'):
-        for bus in object.buses:
-            if not hasattr(bus.substation, "name"):
-                return False
-        if object.buses[0].substation.name == substation_name or object.buses[1].substation.name == substation_name: 
-            return True
-        return False

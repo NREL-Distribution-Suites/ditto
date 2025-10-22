@@ -13,21 +13,18 @@ class DistributionVoltageSourceMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'SOURCE'
 
-    def parse(self, row, feeder_voltage_map):
+    def parse(self, row):
         name = self.map_name(row)
         bus = self.map_bus(row)
         feeder = bus.feeder
-        if feeder is None:
-            return None
-        feeder_id = feeder.name
+        substation = bus.substation
+        voltage = float(row['OperatingVoltageA'])
 
-        feeder_voltage = float(row['OperatingVoltageA'])
-
-        if feeder_voltage is None or feeder_voltage == '':
+        if voltage is None or voltage == '':
             return None
 
         phases = [phs for phs in bus.phases]
-        equipment = self.map_equipment(bus, feeder_id, feeder_voltage)
+        equipment = self.map_equipment(bus, voltage)
 
         return DistributionVoltageSource.model_construct(name=name,
                                                         feeder=feeder,
@@ -49,11 +46,11 @@ class DistributionVoltageSourceMapper(CymeMapper):
         bus = self.system.get_component(DistributionBus, bus_name)
         return bus
 
-    def map_equipment(self, bus, feeder, feeder_voltage):
+    def map_equipment(self, bus, voltage):
         mapper = PhaseVoltageSourceEquipmentMapper(self.system)
         sources = mapper.parse(bus, voltage)
         return VoltageSourceEquipment.model_construct(
-            name=feeder+bus.name+"-source",
+            name=bus.name+"-source",
             sources=sources
         )
     

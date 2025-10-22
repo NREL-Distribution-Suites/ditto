@@ -64,7 +64,7 @@ class MatrixImpedanceSwitchMapper(CymeMapper):
     def map_is_closed(self, row, phases):
         is_closed = []
         for phase in phases:
-            if row['ConnectionStatus'] == '0':
+            if row['NStatus'] == '0':
                 is_closed.append(True)
             else:
                 is_closed.append(False)

@@ -1,7 +1,7 @@
 import pandas as pd
 from gdm.distribution.components.distribution_feeder import DistributionFeeder
 from gdm.distribution.components.distribution_substation import DistributionSubstation
-from gdm.quantities import Voltage
+
 
 def read_cyme_data(cyme_file, cyme_section, index_col=None, node_feeder_map = None, network_voltage_map = None, node_substation_map = None, parse_feeders=False, parse_substation=False):
     all_data = []

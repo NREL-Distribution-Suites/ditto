@@ -43,10 +43,12 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
 
     def map_pct_full_load_loss(self, row):
         # Need to compute rated current and rated resistance to compute full load loss
-        rated_current_sec = float(row['KVA'])/float(row['KVLLsec'])
-        resistance_pu = float(row['Z1'])/float((1+float(row['XR'])**2)**0.5)
-        resistance_sec = float(resistance_pu)*float(float(row['KVLLsec'])**2) / float(row['KVA'])
-        pct_full_load_loss = rated_current_sec*resistance_sec/100
+        rated_current_sec = float(row['KVA']) * 1000 / (float(row['KVLLsec']) * 1000)
+        resistance_pu = float(row['Z1']) / 100 / ((1 + float(row['XR'])**2)**0.5)
+        resistance_sec = resistance_pu * (float(row['KVLLsec'])**2 * 1000) / float(row['KVA'])
+        
+        full_load_loss = rated_current_sec**2 * resistance_sec
+        pct_full_load_loss = 100 * full_load_loss / (float(row['KVA']) * 1000)
         return pct_full_load_loss
 
     def map_winding_reactances(self, row, is_center_tapped):
@@ -54,8 +56,7 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
         if xr_ratio == 0:
             xr_ratio = 0.01
         rx_ratio = 1/xr_ratio
-        reactance_pu = float(row['Z1'])/((1+rx_ratio**2)**0.5)
-        transformer_type = row['Type']
+        reactance_pu = float(row['Z1']) / 100 / ((1+rx_ratio**2)**0.5)
         if is_center_tapped:
             winding_reactances = [reactance_pu, reactance_pu, reactance_pu]
         else:
@@ -84,7 +85,6 @@ class DistributionTransformerEquipmentMapper(CymeMapper):
         return windings
     
     def map_coupling(self, row, is_center_tapped):
-        transformer_type = row['Type']
         if is_center_tapped:
             coupling = [SequencePair(0,1),
                         SequencePair(0,2),
@@ -185,14 +185,14 @@ class WindingEquipmentMapper(CymeMapper):
 
     def map_resistance(self, row, winding_number):
         xr_ratio = float(row['XR'])
-        resistance_pu = float(row['Z1'])/((1+xr_ratio**2)**0.5)
+        resistance_pu = float(row['Z1']) / 100 / ((1 + xr_ratio**2)**0.5)
         if winding_number == 1:
-            resistance = resistance_pu*float(row['KVLLprim'])**2 / float(row['KVA'])
+            resistance = resistance_pu * float(row['KVLLprim'])**2 / float(row['KVA'])
         elif winding_number == 2:
-            resistance = resistance_pu*float(row['KVLLsec'])**2 / float(row['KVA'])
+            resistance = resistance_pu * float(row['KVLLsec'])**2 / float(row['KVA'])
         elif winding_number == 3:
-            resistance = resistance_pu*float(row['KVLLsec'])**2 / float(row['KVA'])
-        return resistance/100
+            resistance = resistance_pu * float(row['KVLLsec'])**2 / float(row['KVA'])
+        return resistance
 
     def map_is_grounded(self, row, winding_number):
         
@@ -228,7 +228,7 @@ class WindingEquipmentMapper(CymeMapper):
     def map_voltage_type(self, row, rated_voltage):
         # This is from the CYME documentation but appears to not be entirely correct
         # Clearly L-L voltages still appear with a voltage type of 1
-        if row["VoltageUnit"] == '1':
+        if row["VoltageUnit"] == '1' or row["VoltageUnit"] == "3":
             return VoltageTypes.LINE_TO_GROUND
         return VoltageTypes.LINE_TO_LINE
 

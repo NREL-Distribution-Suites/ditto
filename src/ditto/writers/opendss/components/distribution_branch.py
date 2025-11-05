@@ -13,11 +13,11 @@ class DistributionBranchMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.LINES_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name.replace(" ","_")
+        self.opendss_dict["Name"] = self.model.name.replace(" ","_").replace(".","_")
 
     def map_buses(self):
-        self.opendss_dict["Bus1"] = self.model.buses[0].name.replace(" ","_")
-        self.opendss_dict["Bus2"] = self.model.buses[1].name.replace(" ","_")
+        self.opendss_dict["Bus1"] = self.model.buses[0].name.replace(" ","_").replace(".","_")
+        self.opendss_dict["Bus2"] = self.model.buses[1].name.replace(" ","_").replace(".","_")
         for phase in self.model.phases:
             if phase != Phase.N:
                 self.opendss_dict["Bus1"] += self.phase_map[phase]

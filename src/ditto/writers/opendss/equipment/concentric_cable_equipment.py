@@ -11,7 +11,7 @@ class ConcentricCableEquipmentMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.WIRES_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name.replace(" ","_")
+        self.opendss_dict["Name"] = self.model.name.replace(" ","_").replace(".","_")
 
     def map_strand_diameter(self):
         self.opendss_dict["DiaStrand"] = self.model.strand_diameter.magnitude

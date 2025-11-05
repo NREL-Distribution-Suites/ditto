@@ -14,7 +14,7 @@ class GeometryBranchEquipmentMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.LINECODES_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name.replace(" ","_")
+        self.opendss_dict["Name"] = self.model.name.replace(" ","_").replace(".","_")
 
     def map_common(self):
         units = []
@@ -55,5 +55,5 @@ class GeometryBranchEquipmentMapper(OpenDSSMapper):
             #                conductor_type = 'tsdata'
             else:
                 raise ValueError(f"Unknown conductor type {conductor}")
-            all_conductors.append(f"{conductor_type}.{conductor.name.replace(' ','_')}")
+            all_conductors.append(f"{conductor_type}.{conductor.name.replace(' ','_').replace('.','_')}")
         self.opendss_dict["Conductors"] = all_conductors

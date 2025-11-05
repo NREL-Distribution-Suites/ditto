@@ -15,12 +15,12 @@ class DistributionLoadMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.LOADS_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name.replace(" ","_")
+        self.opendss_dict["Name"] = self.model.name.replace(" ","_").replace(".","_")
         # TODO: Want to set the Yearly attribute here, but need to access the system. Is that possible?
 
     def map_bus(self):
         num_phases = len(self.model.phases)
-        self.opendss_dict["Bus1"] = self.model.bus.name.replace(" ","_")
+        self.opendss_dict["Bus1"] = self.model.bus.name.replace(" ","_").replace(".","_")
         for phase in self.model.phases:
             self.opendss_dict["Bus1"] += self.phase_map[phase]
         # TODO: Should we include the phases its connected to here?

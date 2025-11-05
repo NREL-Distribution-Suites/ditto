@@ -24,6 +24,7 @@ class Writer(AbstractWriter):
         altdss_class = getattr(altdss_models, model_map.altdss_name)
         # Example altdss_class is Bus
         altdss_object = altdss_class.model_validate(model_map.opendss_dict)
+
         if model_map.altdss_composition_name is not None:
             altdss_composition_class = getattr(altdss_models, model_map.altdss_composition_name)
             altdss_composition_object = altdss_composition_class(altdss_object)
@@ -85,18 +86,6 @@ class Writer(AbstractWriter):
                     dss_string = dss_string.replace("new Vsource", "Clear\n\nNew Circuit")
                 equipment_dss_string = None
                 equipment_map: list[Path] = None
-
-                if hasattr(model, "equipment"):
-                    equipment_mapper_name = model.equipment.__class__.__name__ + "Mapper"
-                    if not hasattr(opendss_mapper, equipment_mapper_name):
-                        logger.warning(
-                            f"Equipment Mapper {equipment_mapper_name} not found. Skipping"
-                        )
-                    else:
-                        equipment_mapper = getattr(opendss_mapper, equipment_mapper_name)
-                        equipment_map = equipment_mapper(model.equipment)
-                        equipment_map.populate_opendss_dictionary()
-                        equipment_dss_string = self._get_dss_string(equipment_map)
 
                 output_folder = output_path
                 output_redirect = Path("")

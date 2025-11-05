@@ -1,5 +1,5 @@
 from ditto.readers.cyme.cyme_mapper import CymeMapper
-from ditto.readers.cyme.equipment.matrix_impedance_recloser_equipment import MatrixImpedanceRecloserEquipmentMapper
+from ditto.readers.cyme.equipment.matrix_impedance_recloser_equipment import MatrixImpedanceRecloserEquipment
 from gdm.distribution.components.matrix_impedance_recloser import MatrixImpedanceRecloser
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.controllers.distribution_recloser_controller import DistributionRecloserController
@@ -13,7 +13,7 @@ class MatrixImpedanceRecloserMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'RECLOSER SETTING'
 
-    def parse(self, row, used_sections, section_id_sections, equipment_data):
+    def parse(self, row, used_sections, section_id_sections):
 
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
@@ -21,7 +21,7 @@ class MatrixImpedanceRecloserMapper(CymeMapper):
         phases = self.map_phases(row, section_id_sections)
         is_closed = self.map_is_closed(row, phases)
         controller = self.map_controller(row)
-        equipment = self.map_equipment(row, phases, equipment_data)
+        equipment = self.map_equipment(row, phases)
 
         used_sections.add(name)
 
@@ -79,15 +79,10 @@ class MatrixImpedanceRecloserMapper(CymeMapper):
         return DistributionRecloserController.example()
     
 
-    def map_equipment(self, row, phases,equipment_data):
-        recloser_id = row['EqID']
-        mapper = MatrixImpedanceRecloserEquipmentMapper(self.system)
-        equipment_row = equipment_data.loc[recloser_id]
-        if equipment_row is not None:
-            equipment = mapper.parse(equipment_row, phases)
-            if equipment is not None:
-                return equipment
-        return None
+    def map_equipment(self, row, phases):
+        recloser_id = f"{row['EqID']}_{len(phases)}"
+        recloser = self.system.get_component(component_type=MatrixImpedanceRecloserEquipment, name=recloser_id)
+        return recloser
 
 
 

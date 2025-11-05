@@ -34,10 +34,11 @@ class MatrixImpedanceBranchEquipmentMapper(CymeMapper):
         return R
 
     def parse(self, row, phases):
-        name = self.map_name(row, phases)
-        r_matrix = self.map_r_matrix(row, phases)
-        x_matrix = self.map_x_matrix(row, phases)
-        c_matrix = self.map_c_matrix(row, phases)
+        num_phases = len(phases)
+        name = self.map_name(row, num_phases)
+        r_matrix = self.map_r_matrix(row, num_phases)
+        x_matrix = self.map_x_matrix(row, num_phases)
+        c_matrix = self.map_c_matrix(row, num_phases)
         ampacity = self.map_ampacity(row)
         try:
             return MatrixImpedanceBranchEquipment(name=name,

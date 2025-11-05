@@ -14,7 +14,7 @@ class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
     cyme_section = 'FUSE'
 
     def parse(self, row, phases):
-        name = self.map_name(row)
+        name = self.map_name(row, phases)
         delay = self.map_delay(row)
         tcc_curve = self.map_tcc_curve(row)
         r_matrix = self.map_r_matrix(phases)
@@ -33,8 +33,8 @@ class MatrixImpedanceFuseEquipmentMapper(CymeMapper):
             ampacity=ampacity
         )
 
-    def map_name(self, row):
-        return row['ID']
+    def map_name(self, row, phases):
+        return f"{row['ID']}_{len(phases)}"
 
     def map_r_matrix(self, phases):
         default_matrix = [

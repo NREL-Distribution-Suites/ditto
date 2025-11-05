@@ -11,7 +11,7 @@ class MatrixImpedanceRecloserEquipmentMapper(CymeMapper):
     cyme_section = 'RECLOSER'
 
     def parse(self, row, phases):
-        name = self.map_name(row)
+        name = self.map_name(row, phases)
         r_matrix = self.map_r_matrix(phases)
         x_matrix = self.map_x_matrix(phases)
         c_matrix = self.map_c_matrix(phases)
@@ -26,8 +26,8 @@ class MatrixImpedanceRecloserEquipmentMapper(CymeMapper):
             ampacity=ampacity
         )
 
-    def map_name(self, row):
-        return row['ID']
+    def map_name(self, row, phases):
+        return f"{row['ID']}_{len(phases)}"
 
     def map_r_matrix(self, phases):
         default_matrix = [

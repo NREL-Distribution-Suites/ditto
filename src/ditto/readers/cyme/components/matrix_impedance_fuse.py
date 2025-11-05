@@ -1,5 +1,5 @@
 from ditto.readers.cyme.cyme_mapper import CymeMapper
-from ditto.readers.cyme.equipment.matrix_impedance_fuse_equipment import MatrixImpedanceFuseEquipmentMapper
+from ditto.readers.cyme.equipment.matrix_impedance_fuse_equipment import MatrixImpedanceFuseEquipment
 from gdm.distribution.components.matrix_impedance_fuse import MatrixImpedanceFuse
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.quantities import Distance
@@ -12,14 +12,14 @@ class MatrixImpedanceFuseMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'FUSE SETTING'
 
-    def parse(self, row, used_sections, section_id_sections, equipment_data):
+    def parse(self, row, used_sections, section_id_sections):
 
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
         length = self.map_length(row)
         phases = self.map_phases(row, section_id_sections)
         is_closed = self.map_is_closed(row, phases)
-        equipment = self.map_equipment(row, phases, equipment_data)
+        equipment = self.map_equipment(row, phases)
     
         used_sections.add(name)
         return MatrixImpedanceFuse(
@@ -72,16 +72,10 @@ class MatrixImpedanceFuseMapper(CymeMapper):
         return is_closed
     
 
-    def map_equipment(self, row, phases,equipment_data):
-        fuse_id = row['EqID']
-        mapper = MatrixImpedanceFuseEquipmentMapper(self.system)
-        equipment_row = equipment_data.loc[fuse_id]
-        if equipment_row is not None:
-            equipment = mapper.parse(equipment_row, phases)
-            if equipment is not None:
-                return equipment
-        return None
-
+    def map_equipment(self, row, phases):
+        fuse_id = f"{row['EqID']}_{len(phases)}"
+        fuse = self.system.get_component(component_type=MatrixImpedanceFuseEquipment, name=fuse_id)
+        return fuse
 
 
 

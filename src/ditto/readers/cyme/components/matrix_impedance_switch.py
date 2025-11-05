@@ -1,5 +1,5 @@
 from ditto.readers.cyme.cyme_mapper import CymeMapper
-from ditto.readers.cyme.equipment.matrix_impedance_switch_equipment import MatrixImpedanceSwitchEquipmentMapper
+from ditto.readers.cyme.equipment.matrix_impedance_switch_equipment import MatrixImpedanceSwitchEquipment
 from gdm.distribution.components.matrix_impedance_switch import MatrixImpedanceSwitch
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.quantities import Distance
@@ -12,14 +12,14 @@ class MatrixImpedanceSwitchMapper(CymeMapper):
     cyme_file = 'Network'
     cyme_section = 'SWITCH SETTING'
 
-    def parse(self, row, used_sections, section_id_sections, equipment_data):
+    def parse(self, row, used_sections, section_id_sections):
 
         name = self.map_name(row)
         buses = self.map_buses(row, section_id_sections)
         length = self.map_length(row)
         phases = self.map_phases(row, section_id_sections)
         is_closed = self.map_is_closed(row, phases)
-        equipment = self.map_equipment(row, phases, equipment_data)
+        equipment = self.map_equipment(row, phases)
         used_sections.add(name)
         return MatrixImpedanceSwitch(
             name=name,
@@ -71,15 +71,10 @@ class MatrixImpedanceSwitchMapper(CymeMapper):
         return is_closed
     
 
-    def map_equipment(self, row, phases,equipment_data):
-        switch_id = row['EqID']
-        mapper = MatrixImpedanceSwitchEquipmentMapper(self.system)
-        equipment_row = equipment_data.loc[switch_id]
-        if equipment_row is not None:
-            equipment = mapper.parse(equipment_row, phases)
-            if equipment is not None:
-                return equipment
-        return None
+    def map_equipment(self, row, phases):
+        switch_id = f"{row['EqID']}_{len(phases)}"
+        switch = self.system.get_component(component_type=MatrixImpedanceSwitchEquipment, name=switch_id)
+        return switch
 
 
 

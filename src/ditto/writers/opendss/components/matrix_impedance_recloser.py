@@ -10,6 +10,11 @@ class MatrixImpedanceRecloserMapper(DistributionBranchMapper):
     altdss_composition_name = "Line"
     opendss_file = OpenDSSFileTypes.RECLOSER_FILE.value
 
+    def map_name(self):
+        name = self.model.name.replace(" ","_").replace(".","_")
+        name = name + "_recloser"
+        self.opendss_dict["Name"] = name
+
     def map_equipment(self):
         self.opendss_dict["LineCode"] = self.model.equipment.name.replace(" ", "_").replace(".", "_")
 

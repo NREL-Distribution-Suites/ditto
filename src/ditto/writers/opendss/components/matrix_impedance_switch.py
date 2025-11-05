@@ -10,6 +10,11 @@ class MatrixImpedanceSwitchMapper(DistributionBranchMapper):
     altdss_composition_name = "Line"
     opendss_file = OpenDSSFileTypes.SWITCH_FILE.value
 
+    def map_name(self):
+        name = self.model.name.replace(" ","_").replace(".","_")
+        name = name + "_switch"
+        self.opendss_dict["Name"] = name
+
     def map_equipment(self):
         self.opendss_dict["LineCode"] = self.model.equipment.name.replace(" ", "_").replace(".", "_")
 

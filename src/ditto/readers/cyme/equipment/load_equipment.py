@@ -17,6 +17,8 @@ class LoadEquipmentMapper(CymeMapper):
         # Connection is not included in LOOADS but in CONSUMER LOADS
         connection_type = self.map_connection_type(row)
         phase_loads = self.map_phase_loads(network_row)
+        if any(pl is None for pl in phase_loads):
+            return None
         return LoadEquipment.model_construct(name=name,
                              phase_loads=phase_loads,
                              connection_type=connection_type)
@@ -56,6 +58,8 @@ class PhaseLoadEquipmentMapper(CymeMapper):
         name = self.map_name(row)
         real_power = self.map_real_power(row)
         reactive_power = self.map_reactive_power(row)
+        if real_power ==0 and reactive_power ==0:
+            return None
         z_real = self.map_z_real(row)
         z_imag = self.map_z_imag(row)
         i_real = self.map_i_real(row)

@@ -36,7 +36,10 @@ class DistributionBusMapper(CymeMapper):
         return name
 
     def map_coordinate(self, row):
-        X, Y = float(row["CoordX"]), float(row["CoordY"])
+        try:
+            X, Y = float(row["CoordX"]), float(row["CoordY"])
+        except:
+            X, Y = float(row["CoordX1"]), float(row["CoordY1"])
         crs = None
         return Location(x=X, y=Y, crs=crs)
 

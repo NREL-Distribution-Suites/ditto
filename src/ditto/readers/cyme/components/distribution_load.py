@@ -16,9 +16,12 @@ class DistributionLoadMapper(CymeMapper):
 
     def parse(self, row, section_id_sections, equipment_file, load_record):
         name = self.map_name(row)
+
         bus = self.map_bus(row, section_id_sections)
         phases = self.map_phases(row)
         equipment = self.map_equipment(row, equipment_file)
+        if equipment is None:
+            return None
 
         if load_record.get(name) is not None:
             existing_load = load_record.get(name)

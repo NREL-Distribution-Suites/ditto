@@ -29,8 +29,11 @@ class Reader(AbstractReader):
     component_types = [
         "DistributionBus", # First as other components connect to buses
         "DistributionVoltageSource",
+        "MatrixImpedanceRecloserEquipment",
         "MatrixImpedanceRecloser",
+        "MatrixImpedanceSwitchEquipment",
         "MatrixImpedanceSwitch",
+        "MatrixImpedanceFuseEquipment",
         "MatrixImpedanceFuse",
         "DistributionCapacitor",
         "DistributionLoad",
@@ -58,6 +61,12 @@ class Reader(AbstractReader):
         section_id_sections = {}
         from_node_sections = {}
         to_node_sections = {}
+        phase_elements = set([
+            "MatrixImpedanceBranchEquipmentMapper",
+            "MatrixImpedanceRecloserEquipmentMapper",
+            "MatrixImpedanceSwitchEquipmentMapper",
+            "MatrixImpedanceFuseEquipmentMapper",
+       ])
         default_conductor = BareConductorEquipment(
             name="Default",
             conductor_diameter=Distance(0.368000,'inch').to('mm'), 
@@ -123,15 +132,18 @@ class Reader(AbstractReader):
                     "GeometryBranchByPhaseMapper": lambda: [used_sections, section_id_sections],
                     "BareConductorEquipmentMapper": lambda: [],
                     "GeometryBranchEquipmentMapper": lambda: [read_cyme_data(equipment_file,"SPACING TABLE FOR LINE", index_col='ID')],
-                    "MatrixImpedanceSwitchMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "SWITCH", index_col='ID')],
-                    "MatrixImpedanceFuseMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "FUSE", index_col='ID')],
-                    "MatrixImpedanceRecloserMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "RECLOSER", index_col='ID')],
+                    "MatrixImpedanceSwitchEquipmentMapper": lambda: [],
+                    "MatrixImpedanceSwitchMapper": lambda: [used_sections, section_id_sections],
+                    "MatrixImpedanceFuseEquipmentMapper": lambda: [],
+                    "MatrixImpedanceFuseMapper": lambda: [used_sections, section_id_sections],
+                    "MatrixImpedanceRecloserEquipmentMapper": lambda: [],
+                    "MatrixImpedanceRecloserMapper": lambda: [used_sections, section_id_sections],
                     "GeometryBranchByPhaseEquipmentMapper": lambda: [read_cyme_data(equipment_file,"SPACING TABLE FOR LINE", index_col='ID')],
                     "DistributionTransformerThreeWindingMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "THREE WINDING TRANSFORMER", index_col='ID').to_dict("index")],
                     "DistributionTransformerMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "TRANSFORMER", index_col='ID').to_dict("index")],
                     "DistributionTransformerByPhaseMapper": lambda: [used_sections, section_id_sections, read_cyme_data(equipment_file, "TRANSFORMER", index_col='ID').to_dict("index")],
+                    "MatrixImpedanceBranchEquipmentMapper": lambda: [],
                     "MatrixImpedanceBranchMapper": lambda: [used_sections, section_id_sections, cyme_section],
-                    "MatrixImpedanceBranchEquipmenthMapper": lambda: [],
                 }
 
                 args = argument_handler.get(mapper_name, lambda: [])()
@@ -140,8 +152,10 @@ class Reader(AbstractReader):
                         model_entry = mapper.parse(row, *args)
                         return model_entry
 
-                if mapper_name == 'MatrixImpedanceBranchEquipmentMapper':
-                    for phases in range(1,4):
+                if mapper_name in phase_elements:
+                    phases = []
+                    for phase in ['A','B','C']:
+                        phases.append(phase)
                         args = [phases]
                         components = data.apply(parse_row, axis=1)
                         components = [c for c in components if c is not None]
@@ -152,7 +166,6 @@ class Reader(AbstractReader):
                     components = [c for c in components if c is not None]
                     components = [item for c in components for item in (c if isinstance(c, list) else [c])]
                     self.system.add_components(*components)
-
 
         self.system = self.assign_bus_voltages(network_dist_sys=self.system)
 

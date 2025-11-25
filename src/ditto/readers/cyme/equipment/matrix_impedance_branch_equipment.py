@@ -1,4 +1,5 @@
-from gdm.quantities import Distance
+
+from gdm.quantities import Current, Distance, ResistancePULength, Distance, Voltage
 from ditto.readers.cyme.cyme_mapper import CymeMapper
 from gdm.distribution.equipment.matrix_impedance_branch_equipment import MatrixImpedanceBranchEquipment
 from gdm.distribution.enums import Phase
@@ -58,12 +59,14 @@ class MatrixImpedanceBranchEquipmentMapper(CymeMapper):
         r1 = float(row['R1'])
         r0 = float(row['R0'])
         matrix = self._sequence_impedance_to_phase_impedance_matrix(r1, r0, phases)
+        matrix = ResistancePULength(np.array(matrix), "ohm/mile")
         return matrix
 
     def map_x_matrix(self, row, phases):
         x1 = float(row['X1'])
         x0 = float(row['X0'])
         matrix = self._sequence_impedance_to_phase_impedance_matrix(x1, x0, phases)
+        matrix =  ResistancePULength(np.array(matrix), "ohm/mile")
         return matrix
 
     def map_c_matrix(self, row, phases):
@@ -72,7 +75,8 @@ class MatrixImpedanceBranchEquipmentMapper(CymeMapper):
         susceptance_matrix = self._sequence_impedance_to_phase_impedance_matrix(b1, b0, phases)
         # Convert susceptance to capacitance: C = B / (2 * pi * f)
         frequency = 60  # Hz
-        capacitance_matrix = susceptance_matrix / (2 * np.pi * frequency)   
+        capacitance_matrix = susceptance_matrix / (2 * np.pi * frequency)
+        capacitance_matrix =  ResistancePULength(np.array(capacitance_matrix), "farad/mile")
         return capacitance_matrix
 
     def map_ampacity(self, row):

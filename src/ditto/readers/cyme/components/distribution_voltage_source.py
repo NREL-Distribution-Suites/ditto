@@ -18,7 +18,12 @@ class DistributionVoltageSourceMapper(CymeMapper):
         bus = self.map_bus(row)
         feeder = bus.feeder
         substation = bus.substation
-        voltage = float(row['OperatingVoltageA'])
+        if 'OperatingVoltageA' in row:
+            voltage = float(row['OperatingVoltageA'])
+        elif 'DesiredVoltage' in row:
+            voltage = float(row['DesiredVoltage'])
+        else:
+            raise ValueError(f"Operating voltage not found in row: {row}")
 
         if voltage is None or voltage == '':
             return None

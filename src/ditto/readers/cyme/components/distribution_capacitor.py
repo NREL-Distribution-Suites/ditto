@@ -16,7 +16,7 @@ class DistributionCapacitorMapper(CymeMapper):
     def parse(self, row, section_id_sections, equipment_data):
         name = self.map_name(row)
         bus = self.map_bus(row, section_id_sections)
-        phases = self.map_phases(row)
+        phases = self.map_phases(row, section_id_sections)
         controllers = self.map_controllers(row)
         equipment = self.map_equipment(row, equipment_data)
         in_service = self.map_in_service(row)
@@ -30,14 +30,19 @@ class DistributionCapacitorMapper(CymeMapper):
     def map_name(self, row):
         return row["DeviceNumber"]
 
-    def map_phases(self, row):
+    def map_phases(self, row, section_id_sections):
         phases = []
-        if row["FixedKVARA"]:
+        section_id = row['SectionID']
+        section = section_id_sections[section_id]
+        section_phases = section['Phase']
+        if 'FixedKVARA' in row and row["FixedKVARA"] or 'A' in section_phases:
             phases.append(Phase.A)
-        if row["FixedKVARB"]:
+        if 'FixedKVARB' in row and row["FixedKVARB"] or 'B' in section_phases:
             phases.append(Phase.B)
-        if row["FixedKVARC"]:
+        if 'FixedKVARC' in row and row["FixedKVARC"] or 'C' in section_phases:
             phases.append(Phase.C)
+        if phases == []:
+            raise ValueError(f"Could not determine phases for capacitor {row['DeviceNumber']} on section {section_id} with section phases {section_phases}")
         return phases
 
     def map_bus(self, row, section_id_sections):
@@ -69,7 +74,10 @@ class DistributionCapacitorMapper(CymeMapper):
 
     def map_equipment(self, row, equipment_data):
         mapper = CapacitorEquipmentMapper(self.system)
-        equipment_row = equipment_data.loc[row['ShuntCapacitorID']]
+        capacitor_id = row['ShuntCapacitorID']
+        if capacitor_id not in equipment_data.index:
+            capacitor_id = 'DEFAULT'
+        equipment_row = equipment_data.loc[capacitor_id]
         if not equipment_row.empty:
             equipment = mapper.parse(equipment_row, connection=row['Connection'])
             return equipment

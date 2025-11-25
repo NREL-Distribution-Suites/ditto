@@ -17,7 +17,10 @@ class ConcentricCableEquipmentMapper(OpenDSSMapper):
         self.opendss_dict["DiaStrand"] = self.model.strand_diameter.magnitude
 
     def map_conductor_diameter(self):
-        self.opendss_dict["Radius"] = self.model.conductor_diameter.magnitude / 2
+        radius = self.model.conductor_diameter.magnitude / 2
+        if radius <=0:
+            radius = 0.0001
+        self.opendss_dict["Radius"] = radius
         rad_units = str(self.model.conductor_diameter.units)
         if rad_units not in self.length_units_map:
             raise ValueError(f"{rad_units} not mapped for OpenDSS")
@@ -37,7 +40,10 @@ class ConcentricCableEquipmentMapper(OpenDSSMapper):
         self.opendss_dict["NormAmps"] = ampacity_amps.magnitude
 
     def map_conductor_gmr(self):
-        self.opendss_dict["GMRAC"] = self.model.conductor_gmr.magnitude
+        gmr = self.model.conductor_gmr.magnitude
+        if gmr <=0:
+            gmr = 0.0001
+        self.opendss_dict["GMRAC"] = gmr
         gmr_units = str(self.model.conductor_gmr.units)
         if gmr_units not in self.length_units_map:
             raise ValueError(f"{gmr_units} not mapped for OpenDSS")

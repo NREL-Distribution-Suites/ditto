@@ -298,8 +298,10 @@ class GeometryBranchByPhaseEquipmentMapper(CymeMapper):
         phase_A_conductor_name = row['CondID_A']
         phase_B_conductor_name = row['CondID_B']
         phase_C_conductor_name = row['CondID_C']
-        neutral_conductor_name = row['CondID_N1']
-
+        if 'CondID_N1' in row:
+            neutral_conductor_name = row['CondID_N1']
+        else:
+            neutral_conductor_name = row['CondID_N']
         spacing_id = row['SpacingID']
         spacing = spacing_ids.loc[spacing_id]
 
@@ -328,7 +330,10 @@ class GeometryBranchByPhaseEquipmentMapper(CymeMapper):
         phase_A_conductor_name = row['CondID_A']
         phase_B_conductor_name = row['CondID_B']
         phase_C_conductor_name = row['CondID_C']
-        neutral_conductor_name = row['CondID_N1']
+        if 'CondID_N1' in row:
+            neutral_conductor_name = row['CondID_N1']
+        else:
+            neutral_conductor_name = row['CondID_N']    
         spacing_id = row['SpacingID']
         spacing = spacing_ids.loc[spacing_id]
         if not spacing.empty:
@@ -356,7 +361,10 @@ class GeometryBranchByPhaseEquipmentMapper(CymeMapper):
         phase_A_conductor_name = row['CondID_A']
         phase_B_conductor_name = row['CondID_B']
         phase_C_conductor_name = row['CondID_C']
-        neutral_conductor_name = row['CondID_N1']
+        if 'CondID_N1' in row:
+            neutral_conductor_name = row['CondID_N1']
+        else:
+            neutral_conductor_name = row['CondID_N']    
 
         phase_A_conductor = None
         phase_B_conductor = None

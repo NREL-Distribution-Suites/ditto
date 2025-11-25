@@ -29,10 +29,10 @@ def test_serialize_opendss_model(opendss_file: Path, tmp_path):
     example_name = opendss_file.parent.name
 
     # export_path = Path(tmp_path) / example_name
-    export_path = base_path / "dump_from_tests" / example_name
+    export_path = base_path / "dump_from_tests" / "opendss" / example_name
 
     if not export_path.exists():
-        os.mkdir(export_path)
+        os.makedirs(export_path)
     parser = Reader(opendss_file)
     system = parser.get_system()
     json_path = export_path / (opendss_file.stem.lower() + ".json")

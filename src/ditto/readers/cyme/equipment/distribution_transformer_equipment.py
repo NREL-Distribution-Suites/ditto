@@ -203,7 +203,12 @@ class WindingEquipmentMapper(CymeMapper):
             winding = 1
         elif winding_number == 3:
             winding = 1
-        winding_type = self.connection_map.get(int(connection_type), 'Y_Y').split('_')[winding]
+        if isinstance(connection_type, int) or (isinstance(connection_type, str) and connection_type.isdigit()):
+            conn_type_int = int(connection_type)
+            winding_type = self.connection_map.get(conn_type_int, 'Y_Y').split('_')[winding]
+        else:
+            winding_type = str(connection_type)
+
         if 'YNG' in winding_type:
             grounded = False
         elif 'D' in winding_type:
@@ -228,7 +233,7 @@ class WindingEquipmentMapper(CymeMapper):
     def map_voltage_type(self, row, rated_voltage):
         # This is from the CYME documentation but appears to not be entirely correct
         # Clearly L-L voltages still appear with a voltage type of 1
-        if row["VoltageUnit"] == '1' or row["VoltageUnit"] == "3":
+        if 'VoltageUnit' in row and (row["VoltageUnit"] == '1' or row["VoltageUnit"] == "3"):
             return VoltageTypes.LINE_TO_GROUND
         return VoltageTypes.LINE_TO_LINE
 
@@ -254,7 +259,11 @@ class WindingEquipmentMapper(CymeMapper):
             winding = 1
         elif winding_number == 3:
             winding = 1
-        winding_type = self.connection_map.get(int(connection_type), 'Y_Y').split('_')[winding]
+        if isinstance(connection_type, int) or (isinstance(connection_type, str) and connection_type.isdigit()):
+            conn_type_int = int(connection_type)
+            winding_type = self.connection_map.get(conn_type_int, 'Y_Y').split('_')[winding]
+        else:
+            winding_type = str(connection_type)
         if winding_type == 'YO':
             connection_type = 'OPEN_STAR'
         elif winding_type == 'DO':

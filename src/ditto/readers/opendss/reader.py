@@ -39,7 +39,12 @@ class Reader(AbstractReader):
 
     validation_errors = []
 
-    def __init__(self, Opendss_master_file: Path, crs: str | None = None) -> None:
+    def __init__(
+        self,
+        Opendss_master_file: Path,
+        crs: str | None = None,
+        use_split_phase_representation: bool = True,
+    ) -> None:
         """Constructor for the Opendss reader
 
         Args:
@@ -50,7 +55,7 @@ class Reader(AbstractReader):
         self.system = DistributionSystem(auto_add_composed_components=True)
         self.Opendss_master_file = Path(Opendss_master_file)
         self.crs = crs
-        self._read()
+        self._read(use_split_phase_representation)
 
     def _add_components(self, components: list[Component]):
         """Internal method to add components to the system."""
@@ -73,7 +78,7 @@ class Reader(AbstractReader):
 
             self.system.add_components(*components)
 
-    def _read(self):
+    def _read(self, use_split_phase_representation: bool = True):
         """Takes the master file path and returns instance of OpendssParser
 
         Raises:
@@ -157,7 +162,6 @@ class Reader(AbstractReader):
             error_table.add_column("Message", justify="right", style="turquoise2")
 
             for row in self.validation_errors:
-                print(row)
                 error_table.add_row(*row)
 
             console = Console()

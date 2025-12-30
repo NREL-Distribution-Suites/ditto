@@ -27,8 +27,12 @@ class ProfileMapper(OpenDSSMapper):
         else:
             raise ValueError(f"Unsupported model type {self.model.__class__.__name__}")
 
-        if self.metadata[0].user_attributes and "profile_name" in self.metadata[0].user_attributes:
-            profile_name = self.metadata[0].user_attributes["profile_name"]
+        if (
+            self.metadata
+            and self.metadata[0].features
+            and "profile_name" in self.metadata[0].features
+        ):
+            profile_name = self.metadata[0].features["profile_name"]
         else:
             profile_name = str(self.model.uuid)
         self.profile_name = profile_name
@@ -45,7 +49,7 @@ class ProfileMapper(OpenDSSMapper):
             (t - t0).total_seconds() / 3600 for t in self.model.timestamps
         ]
 
-    def map_variable_name(self):
+    def map_name(self):
         self.opendss_dict["Name"] = str(self.profile_name)
 
     def map_normalization(self):
@@ -55,30 +59,21 @@ class ProfileMapper(OpenDSSMapper):
             self.opendss_dict["UseActual"] = True
 
     def map_data(self):
-        if self.metadata[0].user_attributes and "profile_type" in self.metadata[0].user_attributes:
+        if (
+            self.metadata
+            and self.metadata[0].features
+            and "profile_type" in self.metadata[0].features
+        ):
             for profile in self.profile_datasets:
                 metadata = self._get_profile_metadata(profile["profile"].uuid)
-                # units = profile["profile"].data.units
                 data = profile["profile"].data.magnitude.tolist()
-                self.opendss_dict[metadata.user_attributes["profile_type"]] = data
-                self.opendss_dict["UseActual"] = self.metadata[0].user_attributes["use_actual"]
-                # var = metadata.variable_name
-                # variable_value = getattr(self.component, var).to(units).magnitude
-                # if metadata.user_attributes['profile_type'] == "PMult":
-                #     self.opendss_dict["PBase"] = variable_value
-                #     self.opendss_dict["PMax"] = max(data)
-                # else:
-                #     self.opendss_dict["QBase"] = variable_value
-                #     self.opendss_dict["QMax"] = max(data)
-
+                self.opendss_dict[metadata.features["profile_type"]] = data
+                self.opendss_dict["UseActual"] = self.metadata[0].features["use_actual"]
         else:
-            if not len(self.profiles) == 1:
-                msg = "If profile_type not specified for single time series, length of profiles must be 1"
-                raise ValueError(msg)
             self.opendss_dict["PMult"] = self.model.data.magnitude.tolist()
 
     def map_resolution(self):
         self.opendss_dict["Interval"] = self.model.resolution.total_seconds() / 3600
 
-    def map_initial_time(self):
+    def map_initial_timestamp(self):
         ...

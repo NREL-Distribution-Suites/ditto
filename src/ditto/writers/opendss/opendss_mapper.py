@@ -76,16 +76,13 @@ class OpenDSSMapper(ABC):
             profile_data.append(
                 {
                     "profile": profile,
-                    "metadata": self.system.list_time_series_metadata(
-                        component, profile.variable_name
-                    ),
+                    "metadata": self.system.list_time_series_metadata(component, profile.name),
                 }
             )
         if profile_data:
             metadata = profile_data[0]["metadata"]
-
-            if metadata[0].user_attributes and "profile_name" in metadata[0].user_attributes:
-                profile_name = metadata[0].user_attributes["profile_name"]
+            if metadata[0] and "profile_name" in metadata[0].features:
+                profile_name = metadata[0].features["profile_name"]
             else:
                 profile_name = str(self.model.uuid)
 

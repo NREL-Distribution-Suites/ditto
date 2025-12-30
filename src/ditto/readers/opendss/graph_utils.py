@@ -77,8 +77,9 @@ def _get_split_phase_sub_graph(
     )
     hv_xfmr_bus = max(xfmr_buses, key=lambda x: x[1])[0]
     lv_xfmr_bus = min(xfmr_buses, key=lambda x: x[1])[0]
-
+    xfmr.pprint()
     xfmr_info = graph[hv_xfmr_bus][lv_xfmr_bus]
+
     for k in xfmr_info:
         assert (
             xfmr_info[k]["type"] == DistributionTransformer

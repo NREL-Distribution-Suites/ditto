@@ -3,7 +3,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import Any
 
-
+from infrasys import NonSequentialTimeSeries, SingleTimeSeries
 from altdss_schema import altdss_models
 from gdm.distribution.components import (
     DistributionVoltageSource,
@@ -60,7 +60,9 @@ class Writer(AbstractWriter):
         output_path: Path = Path("./"),
         separate_substations: bool = True,
         separate_feeders: bool = True,
+        profile_type: type[NonSequentialTimeSeries | SingleTimeSeries] = SingleTimeSeries,
     ):
+        self.profile_type = profile_type
         base_redirect = set()
         feeders_redirect = defaultdict(set)
         substations_redirect = defaultdict(set)
@@ -74,7 +76,6 @@ class Writer(AbstractWriter):
 
         output_redirect = Path("")
         profiles = self._write_profiles(output_path, seen_profile, output_redirect, base_redirect)
-
         for component_type in component_types:
             # Example component_type is DistributionBus
             components = self.system.get_components(component_type)
@@ -217,7 +218,7 @@ class Writer(AbstractWriter):
         all_profiles = []
         profile_type = None
         for component in self.system.iter_all_components():
-            profiles = self.system.list_time_series(component)
+            profiles = self.system.list_time_series(component, time_series_type=self.profile_type)
             profile_data = []
             for profile in profiles:
                 if profile_type is None:
@@ -233,9 +234,7 @@ class Writer(AbstractWriter):
                 profile_data.append(
                     {
                         "profile": profile,
-                        "metadata": self.system.list_time_series_metadata(
-                            component, profile.variable_name
-                        ),
+                        "metadata": self.system.list_time_series_metadata(component, profile.name),
                     }
                 )
             if profile_data:

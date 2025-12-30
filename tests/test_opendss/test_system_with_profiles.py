@@ -1,6 +1,7 @@
 import glob
 import os
 
+from infrasys import NonSequentialTimeSeries
 from gdm.distribution import DistributionSystem
 from loguru import logger
 
@@ -34,7 +35,8 @@ def test_export_opends_model_with_discontineous_profiles(
     from pathlib import Path
 
     fixed_tmp_path = Path("")
-    distribution_system_with_nonsequential_timeseries.info()
+    # fixed_tmp_path = tmp_path
+
     writer = Writer(distribution_system_with_nonsequential_timeseries)
     csv_files = glob.glob(os.path.join(fixed_tmp_path, "*.dss"))
     for file in csv_files:
@@ -42,7 +44,12 @@ def test_export_opends_model_with_discontineous_profiles(
         logger.debug(f"Deleted: {file}")
 
     assert fixed_tmp_path.exists(), f"Export path: {fixed_tmp_path}"
-    writer.write(fixed_tmp_path, separate_substations=False, separate_feeders=False)
+    writer.write(
+        fixed_tmp_path,
+        separate_substations=False,
+        separate_feeders=False,
+        profile_type=NonSequentialTimeSeries,
+    )
     assert (
         fixed_tmp_path / "LoadShape.dss"
     ).exists(), f"LoadShape.dss file not found in the export path: {fixed_tmp_path}"

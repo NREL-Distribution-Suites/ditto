@@ -1,28 +1,21 @@
 from gdm.quantities import Distance, Current, ResistancePULength
 from gdm.distribution.equipment.bare_conductor_equipment import BareConductorEquipment
-from gdm.distribution.components.base.distribution_component_base import DistributionComponentBase
 from gdm.distribution.distribution_system import DistributionSystem
-from gdm.distribution.components.matrix_impedance_branch import MatrixImpedanceBranch
-from gdm.distribution.equipment.matrix_impedance_branch_equipment import MatrixImpedanceBranchEquipment
 from ditto.readers.reader import AbstractReader
-from ditto.readers.cyme.utils import read_cyme_data
+from ditto.readers.cyme.utils import read_cyme_data, network_truncation
 import ditto.readers.cyme as cyme_mapper
 from loguru import logger
 from pydantic import ValidationError
 from rich.console import Console
 from infrasys import Component
 from rich.table import Table
-from functools import partial
 from collections import defaultdict
 
 
 from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.components import DistributionVoltageSource
-from gdm.distribution.components.distribution_transformer import DistributionTransformer
 from gdm.quantities import Voltage
-from gdm.distribution.enums import VoltageTypes, ConnectionType
-
-from infrasys.exceptions import ISAlreadyAttached
+from gdm.distribution.enums import VoltageTypes
 
 class Reader(AbstractReader):
     # Order of components is important
@@ -51,11 +44,11 @@ class Reader(AbstractReader):
 
     validation_errors = []
 
-    def __init__(self, network_file, equipment_file, load_file, load_model_id = None):
+    def __init__(self, network_file, equipment_file, load_file, load_model_id = None, substation_names=None, feeder_names=None):
         self.system = DistributionSystem(auto_add_composed_components=True)
-        self.read(network_file, equipment_file, load_file, load_model_id)
+        self.read(network_file, equipment_file, load_file, load_model_id, substation_names=substation_names, feeder_names=feeder_names)
 
-    def read(self, network_file, equipment_file, load_file, load_model_id = None):
+    def read(self, network_file, equipment_file, load_file, load_model_id = None, substation_names=None, feeder_names=None):
 
         # Section data read separately as it links to other tables
         section_id_sections = {}
@@ -169,6 +162,9 @@ class Reader(AbstractReader):
 
         self.system = self.assign_bus_voltages(network_dist_sys=self.system)
 
+        if substation_names is not None or feeder_names is not None:
+            self.system = network_truncation(self.system, substation_names=substation_names, feeder_names=feeder_names)
+            print("Finished truncation")
 
         for component_type in self.system.get_component_types():
             components = self.system.get_components(component_type)

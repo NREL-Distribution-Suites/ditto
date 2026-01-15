@@ -59,7 +59,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         voltage = voltage.to("kilovolt")
         rated_voltage = rated_voltage.to("kilovolt")
         angle = angle.to("degree")
-        print(voltage.magnitude, rated_voltage.magnitude, self.model.bus.voltage_type)
+
         if self.model.equipment.sources[0].voltage_type == VoltageTypes.LINE_TO_GROUND:
             if num_phases == 1:
                 v_mag = voltage.magnitude
@@ -84,7 +84,6 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
 
         self.opendss_dict["Angle"] = angle.magnitude
         self.opendss_dict["pu"] = v_mag / v_nom
-        print(v_nom)
         self.opendss_dict["BasekV"] = v_nom
         self.opendss_dict["Z0"] = complex(r0.magnitude, x0.magnitude)
         self.opendss_dict["Z1"] = complex(r1.magnitude, x1.magnitude)

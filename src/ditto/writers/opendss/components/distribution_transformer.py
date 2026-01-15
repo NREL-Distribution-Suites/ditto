@@ -18,7 +18,7 @@ class DistributionTransformerMapper(OpenDSSMapper):
         self.opendss_dict["enabled"] = self.model.in_service
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name
+        self.opendss_dict["Name"] = self.model.name.replace(" ", "_").replace(".", "_")
 
     def map_buses(self):
         buses = []
@@ -28,7 +28,7 @@ class DistributionTransformerMapper(OpenDSSMapper):
         if is_center_tapped:
             for i in range(len(self.model.buses)):
                 bus = self.model.buses[i]
-                buses.append(bus.name)
+                buses.append(bus.name.replace(" ", "_").replace(".", "_"))
             dss_phases = ""
             for phase in self.model.winding_phases[0]:
                 dss_phases += self.phase_map[phase]
@@ -38,7 +38,7 @@ class DistributionTransformerMapper(OpenDSSMapper):
 
         else:
             for bus in self.model.buses:
-                buses.append(bus.name)
+                buses.append(bus.name.replace(" ", "_").replace(".", "_"))
             for winding_phases in self.model.winding_phases:
                 dss_phases = ""
                 for phase in winding_phases:
@@ -55,4 +55,4 @@ class DistributionTransformerMapper(OpenDSSMapper):
 
     def map_equipment(self):
         equipment = self.model.equipment
-        self.opendss_dict["XfmrCode"] = equipment.name
+        self.opendss_dict["XfmrCode"] = equipment.name.replace(" ", "_").replace(".", "_")

@@ -19,10 +19,10 @@ class DistributionCapacitorMapper(OpenDSSMapper):
         self.opendss_dict["enabled"] = self.model.in_service
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name
+        self.opendss_dict["Name"] = self.model.name.replace(" ", "_").replace(".", "_")
 
     def map_bus(self):
-        self.opendss_dict["Bus1"] = self.model.bus.name
+        self.opendss_dict["Bus1"] = self.model.bus.name.replace(" ", "_").replace(".", "_")
         num_phases = len(self.model.phases)
         for phase in self.model.phases:
             self.opendss_dict["Bus1"] += self.phase_map[phase]

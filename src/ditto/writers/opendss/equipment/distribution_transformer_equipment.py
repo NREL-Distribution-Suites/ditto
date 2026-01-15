@@ -15,7 +15,7 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.TRANSFORMERS_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name
+        self.opendss_dict["Name"] = self.model.name.replace(" ", "_").replace(".", "_")
 
     def map_pct_no_load_loss(self):
         self.opendss_dict["pctNoLoadLoss"] = self.model.pct_no_load_loss
@@ -44,6 +44,8 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
             num_phases = winding.num_phases
             # rated_voltage
             nom_voltage = winding.rated_voltage.to("kV").magnitude
+            voltage_type = winding.voltage_type
+            nom_voltage = nom_voltage if voltage_type == "line-to-ground" else nom_voltage / 1.732
             kvs.append(nom_voltage if num_phases == 1 else nom_voltage * 1.732)
             # resistance
             pctRs.append(winding.resistance)

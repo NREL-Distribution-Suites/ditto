@@ -19,14 +19,14 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         self.opendss_dict["enabled"] = self.model.in_service
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name
+        self.opendss_dict["Name"] = self.model.name.replace(" ", "_").replace(".", "_")
 
         profile_name = self.get_profile_name(self.model)
         if profile_name:
             self.opendss_dict["Yearly"] = profile_name
 
     def map_bus(self):
-        self.opendss_dict["Bus1"] = self.model.bus.name
+        self.opendss_dict["Bus1"] = self.model.bus.name.replace(" ", "_").replace(".", "_")
         for phase in self.model.phases:
             self.opendss_dict["Bus1"] += self.phase_map[phase]
 
@@ -59,7 +59,7 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
         voltage = voltage.to("kilovolt")
         rated_voltage = rated_voltage.to("kilovolt")
         angle = angle.to("degree")
-
+        print(voltage.magnitude, rated_voltage.magnitude, self.model.bus.voltage_type)
         if self.model.equipment.sources[0].voltage_type == VoltageTypes.LINE_TO_GROUND:
             if num_phases == 1:
                 v_mag = voltage.magnitude
@@ -71,9 +71,20 @@ class DistributionVoltageSourceMapper(OpenDSSMapper):
             else:
                 v_mag = voltage.magnitude
 
-        v_nom = rated_voltage.magnitude if num_phases == 1 else rated_voltage.magnitude * 1.732
+        if self.model.bus.voltage_type == VoltageTypes.LINE_TO_GROUND:
+            if num_phases == 1:
+                v_nom = rated_voltage.magnitude
+            else:
+                v_nom = rated_voltage.magnitude * 1.732
+        else:
+            if num_phases == 1:
+                v_nom = rated_voltage.magnitude / 1.732
+            else:
+                v_nom = rated_voltage.magnitude
+
         self.opendss_dict["Angle"] = angle.magnitude
         self.opendss_dict["pu"] = v_mag / v_nom
+        print(v_nom)
         self.opendss_dict["BasekV"] = v_nom
         self.opendss_dict["Z0"] = complex(r0.magnitude, x0.magnitude)
         self.opendss_dict["Z1"] = complex(r1.magnitude, x1.magnitude)

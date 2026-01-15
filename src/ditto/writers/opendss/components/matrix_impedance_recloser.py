@@ -6,7 +6,7 @@ from ditto.writers.opendss.components.distribution_branch import DistributionBra
 from ditto.enumerations import OpenDSSFileTypes
 
 
-class MatrixImpedanceSwitchMapper(DistributionBranchMapper):
+class MatrixImpedanceRecloserMapper(DistributionBranchMapper):
     def __init__(self, model: Component, system: DistributionSystem):
         super().__init__(model, system)
 
@@ -25,3 +25,6 @@ class MatrixImpedanceSwitchMapper(DistributionBranchMapper):
 
     def map_in_service(self):
         self.opendss_dict["enabled"] = self.model.in_service
+
+    def map_controller(self):
+        pass

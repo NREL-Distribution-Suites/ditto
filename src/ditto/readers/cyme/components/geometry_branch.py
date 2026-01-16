@@ -6,56 +6,55 @@ from gdm.distribution.components.distribution_bus import DistributionBus
 from gdm.distribution.enums import Phase
 
 
-
 class GeometryBranchMapper(CymeMapper):
     def __init__(self, system):
         super().__init__(system)
 
-    cyme_file = 'Network'
-    cyme_section = 'OVERHEADLINE SETTING'
+    cyme_file = "Network"
+    cyme_section = "OVERHEADLINE SETTING"
 
     def parse(self, row, used_sections, section_id_sections):
         name = self.map_name(row)
-        buses = self.map_buses(row,section_id_sections)
+        buses = self.map_buses(row, section_id_sections)
         length = self.map_length(row)
         equipment = self.map_equipment(row)
         phases = self.map_phases(row, section_id_sections, equipment, buses)
 
         used_sections.add(name)
-        return GeometryBranch.model_construct(name=name,
-                            buses=buses,
-                            length=length,
-                            phases=phases,
-                            equipment=equipment)
+        return GeometryBranch.model_construct(
+            name=name, buses=buses, length=length, phases=phases, equipment=equipment
+        )
 
     def map_name(self, row):
-        name = row['SectionID']
+        name = row["SectionID"]
         return name
 
     def map_buses(self, row, section_id_sections):
-        section_id = str(row['SectionID'])
+        section_id = str(row["SectionID"])
         section = section_id_sections[section_id]
-        from_bus_name = section['FromNodeID']
-        to_bus_name = section['ToNodeID']
-        
+        from_bus_name = section["FromNodeID"]
+        to_bus_name = section["ToNodeID"]
+
         from_bus = self.system.get_component(component_type=DistributionBus, name=from_bus_name)
         to_bus = self.system.get_component(component_type=DistributionBus, name=to_bus_name)
         return [from_bus, to_bus]
 
     def map_length(self, row):
-        length = Distance(float(row['Length']),'foot').to('km')
+        length = Distance(float(row["Length"]), "foot").to("km")
+        if length <= 0:
+            length = Distance(0.001, "km")
         return length
 
     def map_phases(self, row, section_id_sections, equipment, buses):
-        section_id = str(row['SectionID'])
+        section_id = str(row["SectionID"])
         section = section_id_sections[section_id]
-        phase = section['Phase']
+        phase = section["Phase"]
         phases = []
-        if 'A' in phase:
+        if "A" in phase:
             phases.append(Phase.A)
-        if 'B' in phase:
+        if "B" in phase:
             phases.append(Phase.B)
-        if 'C' in phase:
+        if "C" in phase:
             phases.append(Phase.C)
 
         if len(phases) == len(equipment.conductors):
@@ -68,65 +67,63 @@ class GeometryBranchMapper(CymeMapper):
             return phases
         else:
             return phases
-            #raise ValueError(f"Number of phases {len(phases)} does not match number of conductors {len(equipment.conductors)} for line {row['SectionID']}")
+            # raise ValueError(f"Number of phases {len(phases)} does not match number of conductors {len(equipment.conductors)} for line {row['SectionID']}")
 
     def map_equipment(self, row):
-        line_id = row['LineCableID']
+        line_id = row["LineCableID"]
         line = self.system.get_component(component_type=GeometryBranchEquipment, name=line_id)
         return line
-    
+
+
 class GeometryBranchByPhaseMapper(CymeMapper):
     def __init__(self, system):
         super().__init__(system)
 
-    cyme_file = 'Network'
-    cyme_section = 'OVERHEAD BYPHASE SETTING'
+    cyme_file = "Network"
+    cyme_section = "OVERHEAD BYPHASE SETTING"
 
     def parse(self, row, used_sections, section_id_sections):
         name = self.map_name(row)
-        buses = self.map_buses(row,section_id_sections)
+        buses = self.map_buses(row, section_id_sections)
         length = self.map_length(row)
         equipment = self.map_equipment(row)
         phases = self.map_phases(row, section_id_sections, equipment, buses)
 
         used_sections.add(name)
-        return GeometryBranch.model_construct(name=name,
-                            buses=buses,
-                            length=length,
-                            phases=phases,
-                            equipment=equipment)
-
+        return GeometryBranch.model_construct(
+            name=name, buses=buses, length=length, phases=phases, equipment=equipment
+        )
 
     def map_name(self, row):
-        name = row['SectionID']
+        name = row["SectionID"]
         return name
 
     def map_buses(self, row, section_id_sections):
-        section_id = str(row['SectionID'])
+        section_id = str(row["SectionID"])
         section = section_id_sections[section_id]
-        from_bus_name = section['FromNodeID']
-        to_bus_name = section['ToNodeID']
-        
+        from_bus_name = section["FromNodeID"]
+        to_bus_name = section["ToNodeID"]
+
         from_bus = self.system.get_component(component_type=DistributionBus, name=from_bus_name)
         to_bus = self.system.get_component(component_type=DistributionBus, name=to_bus_name)
         return [from_bus, to_bus]
 
     def map_length(self, row):
-        length = Distance(float(row['Length']),'foot').to('km')
+        length = Distance(float(row["Length"]), "foot").to("km")
         return length
 
     def map_phases(self, row, section_id_sections, equipment, buses):
-        section_id = str(row['SectionID'])
+        section_id = str(row["SectionID"])
         section = section_id_sections[section_id]
-        phase = section['Phase']
+        phase = section["Phase"]
         phases = []
-        if 'A' in phase:
+        if "A" in phase:
             phases.append(Phase.A)
-        if 'B' in phase:
+        if "B" in phase:
             phases.append(Phase.B)
-        if 'C' in phase:
+        if "C" in phase:
             phases.append(Phase.C)
-        
+
         if len(phases) == len(equipment.conductors):
             return phases
         elif len(phase) == len(equipment.conductors) - 1:
@@ -138,7 +135,6 @@ class GeometryBranchByPhaseMapper(CymeMapper):
         return phases
 
     def map_equipment(self, row):
-        line_id = row['SectionID']
+        line_id = row["SectionID"]
         line = self.system.get_component(component_type=GeometryBranchEquipment, name=line_id)
         return line
-

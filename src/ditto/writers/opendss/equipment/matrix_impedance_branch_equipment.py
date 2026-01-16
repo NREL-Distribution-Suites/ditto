@@ -27,24 +27,24 @@ class MatrixImpedanceBranchEquipmentMapper(OpenDSSMapper):
     def map_r_matrix(self):
         r_matrix_ohms = self.model.r_matrix.to("ohm/km")
         assert (
-            r_matrix_ohms.magnitude - r_matrix_ohms.T.magnitude
-        ).max() < 1e-6, "RMatrix must be symmetric"
+            abs(r_matrix_ohms.magnitude - r_matrix_ohms.T.magnitude).max() < 1e-6
+        ), "RMatrix must be symmetric"
         r_matrix_ohms = (r_matrix_ohms.magnitude + r_matrix_ohms.T.magnitude) / 2
         self.opendss_dict["RMatrix"] = r_matrix_ohms
 
     def map_x_matrix(self):
         x_matrix_ohms = self.model.x_matrix.to("ohm/km")
         assert (
-            x_matrix_ohms.magnitude - x_matrix_ohms.T.magnitude
-        ).max() < 1e-6, "XMatrix must be symmetric"
+            abs(x_matrix_ohms.magnitude - x_matrix_ohms.T.magnitude).max() < 1e-6
+        ), "XMatrix must be symmetric"
         x_matrix_ohms = (x_matrix_ohms.magnitude + x_matrix_ohms.T.magnitude) / 2
         self.opendss_dict["XMatrix"] = x_matrix_ohms
 
     def map_c_matrix(self):
         c_matrix_nf = self.model.c_matrix.to("nanofarad/km")
         assert (
-            c_matrix_nf.magnitude - c_matrix_nf.T.magnitude
-        ).max() < 1e-6, "CMatrix must be symmetric"
+            abs(c_matrix_nf.magnitude - c_matrix_nf.T.magnitude).max() < 1e-6
+        ), "CMatrix must be symmetric"
         c_matrix_nf = (c_matrix_nf.magnitude + c_matrix_nf.T.magnitude) / 2
         self.opendss_dict["CMatrix"] = c_matrix_nf
 

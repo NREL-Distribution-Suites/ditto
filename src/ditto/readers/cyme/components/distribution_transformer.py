@@ -148,14 +148,15 @@ class DistributionTransformerByPhaseMapper(CymeMapper):
             )
             equipment_row = {"Type": 2}
         windings_list = []
-        num_windings = 3
+
         # TODO Center tapped/Split phase not supported
         # This will assign it properly but handling of buses needs to be developed
+        # num_windings = 3
         # if equipment_row['Type'] == "4":
         #    num_windings = 3
         # else:
         #    num_windings = 2
-        # num_windings = 2
+        num_windings = 2
         for i in range(num_windings):
             winding_phases = []
             if "1" == phase:

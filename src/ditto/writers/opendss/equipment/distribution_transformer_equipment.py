@@ -45,14 +45,19 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
             # rated_voltage
             nom_voltage = winding.rated_voltage.to("kV").magnitude
             voltage_type = winding.voltage_type
+            connection_type = winding.connection_type
             nom_voltage = nom_voltage if voltage_type == "line-to-ground" else nom_voltage / 1.732
-            kvs.append(nom_voltage if num_phases == 1 else nom_voltage * 1.732)
+            kvs.append(
+                nom_voltage
+                if num_phases == 1 and connection_type != "DELTA"
+                else nom_voltage * 1.732
+            )
             # resistance
             pctRs.append(winding.resistance)
             # rated_power
             kVAs.append(winding.rated_power.to("kva").magnitude)
             # connection_type
-            conns.append(self.connection_map[winding.connection_type])
+            conns.append(self.connection_map[connection_type])
             # TODO: num_phases and is_grounded aren't included
             if self.model.is_center_tapped and i == len(self.model.windings):
                 kvs.append(nom_voltage)

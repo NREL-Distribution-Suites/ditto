@@ -23,9 +23,10 @@ classifiers = [
 ]
 dependencies = [
   "opendssdirect.py",
-  "grid-data-models==2.2.0",
+  "grid-data-models==2.2.1",
   "rdflib",
   "NREL-altdss-schema==0.0.2",
+  "typer"
 ]
 
 [project.urls]
@@ -46,7 +47,8 @@ doc = [
   ]
 dev = [
   "pytest",
-  "ruff"
+  "ruff",
+  "typer"
 ]
 
 [tool.pytest.ini_options]
@@ -109,3 +111,7 @@ packages = ["src/ditto"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src/ditto"]
+
+[project.scripts]
+ditto_cli = "ditto.cli:app"
+

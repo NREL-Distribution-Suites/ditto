@@ -15,7 +15,7 @@ class DistributionTransformerEquipmentMapper(OpenDSSMapper):
     opendss_file = OpenDSSFileTypes.TRANSFORMERS_FILE.value
 
     def map_name(self):
-        self.opendss_dict["Name"] = self.model.name.replace(" ", "_").replace(".", "_")
+        self.opendss_dict["Name"] = self.get_opendss_safe_name(self.model.name)
 
     def map_pct_no_load_loss(self):
         self.opendss_dict["pctNoLoadLoss"] = self.model.pct_no_load_loss

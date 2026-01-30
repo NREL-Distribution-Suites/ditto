@@ -15,9 +15,7 @@ class MatrixImpedanceRecloserMapper(DistributionBranchMapper):
     opendss_file = OpenDSSFileTypes.SWITCH_FILE.value
 
     def map_equipment(self):
-        self.opendss_dict["LineCode"] = self.model.equipment.name.replace(" ", "_").replace(
-            ".", "_"
-        )
+        self.opendss_dict["LineCode"] = self.get_opendss_safe_name(self.model.equipment.name)
 
     def map_is_closed(self):
         # Require every phase to be enabled for the OpenDSS line to be enabled.
